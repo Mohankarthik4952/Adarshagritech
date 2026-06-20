@@ -1,0 +1,222 @@
+import { useEffect, useState } from "react";
+import {
+  FaRupeeSign,
+  FaShoppingCart,
+  FaFileInvoice,
+  FaExchangeAlt,
+} from "react-icons/fa";
+import Greeting from "../components/Greeting";
+import "./dealerpages.css";
+
+const Home = () => {
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [recentTransactions, setRecentTransactions] = useState([]);
+
+  const [pendingBills, setPendingBills] = useState(0);
+  const [orderCount, setOrderCount] = useState(0);
+  const [totalPaidAmount, setTotalPaidAmount] = useState(0);
+  const [invoiceCount, setInvoiceCount] = useState(0);
+
+  const [dealerName, setDealerName] = useState("Dealer");
+
+  /* =========================
+     LOAD DEALER NAME
+  ========================= */
+
+  useEffect(() => {
+    try {
+      const dealerData =
+        localStorage.getItem("dealerAuth") ||
+        localStorage.getItem("dealer") ||
+        localStorage.getItem("user");
+
+      if (dealerData) {
+        const dealer = JSON.parse(dealerData);
+
+        const name =
+          dealer?.name ||
+          dealer?.dealerName ||
+          dealer?.fullName ||
+          dealer?.user?.name ||
+          dealer?.user?.dealerName ||
+          "Dealer";
+
+        setDealerName(name);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  /* =========================
+     FETCH DASHBOARD
+  ========================= */
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const token =
+          localStorage.getItem("dealerToken") || localStorage.getItem("token");
+
+        const response = await fetch(
+          "http://localhost:5000/api/dealer/dashboard/summary",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        const data = await response.json();
+
+        console.log("DASHBOARD DATA:", data);
+
+        if (data.success) {
+          setPendingBills(data.pendingBills || 0);
+
+          setOrderCount(data.orders || 0);
+
+          setTotalPaidAmount(data.totalPaidAmount || 0);
+
+          setInvoiceCount(data.invoices || 0);
+
+          setRecentOrders(data.recentOrders || []);
+
+          setRecentTransactions(data.recentTransactions || []);
+        }
+      } catch (error) {
+        console.error("Dashboard fetch error:", error);
+      }
+    };
+
+    fetchDashboard();
+  }, []);
+
+  return (
+    <div className="dealer-home-page">
+      <div className="dealer-welcome-card">
+        <Greeting name={dealerName} />
+        <p>Welcome to your dealer dashboard.</p>
+      </div>
+
+      {/* STATS */}
+
+      <div className="dealer-stats-grid">
+        <div className="dealer-stat-card">
+          <div className="dealer-stat-icon red">
+            <FaRupeeSign />
+          </div>
+
+          <div className="dealer-stat-content">
+            <h3>Pending Bills</h3>
+            <h2>₹{Number(pendingBills).toFixed(2)}</h2>
+          </div>
+        </div>
+
+        <div className="dealer-stat-card">
+          <div className="dealer-stat-icon blue">
+            <FaShoppingCart />
+          </div>
+
+          <div className="dealer-stat-content">
+            <h3>Total Orders</h3>
+            <h2>{orderCount}</h2>
+          </div>
+        </div>
+
+        <div className="dealer-stat-card">
+          <div className="dealer-stat-icon green">
+            <FaExchangeAlt />
+          </div>
+
+          <div className="dealer-stat-content">
+            <h3>Total Amount Paid</h3>
+
+            <h2>₹{Number(totalPaidAmount).toFixed(2)}</h2>
+          </div>
+        </div>
+
+        <div className="dealer-stat-card">
+          <div className="dealer-stat-icon purple">
+            <FaFileInvoice />
+          </div>
+
+          <div className="dealer-stat-content">
+            <h3>Invoices</h3>
+            <h2>{invoiceCount}</h2>
+          </div>
+        </div>
+      </div>
+
+      {/* RECENT ORDERS */}
+
+      <div className="dealer-section-card">
+        <h2>📦 Recent Orders</h2>
+
+        {recentOrders.length === 0 ? (
+          <p>No orders yet.</p>
+        ) : (
+          <div className="table-wrapper">
+            <table className="dealer-table">
+              <thead>
+                <tr>
+                  <th>Order No</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {recentOrders.map((order) => (
+                  <tr key={order._id}>
+                    <td>{order.orderNo}</td>
+
+                    <td>₹{Number(order.totalAmount || 0).toFixed(2)}</td>
+
+                    <td>{order.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* RECENT TRANSACTIONS */}
+
+      <div className="dealer-section-card">
+        <h2>💳 Recent Transactions</h2>
+
+        {recentTransactions.length === 0 ? (
+          <p>No transactions yet.</p>
+        ) : (
+          <div className="table-wrapper">
+            <table className="dealer-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {recentTransactions.map((tx) => (
+                  <tr key={tx._id}>
+                    <td>{new Date(tx.createdAt).toLocaleDateString()}</td>
+
+                    <td>₹{Number(tx.amount || 0).toFixed(2)}</td>
+
+                    <td>{tx.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Home;

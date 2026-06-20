@@ -1,0 +1,796 @@
+/* =========================================
+   ROOT LAYOUT
+========================================= */
+
+.dealer-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #eef2f7;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.dealer-header {
+  height: 80px;
+  flex-shrink: 0;
+}
+
+/* =========================================
+   BODY
+========================================= */
+
+.dealer-body {
+  flex: 1;
+
+  display: flex;
+
+  align-items: stretch;
+
+  min-height: calc(100vh - 80px);
+}
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+.dealer-sidebar {
+  width: 270px;
+  min-width: 270px;
+
+  background: linear-gradient(180deg, #081224 0%, #1a2942 100%);
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 24px 14px;
+
+  box-shadow: 4px 0 18px rgba(0, 0, 0, 0.12);
+
+  flex-shrink: 0;
+}
+
+/* =========================================
+   SIDEBAR TOP
+========================================= */
+
+.dealer-sidebar-top {
+  margin-bottom: 28px;
+}
+
+.dealer-sidebar-top h2 {
+  color: white;
+
+  font-size: 35px;
+
+  font-weight: 800;
+
+  line-height: 1.3;
+}
+
+/* =========================================
+   MENU
+========================================= */
+
+.dealer-menu {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+/* =========================================
+   MENU LINKS
+========================================= */
+
+.dealer-menu a {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 16px 18px;
+
+  border-radius: 16px;
+
+  text-decoration: none;
+
+  color: white;
+
+  font-size: 18px;
+
+  font-weight: 600;
+
+  transition: 0.3s ease;
+}
+
+.dealer-menu a svg {
+  font-size: 20px;
+
+  min-width: 20px;
+}
+
+.dealer-menu a:hover {
+  background: rgba(255, 255, 255, 0.08);
+
+  transform: translateX(4px);
+}
+
+.dealer-menu a.active {
+  background: linear-gradient(135deg, #13c38b, #27d69f);
+
+  color: white;
+
+  box-shadow: 0 10px 24px rgba(19, 195, 139, 0.28);
+}
+
+/* =========================================
+   MAIN CONTENT AREA
+========================================= */
+
+.dealer-content {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 28px;
+
+  overflow-x: hidden;
+}
+
+/* =========================================
+   HOME PAGE
+========================================= */
+
+.dealer-home-page {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 24px;
+}
+
+/* =========================================
+   WELCOME CARD
+========================================= */
+
+.dealer-welcome-card {
+  background: white;
+
+  border-radius: 24px;
+
+  padding: 30px;
+
+  border: 1px solid #dbe3ef;
+
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+.dealer-welcome-card h1 {
+  font-size: 42px;
+
+  font-weight: 800;
+
+  color: #081c3a;
+
+  margin-bottom: 10px;
+}
+
+.dealer-welcome-card p {
+  font-size: 18px;
+
+  color: #667085;
+}
+
+/* =========================================
+   STATS GRID
+========================================= */
+
+.dealer-stats-grid {
+  display: grid;
+
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+
+  gap: 22px;
+}
+
+/* =========================================
+   STAT CARD
+========================================= */
+
+.dealer-stat-card {
+  background: white;
+
+  border-radius: 24px;
+
+  padding: 24px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 18px;
+
+  border: 1px solid #dbe3ef;
+
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+
+  transition: 0.3s ease;
+}
+
+.dealer-stat-card:hover {
+  transform: translateY(-5px);
+
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================================
+   ICON
+========================================= */
+
+.dealer-stat-icon {
+  width: 72px;
+  height: 72px;
+
+  border-radius: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 30px;
+
+  color: white;
+
+  flex-shrink: 0;
+}
+
+.dealer-stat-icon.red {
+  background: linear-gradient(135deg, #ff3b30, #ff6b61);
+}
+
+.dealer-stat-icon.blue {
+  background: linear-gradient(135deg, #2563eb, #4f8cff);
+}
+
+.dealer-stat-icon.green {
+  background: linear-gradient(135deg, #10b981, #33d69f);
+}
+
+.dealer-stat-icon.purple {
+  background: linear-gradient(135deg, #7c3aed, #9f67ff);
+}
+
+/* =========================================
+   STAT TEXT
+========================================= */
+
+.dealer-stat-content h3 {
+  font-size: 17px;
+
+  color: #667085;
+
+  margin-bottom: 6px;
+}
+
+.dealer-stat-content h2 {
+  font-size: 38px;
+
+  font-weight: 800;
+
+  color: #081c3a;
+}
+
+/* =========================================
+   SECTION CARD
+========================================= */
+
+/* =========================================
+   MOBILE TOGGLE BUTTON
+========================================= */
+
+.dealer-mobile-toggle {
+  display: none;
+
+  position: fixed;
+  top: 16px;
+  left: 16px;
+
+  width: 46px;
+  height: 46px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: #081224;
+
+  color: white;
+
+  font-size: 20px;
+
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  z-index: 1400;
+
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+.dealer-sidebar {
+  width: 280px;
+  min-width: 280px;
+  height: 100vh;
+
+  background: linear-gradient(180deg, #021024 0%, #172b4d 100%);
+
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 28px 14px;
+
+  position: sticky;
+  top: 0;
+
+  overflow-y: auto;
+
+  transition: all 0.3s ease;
+
+  z-index: 1300;
+}
+
+/* =========================================
+   TITLE
+========================================= */
+
+.dealer-sidebar-top {
+  padding: 0 14px 28px;
+}
+
+.dealer-sidebar-top h2 {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: white;
+}
+
+/* =========================================
+   MENU
+========================================= */
+
+.dealer-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* =========================================
+   LINKS
+========================================= */
+
+.dealer-link {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 16px 18px;
+
+  border-radius: 16px;
+
+  color: #f1f5f9;
+
+  text-decoration: none;
+
+  font-size: 18px;
+  font-weight: 600;
+
+  transition: 0.3s ease;
+}
+
+.dealer-link svg {
+  font-size: 20px;
+  min-width: 20px;
+}
+
+/* HOVER */
+
+.dealer-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+
+  transform: translateX(4px);
+}
+
+/* ACTIVE */
+
+.dealer-link.active {
+  background: linear-gradient(90deg, #10b981, #34d399);
+
+  color: white;
+
+  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.35);
+}
+
+/* =========================================
+   PAGE CONTENT
+========================================= */
+
+.dealer-page-content {
+  flex: 1;
+  padding: 28px;
+  min-width: 0;
+}
+
+/* =========================================
+   OVERLAY
+========================================= */
+
+.dealer-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  z-index: 1200;
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 992px) {
+  .dealer-sidebar {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 280px;
+    min-width: 280px;
+
+    transform: translateX(-100%);
+
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+  }
+
+  .dealer-sidebar.dealer-sidebar-open {
+    transform: translateX(0);
+  }
+
+  .dealer-mobile-toggle {
+    display: flex;
+  }
+
+  .dealer-page-content {
+    width: 100%;
+    padding: 20px;
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 576px) {
+  .dealer-sidebar {
+    width: 260px;
+    min-width: 260px;
+
+    padding: 24px 12px;
+  }
+
+  .dealer-sidebar-top h2 {
+    font-size: 28px;
+  }
+
+  .dealer-link {
+    font-size: 16px;
+
+    padding: 14px 16px;
+  }
+
+  .dealer-link svg {
+    font-size: 18px;
+  }
+
+  .dealer-page-content {
+    padding: 16px;
+  }
+
+  .dealer-mobile-toggle {
+    width: 42px;
+    height: 42px;
+
+    font-size: 18px;
+  }
+}
+
+.dealer-section-card {
+  background: white;
+
+  border-radius: 24px;
+
+  padding: 28px;
+
+  border: 1px solid #dbe3ef;
+
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+.dealer-section-card h2 {
+  font-size: 32px;
+
+  font-weight: 800;
+
+  color: #081c3a;
+
+  margin-bottom: 18px;
+}
+
+.dealer-section-card p {
+  font-size: 18px;
+
+  color: #667085;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+footer {
+  margin-top: auto;
+}
+
+/* =========================================
+   RESPONSIVE TABLET
+========================================= */
+
+@media (max-width: 992px) {
+  .dealer-sidebar {
+    width: 90px;
+    min-width: 90px;
+  }
+
+  .dealer-sidebar-top h2 {
+    display: none;
+  }
+
+  .dealer-menu a span {
+    display: none;
+  }
+
+  .dealer-menu a {
+    justify-content: center;
+  }
+
+  .dealer-content {
+    padding: 22px;
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 768px) {
+  .dealer-body {
+    flex-direction: column;
+  }
+
+  .dealer-sidebar {
+    width: 100%;
+    min-width: 100%;
+
+    flex-direction: row;
+
+    overflow-x: auto;
+
+    padding: 12px;
+  }
+
+  .dealer-sidebar-top {
+    display: none;
+  }
+
+  .dealer-menu {
+    flex-direction: row;
+
+    width: 100%;
+  }
+
+  .dealer-menu a {
+    white-space: nowrap;
+
+    font-size: 16px;
+
+    padding: 14px 16px;
+  }
+
+  .dealer-content {
+    padding: 16px;
+  }
+
+  .dealer-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dealer-welcome-card h1 {
+    font-size: 32px;
+  }
+
+  .dealer-section-card h2 {
+    font-size: 26px;
+  }
+}
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+
+.dealer-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #eef2f7;
+}
+
+/* =========================
+   BODY AREA
+========================= */
+
+.dealer-main-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.dealer-sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: linear-gradient(180deg, #021024 0%, #172b4d 100%);
+  color: white;
+  padding: 30px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TITLE */
+
+.dealer-sidebar-top {
+  padding: 0 28px 30px;
+}
+
+.dealer-sidebar-top h2 {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: white;
+}
+
+/* MENU */
+
+.dealer-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 14px;
+}
+
+/* LINKS */
+
+.dealer-menu a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  color: #f1f5f9;
+  text-decoration: none;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.dealer-menu a svg {
+  font-size: 20px;
+}
+
+/* HOVER */
+
+.dealer-menu a:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ACTIVE */
+
+.dealer-menu a.active {
+  background: linear-gradient(90deg, #10b981, #34d399);
+  color: white;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+}
+
+/* =========================
+   PAGE CONTENT
+========================= */
+
+.dealer-page-content {
+  flex: 1;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* =========================
+   DASHBOARD CONTENT FIX
+========================= */
+
+.dealer-dashboard {
+  width: 100%;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 992px) {
+  .dealer-main-wrapper {
+    flex-direction: column;
+  }
+
+  .dealer-sidebar {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .dealer-page-content {
+    padding: 18px;
+  }
+
+  .dealer-sidebar-top h2 {
+    font-size: 24px;
+  }
+
+  .dealer-menu a {
+    font-size: 16px;
+    padding: 14px 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .dealer-page-content {
+    padding: 14px;
+  }
+
+  .dealer-sidebar-top {
+    padding: 0 18px 20px;
+  }
+
+  .dealer-sidebar-top h2 {
+    font-size: 22px;
+  }
+
+  .dealer-menu {
+    padding: 0 10px;
+  }
+
+  .dealer-menu a {
+    gap: 10px;
+    font-size: 15px;
+  }
+}

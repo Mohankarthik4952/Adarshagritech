@@ -1,0 +1,357 @@
+/* =========================
+   DASHBOARD FOOTER
+========================= */
+
+.dashboard-footer {
+  width: 100%;
+
+  background: #ffffff;
+
+  border-top: 1px solid #ddd;
+
+  margin-top: auto;
+
+  overflow-x: hidden;
+
+  flex-shrink: 0;
+}
+
+/* =========================
+   CONTAINER
+========================= */
+
+.dashboard-footer-container {
+  width: 100%;
+  max-width: 1400px;
+
+  margin: auto;
+
+  padding: 22px 20px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 18px;
+
+  text-align: center;
+}
+
+/* =========================
+   SOCIAL ICONS
+========================= */
+
+.dashboard-footer-icons {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 30px;
+
+  flex-wrap: wrap;
+}
+
+/* =========================
+   ICON
+========================= */
+
+.dashboard-icon {
+  display: flex;
+
+  align-items: center;
+  gap: 10px;
+
+  text-decoration: none;
+
+  font-size: 17px;
+  font-weight: 500;
+
+  transition: 0.3s ease;
+}
+
+/* HOVER */
+
+.dashboard-icon:hover {
+  transform: translateY(-3px);
+}
+
+/* SVG */
+
+.dashboard-icon svg {
+  font-size: 30px;
+}
+
+/* COLORS */
+
+.whatsapp {
+  color: #25d366;
+}
+
+.youtube {
+  color: #ff0000;
+}
+
+.instagram {
+  color: #e1306c;
+}
+
+/* =========================
+   TERMS
+========================= */
+
+.dashboard-footer-terms {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 18px;
+
+  flex-wrap: wrap;
+}
+
+/* TERMS TEXT */
+
+.dashboard-footer-terms p {
+  cursor: pointer;
+
+  color: #333;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  transition: 0.3s;
+}
+
+.dashboard-footer-terms p:hover {
+  color: #20b486;
+}
+
+/* DOWNLOAD */
+
+.dashboard-footer-terms a {
+  text-decoration: none;
+
+  color: #20b486;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  transition: 0.3s;
+}
+
+.dashboard-footer-terms a:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   COPYRIGHT
+========================= */
+
+.dashboard-footer-text {
+  color: #666;
+
+  font-size: 14px;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.dashboard-modal {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.6);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  z-index: 9999;
+}
+
+/* =========================
+   MODAL CONTENT
+========================= */
+
+.dashboard-modal-content {
+  position: relative;
+
+  width: 100%;
+  max-width: 1000px;
+
+  height: 90vh;
+
+  background: white;
+
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  animation: modalOpen 0.3s ease;
+}
+
+/* =========================
+   ANIMATION
+========================= */
+
+@keyframes modalOpen {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* =========================
+   CLOSE BUTTON
+========================= */
+
+.dashboard-close-btn {
+  position: absolute;
+
+  top: 12px;
+  right: 12px;
+
+  width: 38px;
+  height: 38px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #ff4d4d;
+
+  color: white;
+
+  font-size: 18px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  z-index: 10;
+
+  transition: 0.3s;
+}
+
+.dashboard-close-btn:hover {
+  background: #e60000;
+  transform: rotate(90deg);
+}
+
+/* =========================
+   PDF
+========================= */
+
+.dashboard-modal-content iframe {
+  width: 100%;
+  height: 100%;
+
+  border: none;
+}
+
+/* =========================
+   TABLETS
+========================= */
+
+@media (max-width: 992px) {
+  .dashboard-footer-icons {
+    gap: 22px;
+  }
+
+  .dashboard-icon {
+    font-size: 15px;
+  }
+
+  .dashboard-icon svg {
+    font-size: 26px;
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px) {
+  /* FOOTER */
+
+  .dashboard-footer-container {
+    padding: 20px 14px;
+    gap: 16px;
+  }
+
+  /* ICONS */
+
+  .dashboard-footer-icons {
+    gap: 18px;
+  }
+
+  .dashboard-icon {
+    font-size: 14px;
+  }
+
+  .dashboard-icon svg {
+    font-size: 24px;
+  }
+
+  /* TERMS */
+
+  .dashboard-footer-terms {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* COPYRIGHT */
+
+  .dashboard-footer-text {
+    font-size: 13px;
+  }
+
+  /* MODAL */
+
+  .dashboard-modal-content {
+    height: 80vh;
+  }
+
+  .dashboard-close-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+  }
+}
+
+/* =========================
+   SMALL MOBILE
+========================= */
+
+@media (max-width: 480px) {
+  .dashboard-footer-icons {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .dashboard-icon {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dashboard-modal {
+    padding: 10px;
+  }
+
+  .dashboard-modal-content {
+    height: 75vh;
+    border-radius: 10px;
+  }
+}
