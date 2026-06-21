@@ -1,357 +1,257 @@
-/* =========================
-   DASHBOARD FOOTER
-========================= */
+/* ===================================
+   FOOTER WRAPPER
+=================================== */
 
 .dashboard-footer {
   width: 100%;
-
-  background: #ffffff;
-
-  border-top: 1px solid #ddd;
-
   margin-top: auto;
-
-  overflow-x: hidden;
-
-  flex-shrink: 0;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  padding: 20px 24px;
+  box-sizing: border-box;
 }
 
-/* =========================
+/* ===================================
    CONTAINER
-========================= */
+=================================== */
 
 .dashboard-footer-container {
-  width: 100%;
   max-width: 1400px;
-
-  margin: auto;
-
-  padding: 22px 20px;
+  margin: 0 auto;
 
   display: flex;
-  flex-direction: column;
-
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 24px;
 
-  gap: 18px;
-
-  text-align: center;
+  flex-wrap: wrap;
 }
 
-/* =========================
+/* ===================================
    SOCIAL ICONS
-========================= */
+=================================== */
 
 .dashboard-footer-icons {
   display: flex;
-
   align-items: center;
   justify-content: center;
-
-  gap: 30px;
-
-  flex-wrap: wrap;
-}
-
-/* =========================
-   ICON
-========================= */
-
-.dashboard-icon {
-  display: flex;
-
-  align-items: center;
-  gap: 10px;
-
-  text-decoration: none;
-
-  font-size: 17px;
-  font-weight: 500;
-
-  transition: 0.3s ease;
-}
-
-/* HOVER */
-
-.dashboard-icon:hover {
-  transform: translateY(-3px);
-}
-
-/* SVG */
-
-.dashboard-icon svg {
-  font-size: 30px;
-}
-
-/* COLORS */
-
-.whatsapp {
-  color: #25d366;
-}
-
-.youtube {
-  color: #ff0000;
-}
-
-.instagram {
-  color: #e1306c;
-}
-
-/* =========================
-   TERMS
-========================= */
-
-.dashboard-footer-terms {
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
   gap: 18px;
 
   flex-wrap: wrap;
 }
 
-/* TERMS TEXT */
+.dashboard-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 
-.dashboard-footer-terms p {
-  cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
 
-  color: #333;
-
-  font-size: 15px;
-  font-weight: 500;
-
-  transition: 0.3s;
+  transition: all 0.3s ease;
 }
 
-.dashboard-footer-terms p:hover {
-  color: #20b486;
+.dashboard-icon svg {
+  font-size: 1.4rem;
 }
 
-/* DOWNLOAD */
+.dashboard-icon:hover {
+  transform: translateY(-2px);
+}
 
-.dashboard-footer-terms a {
+/* ===================================
+   ICON COLORS
+=================================== */
+
+.dashboard-icon.whatsapp {
+  color: #25d366;
+}
+
+.dashboard-icon.youtube {
+  color: #ff0000;
+}
+
+.dashboard-icon.instagram {
+  color: #e1306c;
+}
+
+/* ===================================
+   TERMS SECTION
+=================================== */
+
+.dashboard-footer-terms {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  flex-wrap: wrap;
+}
+
+.dashboard-footer-terms a,
+.terms-btn {
+  color: #15803d;
+  font-size: 0.95rem;
+  font-weight: 600;
   text-decoration: none;
 
-  color: #20b486;
-
-  font-size: 15px;
-  font-weight: 600;
-
-  transition: 0.3s;
+  transition: color 0.3s ease;
 }
 
-.dashboard-footer-terms a:hover {
-  text-decoration: underline;
+.dashboard-footer-terms a:hover,
+.terms-btn:hover {
+  color: #166534;
 }
 
-/* =========================
+/* ===================================
+   TERMS BUTTON
+=================================== */
+
+.terms-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+/* ===================================
    COPYRIGHT
-========================= */
+=================================== */
 
 .dashboard-footer-text {
-  color: #666;
-
-  font-size: 14px;
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
-/* =========================
-   MODAL
-========================= */
+/* ===================================
+   PDF MODAL
+=================================== */
 
 .dashboard-modal {
   position: fixed;
-
   inset: 0;
-
-  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
 
   display: flex;
-
   align-items: center;
   justify-content: center;
 
+  background: rgba(0, 0, 0, 0.7);
   padding: 20px;
-
-  z-index: 9999;
 }
-
-/* =========================
-   MODAL CONTENT
-========================= */
 
 .dashboard-modal-content {
   position: relative;
 
-  width: 100%;
+  width: 95%;
   max-width: 1000px;
-
   height: 90vh;
 
-  background: white;
-
-  border-radius: 14px;
-
+  background: #ffffff;
+  border-radius: 16px;
   overflow: hidden;
-
-  animation: modalOpen 0.3s ease;
 }
 
-/* =========================
-   ANIMATION
-========================= */
-
-@keyframes modalOpen {
-  from {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+.dashboard-pdf-frame,
+.dashboard-modal-content iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 
-/* =========================
+/* ===================================
    CLOSE BUTTON
-========================= */
+=================================== */
 
 .dashboard-close-btn {
   position: absolute;
-
   top: 12px;
   right: 12px;
 
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
 
   border: none;
   border-radius: 50%;
 
-  background: #ff4d4d;
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
 
-  color: white;
-
-  font-size: 18px;
-  font-weight: bold;
-
+  font-size: 1.1rem;
   cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   z-index: 10;
 
-  transition: 0.3s;
+  transition: all 0.3s ease;
 }
 
 .dashboard-close-btn:hover {
-  background: #e60000;
-  transform: rotate(90deg);
+  background: #dc2626;
+  transform: scale(1.05);
 }
 
-/* =========================
-   PDF
-========================= */
-
-.dashboard-modal-content iframe {
-  width: 100%;
-  height: 100%;
-
-  border: none;
-}
-
-/* =========================
-   TABLETS
-========================= */
+/* ===================================
+   TABLET
+=================================== */
 
 @media (max-width: 992px) {
-  .dashboard-footer-icons {
-    gap: 22px;
+  .dashboard-footer-container {
+    flex-direction: column;
+    text-align: center;
   }
 
-  .dashboard-icon {
-    font-size: 15px;
-  }
-
-  .dashboard-icon svg {
-    font-size: 26px;
+  .dashboard-footer-icons,
+  .dashboard-footer-terms {
+    justify-content: center;
   }
 }
 
-/* =========================
+/* ===================================
    MOBILE
-========================= */
+=================================== */
 
-@media (max-width: 768px) {
-  /* FOOTER */
-
-  .dashboard-footer-container {
-    padding: 20px 14px;
-    gap: 16px;
+@media (max-width: 576px) {
+  .dashboard-footer {
+    padding: 18px 16px;
   }
 
-  /* ICONS */
-
   .dashboard-footer-icons {
-    gap: 18px;
+    gap: 14px;
   }
 
   .dashboard-icon {
-    font-size: 14px;
+    font-size: 0.85rem;
   }
 
   .dashboard-icon svg {
-    font-size: 24px;
+    font-size: 1.2rem;
   }
-
-  /* TERMS */
 
   .dashboard-footer-terms {
     flex-direction: column;
     gap: 10px;
   }
 
-  /* COPYRIGHT */
-
   .dashboard-footer-text {
-    font-size: 13px;
+    font-size: 0.8rem;
   }
 
-  /* MODAL */
-
   .dashboard-modal-content {
-    height: 80vh;
+    width: 100%;
+    height: 85vh;
+    border-radius: 12px;
   }
 
   .dashboard-close-btn {
-    width: 34px;
-    height: 34px;
-    font-size: 16px;
-  }
-}
-
-/* =========================
-   SMALL MOBILE
-========================= */
-
-@media (max-width: 480px) {
-  .dashboard-footer-icons {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .dashboard-icon {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .dashboard-modal {
-    padding: 10px;
-  }
-
-  .dashboard-modal-content {
-    height: 75vh;
-    border-radius: 10px;
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
   }
 }

@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-
 import axios from "axios";
-
 import { FaWhatsapp, FaYoutube, FaInstagram } from "react-icons/fa";
+
 import API_URL from "../config/api";
 
 import "./styles/footer.css";
@@ -13,9 +12,7 @@ export default function Footer() {
   ========================= */
 
   const [pdf, setPdf] = useState("");
-
   const [social, setSocial] = useState({});
-
   const [showModal, setShowModal] = useState(false);
 
   /* =========================
@@ -36,10 +33,12 @@ export default function Footer() {
       const res = await axios.get(`${API_URL}/api/terms`);
 
       if (res.data?.fileUrl) {
-        setPdf(`${API_URL}/${res.data.fileUrl.replace(/^\/+/, "")}`);
+        const cleanPath = res.data.fileUrl.replace(/^\/+/, "");
+
+        setPdf(`${API_URL}/${cleanPath}`);
       }
     } catch (err) {
-      console.log("PDF fetch error:", err);
+      console.error("PDF fetch error:", err);
     }
   };
 
@@ -55,7 +54,7 @@ export default function Footer() {
         setSocial(res.data);
       }
     } catch (err) {
-      console.log("Social fetch error:", err);
+      console.error("Social fetch error:", err);
     }
   };
 
@@ -80,7 +79,7 @@ export default function Footer() {
                 "https://chat.whatsapp.com/Ih8uMFNsKs5DBKIqbgt2fx"
               }
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="dashboard-icon whatsapp"
             >
               <FaWhatsapp />
@@ -95,8 +94,8 @@ export default function Footer() {
                 social?.youtube ||
                 "https://www.youtube.com/@sunriserythunestam9989"
               }
-              target="Sunrise Page"
-              rel="noreferrer"
+              target="_blank"
+              rel="noopener noreferrer"
               className="dashboard-icon youtube"
             >
               <FaYoutube />
@@ -110,8 +109,8 @@ export default function Footer() {
               href={
                 social?.instagram || "https://www.instagram.com/sunrise_9989/"
               }
-              target="Sunrise Page"
-              rel="noreferrer"
+              target="_blank"
+              rel="noopener noreferrer"
               className="dashboard-icon instagram"
             >
               <FaInstagram />
@@ -127,9 +126,20 @@ export default function Footer() {
           <div className="dashboard-footer-terms">
             {pdf ? (
               <>
-                <p onClick={() => setShowModal(true)}>Terms & Conditions</p>
+                <button
+                  type="button"
+                  className="terms-btn"
+                  onClick={() => setShowModal(true)}
+                >
+                  Terms & Conditions
+                </button>
 
-                <a href={pdf} download>
+                <a
+                  href={pdf}
+                  download
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Download PDF
                 </a>
               </>
@@ -161,6 +171,7 @@ export default function Footer() {
             {/* CLOSE BUTTON */}
 
             <button
+              type="button"
               className="dashboard-close-btn"
               onClick={() => setShowModal(false)}
             >
@@ -169,7 +180,12 @@ export default function Footer() {
 
             {/* PDF */}
 
-            <iframe src={pdf} title="Terms PDF"></iframe>
+            <iframe
+              src={pdf}
+              title="Terms & Conditions"
+              width="100%"
+              height="100%"
+            />
           </div>
         </div>
       )}
