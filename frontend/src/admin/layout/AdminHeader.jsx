@@ -1,32 +1,81 @@
-// src/admin/layout/AdminLayout.jsx
+// src/admin/layout/AdminHeader.jsx
 
-import { Outlet } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaBars, FaTimes } from "react-icons/fa";
 
-import AdminHeader from "./AdminHeader";
-import AdminSidebar from "./AdminSidebar";
+import logo from "../../assets/sunrise.png";
 
 import "./adminLayout.css";
 
-const AdminLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+const AdminHeader = ({ sidebarOpen, setSidebarOpen }) => {
+  const navigate = useNavigate();
+
+  /* =========================
+     GET ADMIN DATA SAFELY
+  ========================= */
+
+  let adminData = {};
+
+  try {
+    adminData =
+      JSON.parse(localStorage.getItem("admin")) ||
+      JSON.parse(localStorage.getItem("adminAuth")) ||
+      {};
+  } catch (error) {
+    console.error("Admin data parse error:", error);
+  }
+
+  const adminName = adminData?.name || "Administrator";
+
+  /* =========================
+     LOGOUT
+  ========================= */
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("admin");
+    localStorage.removeItem("adminAuth");
+    localStorage.removeItem("adminToken");
+
+    navigate("/admin/login", {
+      replace: true,
+    });
+  };
 
   return (
-    <div className="admin-layout">
-      <AdminHeader sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+    <header className="admin-header">
+      {/* MOBILE MENU BUTTON */}
 
-      <div className="admin-main-wrapper">
-        <AdminSidebar
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-        />
+      <button
+        type="button"
+        className="admin-mobile-toggle"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+        {sidebarOpen ? <FaTimes /> : <FaBars />}
+      </button>
 
-        <main className="admin-page-content">
-          <Outlet />
-        </main>
+      {/* LEFT SIDE */}
+
+      <div
+        className="admin-header-left"
+        onClick={() => navigate("/admin/home")}
+      >
+        <img src={logo} alt="Sunrise Agri Products" />
+
+        <h2>Sunrise Agri Products</h2>
       </div>
-    </div>
+
+      {/* RIGHT SIDE */}
+
+      <div className="admin-header-right">
+        <span className="admin-name">Good Afternoon, {adminName}</span>
+
+        <button type="button" className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
+    </header>
   );
 };
 
-export default AdminLayout;
+export default AdminHeader;
