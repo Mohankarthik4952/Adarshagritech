@@ -46,14 +46,6 @@ const AdminHeader = ({ sidebarOpen, setSidebarOpen }) => {
     <header className="admin-header">
       {/* MOBILE MENU BUTTON */}
 
-      <button
-        type="button"
-        className="admin-mobile-toggle"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? <FaTimes /> : <FaBars />}
-      </button>
-
       {/* LEFT SIDE */}
 
       <div
