@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { FaMoneyCheckAlt, FaCheckCircle, FaClock } from "react-icons/fa";
+import API_URL from "../../config/api";
 import "./customerpages.css";
 
 const TransactionHistory = () => {
@@ -16,14 +17,11 @@ const TransactionHistory = () => {
           localStorage.getItem("customerToken") ||
           localStorage.getItem("token");
 
-        const res = await fetch(
-          "http://localhost:5000/api/customer/payments/history",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        const res = await fetch(`${API_URL}/api/customer/payments/history`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
 
         const data = await res.json();
 

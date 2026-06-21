@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FaMoneyBillWave, FaCheckCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { QRCodeCanvas } from "qrcode.react";
+import API_URL from "../../config/api";
 import "./dealerpages.css";
 
 const Transaction = () => {
@@ -100,16 +101,13 @@ const Transaction = () => {
 
         formData.append("paymentProof", paymentProof);
 
-        const uploadResponse = await fetch(
-          "http://localhost:5000/api/payment/upload",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
+        const uploadResponse = await fetch(`${API_URL}/api/payment/upload`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+          body: formData,
+        });
 
         const uploadData = await uploadResponse.json();
 
@@ -126,7 +124,7 @@ const Transaction = () => {
 
       if (selectedOrderId) {
         const response = await fetch(
-          "http://localhost:5000/api/dealer/payment/pay-existing-order",
+          `${API_URL}/api/dealer/payment/pay-existing-order`,
           {
             method: "POST",
 
@@ -166,55 +164,50 @@ const Transaction = () => {
          NEW ORDER PAYMENT
       ========================= */
 
-        const response = await fetch(
-          "http://localhost:5000/api/dealer/payment/checkout",
-          {
-            method: "POST",
+        const response = await fetch(`${API_URL}/api/dealer/payment/checkout`, {
+          method: "POST",
 
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-
-            body: JSON.stringify({
-              products: products.map((item) => ({
-                productId: item.productId || item._id,
-
-                productName: item.productName || item.name || "",
-
-                size: item.size || "",
-
-                cases: Number(item.cases || 1),
-
-                bottlesPerCase: Number(item.bottlesPerCase || 1),
-
-                mrp: Number(item.mrp || 0),
-
-                price: Number(
-                  item.price || item.pricePerBottle || item.mrp || 0,
-                ),
-
-                discount: Number(item.discount || item.discountPercent || 0),
-
-                finalPrice: Number(item.finalPrice || item.totalPrice || 0),
-              })),
-
-              totalAmount: Number(total),
-
-              paymentType,
-
-              paymentApp,
-
-              utrNumber,
-
-              paymentProof: paymentProofPath,
-
-              cashReceivedBy,
-
-              cashRemarks,
-            }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-        );
+
+          body: JSON.stringify({
+            products: products.map((item) => ({
+              productId: item.productId || item._id,
+
+              productName: item.productName || item.name || "",
+
+              size: item.size || "",
+
+              cases: Number(item.cases || 1),
+
+              bottlesPerCase: Number(item.bottlesPerCase || 1),
+
+              mrp: Number(item.mrp || 0),
+
+              price: Number(item.price || item.pricePerBottle || item.mrp || 0),
+
+              discount: Number(item.discount || item.discountPercent || 0),
+
+              finalPrice: Number(item.finalPrice || item.totalPrice || 0),
+            })),
+
+            totalAmount: Number(total),
+
+            paymentType,
+
+            paymentApp,
+
+            utrNumber,
+
+            paymentProof: paymentProofPath,
+
+            cashReceivedBy,
+
+            cashRemarks,
+          }),
+        });
 
         const data = await response.json();
 
@@ -261,7 +254,7 @@ const Transaction = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:5000/api/dealer/orders", {
+      const response = await fetch(`${API_URL}/api/dealer/orders`, {
         method: "POST",
 
         headers: {

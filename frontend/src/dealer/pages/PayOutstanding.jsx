@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../config/api";
 import "./dealerpages.css";
 
 const PayOutstanding = () => {
@@ -31,7 +32,7 @@ const PayOutstanding = () => {
       ========================= */
 
       const summaryResponse = await fetch(
-        "http://localhost:5000/api/dealer/dashboard/summary",
+        `${API_URL}/api/dealer/dashboard/summary`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -55,14 +56,11 @@ const PayOutstanding = () => {
          ORDERS
       ========================= */
 
-      const ordersResponse = await fetch(
-        "http://localhost:5000/api/dealer/orders",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const ordersResponse = await fetch(`${API_URL}/api/dealer/orders`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       const ordersData = await ordersResponse.json();
 
@@ -142,7 +140,7 @@ const PayOutstanding = () => {
       console.log("OUTSTANDING PAYMENT PAYLOAD:", payload);
 
       const response = await fetch(
-        "http://localhost:5000/api/dealer/payment/pay-outstanding",
+        `${API_URL}/api/dealer/payment/pay-outstanding`,
         {
           method: "POST",
 

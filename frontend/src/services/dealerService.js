@@ -1,7 +1,9 @@
 import { apiService } from "./apiService";
 import axios from "axios";
 
-const API = "http://localhost:5000/api";
+import API_URL from "../config/api";
+
+const BASE_URL = `${API_URL}/api`;
 
 /* DEALER PRODUCTS */
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import API_URL from "../../config/api";
 import "./adminpages.css";
 
 const Transactions = () => {
@@ -20,7 +21,7 @@ const Transactions = () => {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:5000/api/admin/payments", {
+      const res = await fetch(`${API_URL}/api/admin/payments`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

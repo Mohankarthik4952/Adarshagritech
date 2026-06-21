@@ -1,6 +1,7 @@
 // src/admin/pages/DealerProducts.jsx
 
 import { useEffect, useState } from "react";
+import API_URL from "../../config/api";
 
 import "./adminpages.css";
 
@@ -29,7 +30,7 @@ const DealerProducts = () => {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:5000/api/admin/products", {
+      const res = await fetch(`${API_URL}/api/admin/products`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -130,22 +131,19 @@ const DealerProducts = () => {
 
       console.log("DEALER PAYLOAD:", payload);
 
-      const response = await fetch(
-        "http://localhost:5000/api/admin/dealer-products",
-        {
-          method: "POST",
+      const response = await fetch(`${API_URL}/api/admin/dealer-products`, {
+        method: "POST",
 
-          headers: {
-            "Content-Type": "application/json",
+        headers: {
+          "Content-Type": "application/json",
 
-            Authorization: `Bearer ${token}`,
-          },
-
-          body: JSON.stringify({
-            products: payload,
-          }),
+          Authorization: `Bearer ${token}`,
         },
-      );
+
+        body: JSON.stringify({
+          products: payload,
+        }),
+      });
 
       const data = await response.json();
 
@@ -188,7 +186,7 @@ const DealerProducts = () => {
       return image;
     }
 
-    return `http://localhost:5000${image}`;
+    return `${API_URL}${image}`;
   };
 
   /* =================================

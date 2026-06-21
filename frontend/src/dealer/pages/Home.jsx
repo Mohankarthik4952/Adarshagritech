@@ -6,6 +6,7 @@ import {
   FaExchangeAlt,
 } from "react-icons/fa";
 import Greeting from "../components/Greeting";
+import API_URL from "../../config/api";
 import "./dealerpages.css";
 
 const Home = () => {
@@ -59,7 +60,7 @@ const Home = () => {
           localStorage.getItem("dealerToken") || localStorage.getItem("token");
 
         const response = await fetch(
-          "http://localhost:5000/api/dealer/dashboard/summary",
+          `${API_URL}/api/dealer/dashboard/summary`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

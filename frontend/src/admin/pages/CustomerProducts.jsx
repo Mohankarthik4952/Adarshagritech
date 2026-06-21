@@ -1,6 +1,7 @@
 // src/admin/pages/CustomerProducts.jsx
 
 import { useEffect, useState } from "react";
+import API_URL from "../../config/api";
 
 import "./adminpages.css";
 
@@ -25,14 +26,11 @@ const CustomerProducts = () => {
     try {
       setLoading(true);
 
-      const res = await fetch(
-        "http://localhost:5000/api/customer-products/admin/all",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await fetch(`${API_URL}/api/customer-products/admin/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       const data = await res.json();
 
@@ -174,7 +172,7 @@ const CustomerProducts = () => {
 
       /* API */
 
-      const res = await fetch("http://localhost:5000/api/customer-products", {
+      const res = await fetch(`${API_URL}/api/customer-products`, {
         method: "POST",
 
         headers: {
@@ -227,7 +225,7 @@ const CustomerProducts = () => {
       return image;
     }
 
-    return `http://localhost:5000${image}`;
+    return `${API_URL}${image}`;
   };
 
   /* =========================

@@ -1,6 +1,7 @@
 // src/admin/pages/AddProduct.jsx
 
 import { useEffect, useState } from "react";
+import API_URL from "../../config/api";
 
 import "./adminpages.css";
 
@@ -47,7 +48,7 @@ const AddProduct = () => {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/admin/products", {
+      const res = await fetch(`${API_URL}/api/admin/products`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -186,16 +187,13 @@ const AddProduct = () => {
         return;
       }
 
-      const res = await fetch(
-        `http://localhost:5000/api/admin/products/${id}`,
-        {
-          method: "DELETE",
+      const res = await fetch(`${API_URL}/api/admin/products/${id}`, {
+        method: "DELETE",
 
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       const data = await res.json();
 
@@ -295,21 +293,18 @@ const AddProduct = () => {
       /* UPDATE */
 
       if (editingId) {
-        res = await fetch(
-          `http://localhost:5000/api/admin/products/${editingId}`,
-          {
-            method: "PUT",
+        res = await fetch(`${API_URL}/api/admin/products/${editingId}`, {
+          method: "PUT",
 
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-
-            body: formData,
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+
+          body: formData,
+        });
       } else {
         /* ADD */
-        res = await fetch("http://localhost:5000/api/admin/products", {
+        res = await fetch(`${API_URL}/api/admin/products`, {
           method: "POST",
 
           headers: {
@@ -355,7 +350,7 @@ const AddProduct = () => {
       return image;
     }
 
-    return `http://localhost:5000${image}`;
+    return `${API_URL}${image}`;
   };
 
   /* =========================

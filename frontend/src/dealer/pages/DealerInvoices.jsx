@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_URL from "../../config/api";
 import "./dealerpages.css";
 
 export default function DealerInvoices() {
@@ -11,7 +12,7 @@ export default function DealerInvoices() {
     try {
       const token = localStorage.getItem("dealerToken");
 
-      const res = await axios.get("http://localhost:5000/api/dealer/invoices", {
+      const res = await axios.get(`${API_URL}/api/dealer/invoices`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -51,7 +52,7 @@ export default function DealerInvoices() {
       const token = localStorage.getItem("dealerToken");
 
       const response = await axios.get(
-        `http://localhost:5000/api/dealer/invoices/${invoiceId}/download`,
+        `${API_URL}/api/dealer/invoices/${invoiceId}/download`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -63,7 +64,7 @@ export default function DealerInvoices() {
         throw new Error("PDF URL not found");
       }
 
-      window.open(`http://localhost:5000${response.data.pdfUrl}`, "_blank");
+      window.open(`${API_URL}${response.data.pdfUrl}`, "_blank");
     } catch (error) {
       console.error("DOWNLOAD ERROR:", error);
 

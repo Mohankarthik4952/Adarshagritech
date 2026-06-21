@@ -7,6 +7,7 @@ import {
   FaMoneyBillWave,
   FaBoxOpen,
 } from "react-icons/fa";
+import API_URL from "../../config/api";
 
 import "./dealerpages.css";
 
@@ -20,7 +21,7 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/dealer/products");
+        const res = await fetch(`${API_URL}/api/dealer/products`);
 
         const data = await res.json();
 
@@ -276,26 +277,23 @@ const Products = () => {
         finalPrice: Number(finalPrice || 0),
       };
 
-      const response = await fetch(
-        "http://localhost:5000/api/dealer/payment/checkout",
-        {
-          method: "POST",
+      const response = await fetch(`${API_URL}/api/dealer/payment/checkout`, {
+        method: "POST",
 
-          headers: {
-            "Content-Type": "application/json",
+        headers: {
+          "Content-Type": "application/json",
 
-            Authorization: `Bearer ${token}`,
-          },
-
-          body: JSON.stringify({
-            products: [checkoutProduct],
-
-            totalAmount: Number(finalPrice),
-
-            paymentType: "PAY_LATER",
-          }),
+          Authorization: `Bearer ${token}`,
         },
-      );
+
+        body: JSON.stringify({
+          products: [checkoutProduct],
+
+          totalAmount: Number(finalPrice),
+
+          paymentType: "PAY_LATER",
+        }),
+      });
 
       const data = await response.json();
 
@@ -373,7 +371,7 @@ const Products = () => {
                   <img
                     src={
                       product.images?.length
-                        ? `http://localhost:5000${product.images[0]}`
+                        ? `${API_URL}${product.images[0]}`
                         : "/no-image.png"
                     }
                     alt={product.name}

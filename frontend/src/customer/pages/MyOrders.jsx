@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { FaBoxOpen, FaCheckCircle, FaClock } from "react-icons/fa";
+import API_URL from "../../config/api";
 
 import "./customerpages.css";
 
@@ -33,7 +34,7 @@ const MyOrders = () => {
         /* API CALL */
 
         const response = await fetch(
-          "http://localhost:5000/api/customer/orders/my-orders",
+          `${API_URL}/api/customer/orders/my-orders`,
           {
             method: "GET",
             headers: {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FaMoneyBillWave, FaCheckCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { QRCodeCanvas } from "qrcode.react";
+import API_URL from "../../config/api";
 
 import "./customerpages.css";
 
@@ -84,16 +85,13 @@ const Transaction = () => {
 
       formData.append("paymentProof", paymentProof);
 
-      const uploadResponse = await fetch(
-        "http://localhost:5000/api/payment/upload",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
+      const uploadResponse = await fetch(`${API_URL}/api/payment/upload`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: formData,
+      });
 
       const uploadData = await uploadResponse.json();
 
@@ -107,30 +105,27 @@ const Transaction = () => {
          CREATE ORDER
       ========================= */
 
-      const response = await fetch(
-        "http://localhost:5000/api/customer/orders",
-        {
-          method: "POST",
+      const response = await fetch(`${API_URL}/api/customer/orders`, {
+        method: "POST",
 
-          headers: {
-            "Content-Type": "application/json",
+        headers: {
+          "Content-Type": "application/json",
 
-            Authorization: `Bearer ${token}`,
-          },
-
-          body: JSON.stringify({
-            products,
-
-            totalAmount: total,
-
-            paymentType: "PAY_NOW",
-
-            paymentApp,
-
-            paymentProof: paymentProofPath,
-          }),
+          Authorization: `Bearer ${token}`,
         },
-      );
+
+        body: JSON.stringify({
+          products,
+
+          totalAmount: total,
+
+          paymentType: "PAY_NOW",
+
+          paymentApp,
+
+          paymentProof: paymentProofPath,
+        }),
+      });
 
       const data = await response.json();
 

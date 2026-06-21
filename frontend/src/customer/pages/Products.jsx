@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../config/api";
 
 import { FaShoppingCart, FaBolt, FaBoxOpen } from "react-icons/fa";
 
@@ -25,9 +26,7 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/customer-products",
-        );
+        const response = await fetch(`${API_URL}/api/customer-products`);
 
         const data = await response.json();
 
@@ -65,7 +64,7 @@ const Products = () => {
 
     const cleanPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
 
-    return `http://localhost:5000${cleanPath}`;
+    return `${API_URL}${cleanPath}`;
   };
 
   /* =========================

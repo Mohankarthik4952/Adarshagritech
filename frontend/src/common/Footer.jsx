@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 import { FaWhatsapp, FaYoutube, FaInstagram } from "react-icons/fa";
+import API_URL from "../config/api";
 
 import "./styles/footer.css";
 
@@ -32,10 +33,10 @@ export default function Footer() {
 
   const fetchPdf = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/terms");
+      const res = await axios.get(`${API_URL}/api/terms`);
 
       if (res.data?.fileUrl) {
-        setPdf(`http://localhost:5000/${res.data.fileUrl}`);
+        setPdf(`${API_URL}/${res.data.fileUrl.replace(/^\/+/, "")}`);
       }
     } catch (err) {
       console.log("PDF fetch error:", err);
@@ -48,7 +49,7 @@ export default function Footer() {
 
   const fetchSocial = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/social");
+      const res = await axios.get(`${API_URL}/api/social`);
 
       if (res.data) {
         setSocial(res.data);
@@ -74,7 +75,10 @@ export default function Footer() {
             {/* WHATSAPP */}
 
             <a
-              href={social?.whatsapp || "#"}
+              href={
+                social?.whatsapp ||
+                "https://chat.whatsapp.com/Ih8uMFNsKs5DBKIqbgt2fx"
+              }
               target="_blank"
               rel="noreferrer"
               className="dashboard-icon whatsapp"

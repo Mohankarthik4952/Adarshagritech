@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import API_URL from "../../config/api";
 import "./adminpages.css";
 
 const Payments = () => {
@@ -16,7 +17,7 @@ const Payments = () => {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:5000/api/admin/payments", {
+      const response = await fetch(`${API_URL}/api/admin/payments`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -53,7 +54,7 @@ const Payments = () => {
       setProcessingId(paymentId);
 
       const response = await fetch(
-        `http://localhost:5000/api/admin/payments/${paymentId}/approve`,
+        `${API_URL}/api/admin/payments/${paymentId}/approve`,
         {
           method: "PUT",
           headers: {
@@ -93,7 +94,7 @@ const Payments = () => {
       setProcessingId(paymentId);
 
       const response = await fetch(
-        `http://localhost:5000/api/admin/payments/${paymentId}/reject`,
+        `${API_URL}/api/admin/payments/${paymentId}/reject`,
         {
           method: "PUT",
           headers: {
@@ -175,7 +176,7 @@ const Payments = () => {
                 const screenshotUrl = payment.paymentProof
                   ? payment.paymentProof.startsWith("http")
                     ? payment.paymentProof
-                    : `http://localhost:5000${payment.paymentProof}`
+                    : `${API_URL}${payment.paymentProof}`
                   : "";
 
                 const displayName =

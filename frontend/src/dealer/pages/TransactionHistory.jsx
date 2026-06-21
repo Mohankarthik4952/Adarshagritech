@@ -1,6 +1,7 @@
 // src/dealer/pages/TransactionHistory.jsx
 
 import { useEffect, useState } from "react";
+import API_URL from "../../config/api";
 import "./dealerpages.css";
 
 const TransactionHistory = () => {
@@ -18,14 +19,11 @@ const TransactionHistory = () => {
 
   const fetchTransactions = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/dealer/payment/history",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const response = await fetch(`${API_URL}/api/dealer/payment/history`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       const data = await response.json();
 
@@ -215,7 +213,7 @@ const TransactionHistory = () => {
                         "N/A"
                       ) : transaction.paymentProof ? (
                         <a
-                          href={`http://localhost:5000${transaction.paymentProof}`}
+                          href={`${API_URL}${transaction.paymentProof}`}
                           target="_blank"
                           rel="noreferrer"
                         >

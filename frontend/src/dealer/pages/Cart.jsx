@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../config/api";
 
 import "./dealerpages.css";
 
@@ -53,7 +54,7 @@ const Cart = () => {
 
     const cleanPath = imagePath.replace(/^\/+/, "");
 
-    return `http://localhost:5000/${cleanPath}`;
+    return `${API_URL}/${cleanPath}`;
   };
 
   /* =========================
@@ -110,7 +111,7 @@ const Cart = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:5000/api/dealer/orders", {
+      const response = await fetch(`${API_URL}/api/dealer/orders`, {
         method: "POST",
 
         headers: {

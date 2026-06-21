@@ -3,11 +3,11 @@ import axios from "axios";
 
 import "./adminpages.css";
 
+import API_URL from "../../config/api";
+
 export default function AdminReturnRequests() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   useEffect(() => {
     loadRequests();
@@ -40,11 +40,6 @@ export default function AdminReturnRequests() {
         getConfig(),
       );
 
-      console.log("================================");
-      console.log("ADMIN RETURNS API RESPONSE");
-      console.log(response.data);
-      console.log("================================");
-
       if (response.data?.success) {
         setRequests(
           Array.isArray(response.data.requests) ? response.data.requests : [],
@@ -55,9 +50,11 @@ export default function AdminReturnRequests() {
     } catch (error) {
       console.error("LOAD RETURN REQUESTS ERROR:", error);
 
-      console.log("ERROR RESPONSE:", error.response);
-
-      alert(error.response?.data?.message || "Failed to load return requests");
+      alert(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to load return requests",
+      );
 
       setRequests([]);
     } finally {
@@ -79,7 +76,11 @@ export default function AdminReturnRequests() {
     } catch (error) {
       console.error("APPROVE ERROR:", error);
 
-      alert(error.response?.data?.message || "Failed to approve request");
+      alert(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to approve request",
+      );
     }
   };
 
@@ -101,20 +102,25 @@ export default function AdminReturnRequests() {
     } catch (error) {
       console.error("REJECT ERROR:", error);
 
-      alert(error.response?.data?.message || "Failed to reject request");
+      alert(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to reject request",
+      );
     }
   };
 
   if (loading) {
-    return <div className="admin-return-page">Loading return requests...</div>;
+    return <div className="admin-return-page">Loading return requests... </div>;
   }
 
   return (
     <div className="admin-return-page">
+      {" "}
       <div className="page-header">
-        <h2>Return Products</h2>
+        {" "}
+        <h2>Return Products</h2>{" "}
       </div>
-
       <div className="admin-table-wrapper">
         <table className="admin-return-table">
           <thead>

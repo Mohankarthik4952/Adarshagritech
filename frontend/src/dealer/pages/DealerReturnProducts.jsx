@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import API_URL from "../../config/api";
 
 import "./dealerpages.css";
 
@@ -15,8 +16,6 @@ export default function DealerReturnProducts() {
   const [financialYear, setFinancialYear] = useState("");
 
   const token = localStorage.getItem("dealerToken");
-
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const config = {
     headers: {

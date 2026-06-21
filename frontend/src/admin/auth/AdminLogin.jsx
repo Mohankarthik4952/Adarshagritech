@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { validateEmail, validatePassword } from "../../utils/validators";
+import API_URL from "../../config/api";
 import "../../pages/auth.css";
 
 const AdminLogin = () => {
@@ -64,7 +65,7 @@ const AdminLogin = () => {
       localStorage.removeItem("adminAuth");
 
       /* API REQUEST */
-      const response = await fetch("http://localhost:5000/api/admin/login", {
+      const response = await fetch(`${API_URL}/api/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

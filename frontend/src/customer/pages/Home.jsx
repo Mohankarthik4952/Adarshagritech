@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { FaPlayCircle } from "react-icons/fa";
+import API_URL from "../../config/api";
 
 import "./customerpages.css";
 
@@ -14,9 +15,7 @@ const Home = () => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/youtube/reviews",
-        );
+        const response = await fetch(`${API_URL}/api/youtube/reviews`);
 
         const data = await response.json();
 

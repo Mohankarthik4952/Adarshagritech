@@ -1,6 +1,7 @@
 // src/admin/pages/Orders.jsx
 
 import { useEffect, useMemo, useState } from "react";
+import API_URL from "../../config/api";
 import "./adminpages.css";
 
 const Orders = () => {
@@ -26,7 +27,7 @@ const Orders = () => {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:5000/api/admin/orders", {
+      const res = await fetch(`${API_URL}/api/admin/orders`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

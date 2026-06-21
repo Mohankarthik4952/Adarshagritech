@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../config/api";
 
 import axios from "axios";
 
@@ -27,9 +28,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/youtube/reviews",
-        );
+        const response = await axios.get(`${API_URL}/api/youtube/reviews`);
 
         if (response.data.success) {
           setVideos(response.data.videos || []);
@@ -137,7 +136,7 @@ const HomePage = () => {
                 />
 
                 <div className="video-date">
-                  {new Date(video.publishedAt).toLocaleDateString("en-IN")}
+                  {new Date(video.publishedAt).toLocaleDateString("en-IN"),"SUBSCRIBE"}
                 </div>
               </div>
             ))}
@@ -149,7 +148,7 @@ const HomePage = () => {
 
       <footer className="home-footer">
         <div className="social-links">
-          <a href="https://wa.me/YOUR_NUMBER" target="_blank" rel="noreferrer">
+          <a href="https://chat.whatsapp.com/Ih8uMFNsKs5DBKIqbgt2fx" target="_blank" rel="noreferrer">
             <FaWhatsapp className="icon whatsapp" />
           </a>
 

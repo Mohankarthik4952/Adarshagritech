@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaCamera, FaSignOutAlt, FaChevronDown } from "react-icons/fa";
+import API_URL from "../../config/api";
 
 import logo from "../../assets/sunrise.png";
 import defaultProfile from "../../assets/profile.jpg";
@@ -29,7 +30,11 @@ const DealerHeader = () => {
         setDealerName(dealer?.name || "");
 
         if (dealer?.profileImage) {
-          setProfileImage(dealer.profileImage);
+          setProfileImage(
+            dealer.profileImage.startsWith("http")
+              ? dealer.profileImage
+              : `${API_URL}${dealer.profileImage}`,
+          );
         }
       }
     } catch (error) {
@@ -90,10 +95,12 @@ const DealerHeader = () => {
 
       formData.append("profile", file);
 
-      const response = await fetch("http://localhost:5000/api/profile/upload", {
+      const response = await fetch(`${API_URL}/api/profile/upload`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${
+            localStorage.getItem("dealerToken") || localStorage.getItem("token")
+          }`,
         },
         body: formData,
       });
@@ -107,7 +114,11 @@ const DealerHeader = () => {
 
       if (data?.profileImage) {
         /* Update UI */
-        setProfileImage(data.profileImage);
+        setProfileImage(
+          data.profileImage.startsWith("http")
+            ? data.profileImage
+            : `${API_URL}${data.profileImage}`,
+        );
 
         /* Update localStorage */
         const dealer = JSON.parse(localStorage.getItem("dealerAuth")) || {};

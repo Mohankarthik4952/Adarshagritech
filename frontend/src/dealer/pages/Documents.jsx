@@ -38,9 +38,7 @@ const Documents = () => {
         return;
       }
 
-      const res = await fetch(
-        `http://localhost:5000/api/documents/${dealerId}`,
-      );
+      const res = await fetch(`${API_URL}/api/documents/${dealerId}`);
 
       const data = await res.json();
 
@@ -86,13 +84,10 @@ const Documents = () => {
         }
       });
 
-      const response = await fetch(
-        "http://localhost:5000/api/documents/upload",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+      const response = await fetch(`${API_URL}/api/documents/upload`, {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await response.json();
 
@@ -119,7 +114,7 @@ const Documents = () => {
   const getFileUrl = (path) => {
     if (!path) return "#";
 
-    return `http://localhost:5000${path}`;
+    return `${API_URL}${path}`;
   };
 
   return (

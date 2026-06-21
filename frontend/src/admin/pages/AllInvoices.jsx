@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+
+import API_URL from "../../config/api";
+
 import "./adminpages.css";
 
 export default function AllInvoices() {
@@ -15,7 +18,7 @@ export default function AllInvoices() {
     try {
       const token = localStorage.getItem("adminToken");
 
-      const res = await axios.get("http://localhost:5000/api/admin/invoices", {
+      const res = await axios.get(`${API_URL}/api/admin/invoices`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -24,7 +27,12 @@ export default function AllInvoices() {
       setInvoices(res.data.invoices || []);
     } catch (error) {
       console.error("FETCH INVOICES ERROR:", error);
-      alert("Failed to load invoices");
+
+      alert(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to load invoices",
+      );
     } finally {
       setLoading(false);
     }
@@ -39,7 +47,7 @@ export default function AllInvoices() {
       const token = localStorage.getItem("adminToken");
 
       const response = await axios.get(
-        `http://localhost:5000/api/admin/invoices/${invoiceId}/download`,
+        `${API_URL}/api/admin/invoices/${invoiceId}/download`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -51,11 +59,15 @@ export default function AllInvoices() {
         throw new Error("PDF URL not found");
       }
 
-      window.open(`http://localhost:5000${response.data.pdfUrl}`, "_blank");
+      window.open(`${API_URL}${response.data.pdfUrl}`, "_blank");
     } catch (error) {
       console.error("DOWNLOAD ERROR:", error);
 
-      alert(error?.response?.data?.message || "Failed to download invoice");
+      alert(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to download invoice",
+      );
     }
   };
 
@@ -337,8 +349,7 @@ export default function AllInvoices() {
                 <p>Thank you for choosing Sunrise Agri Products</p>
 
                 <p>
-                  Sunrise Agri Products
-                  <strong> © 2014</strong>
+                  Sunrise Agri Products <strong>© 2014</strong>
                 </p>
               </div>
             </div>

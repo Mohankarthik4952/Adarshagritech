@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import API_URL from "../../config/api";
 
 import StatsCard from "../components/StatsCard";
 import SalesChart from "../components/SalesChart";
@@ -58,14 +59,11 @@ const Home = () => {
           return;
         }
 
-        const response = await fetch(
-          "http://localhost:5000/api/admin/dashboard/stats",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        const response = await fetch(`${API_URL}/api/admin/dashboard/stats`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
 
         if (!response.ok) {
           throw new Error("Failed to load dashboard stats");

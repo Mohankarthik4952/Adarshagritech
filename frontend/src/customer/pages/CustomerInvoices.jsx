@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_URL from "../../config/api";
 
 import "./customerpages.css";
 
@@ -17,14 +18,11 @@ export default function CustomerInvoices() {
       const token =
         localStorage.getItem("customerToken") || localStorage.getItem("token");
 
-      const res = await axios.get(
-        "http://localhost:5000/api/customer/invoices",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await axios.get(`${API_URL}/api/customer/invoices`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       if (res.data.success) {
         setInvoices(res.data.invoices || []);

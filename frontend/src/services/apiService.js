@@ -1,11 +1,18 @@
-const BASE_URL = "http://localhost:5000/api";
+import API_URL from "../config/api";
+
+const BASE_URL = `${API_URL}/api`;
 
 /* =================================
    GET TOKEN
 ================================= */
 
 const getToken = () => {
-  return localStorage.getItem("token");
+  return (
+    localStorage.getItem("token") ||
+    localStorage.getItem("customerToken") ||
+    localStorage.getItem("dealerToken") ||
+    localStorage.getItem("adminToken")
+  );
 };
 
 /* =================================
@@ -18,7 +25,6 @@ const request = async (endpoint, method = "GET", data = null) => {
 
     const options = {
       method,
-
       headers: {},
     };
 
@@ -35,7 +41,7 @@ const request = async (endpoint, method = "GET", data = null) => {
     ========================= */
 
     if (token) {
-      options.headers["Authorization"] = `Bearer ${token}`;
+      options.headers.Authorization = `Bearer ${token}`;
     }
 
     /* =========================
@@ -75,7 +81,6 @@ const request = async (endpoint, method = "GET", data = null) => {
     return result;
   } catch (error) {
     console.error(`API ${method} Error:`, error);
-
     throw error;
   }
 };

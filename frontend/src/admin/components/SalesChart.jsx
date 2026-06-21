@@ -1,6 +1,7 @@
 // src/admin/components/SalesChart.jsx
 
 import { useEffect, useState } from "react";
+import API_URL from "../../config/api";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -43,7 +44,7 @@ const SalesChart = () => {
         const token = localStorage.getItem("adminToken");
 
         const response = await fetch(
-          "http://localhost:5000/api/admin/dashboard/sales-chart",
+          `${API_URL}/api/admin/dashboard/sales-chart`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

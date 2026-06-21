@@ -1,6 +1,7 @@
 // src/admin/pages/PriceList.jsx
 
 import { useEffect, useState } from "react";
+import API_URL from "../../config/api";
 import "./adminpages.css";
 
 const PriceList = () => {
@@ -18,7 +19,7 @@ const PriceList = () => {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:5000/api/admin/pricelist", {
+      const res = await fetch(`${API_URL}/api/admin/pricelist`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -69,18 +70,15 @@ const PriceList = () => {
 
       setLoading(true);
 
-      const res = await fetch(
-        "http://localhost:5000/api/admin/pricelist/upload",
-        {
-          method: "POST",
+      const res = await fetch(`${API_URL}/api/admin/pricelist/upload`, {
+        method: "POST",
 
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-
-          body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+
+        body: formData,
+      });
 
       const data = await res.json();
 
@@ -116,16 +114,13 @@ const PriceList = () => {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/admin/pricelist/${id}`,
-        {
-          method: "DELETE",
+      const res = await fetch(`${API_URL}/api/admin/pricelist/${id}`, {
+        method: "DELETE",
 
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       const data = await res.json();
 
@@ -148,7 +143,7 @@ const PriceList = () => {
   ========================= */
 
   const handleView = (filePath) => {
-    window.open(`http://localhost:5000${filePath}`, "_blank");
+    window.open(`${API_URL}${filePath}`, "_blank");
   };
 
   return (
@@ -188,7 +183,7 @@ const PriceList = () => {
         {lists.map((item) => (
           <div key={item._id} className="price-file-card">
             <img
-              src={`http://localhost:5000${item.filePath}`}
+              src={`${API_URL}${item.filePath}`}
               alt={item.fileName}
               className="price-list-image"
             />

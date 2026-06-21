@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import API_URL from "../../config/api";
 import "./dealerpages.css";
 
 const PriceList = () => {
@@ -16,9 +17,7 @@ const PriceList = () => {
   useEffect(() => {
     const fetchPriceLists = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/dealer/pricelist",
-        );
+        const response = await fetch(`${API_URL}/api/dealer/pricelist`);
 
         const data = await response.json();
 
@@ -48,7 +47,7 @@ const PriceList = () => {
       return path;
     }
 
-    return `http://localhost:5000${path}`;
+    return `${API_URL}${path}`;
   };
 
   /* =========================
