@@ -131,7 +131,7 @@ const Home = () => {
 
       <div className="admin-welcome-card">
         <h1>
-          {getGreeting()}, {adminName}
+          {getGreeting()}, {"GVR"}
         </h1>
 
         <p>Welcome to the Sunrise Agri Products Admin Dashboard.</p>

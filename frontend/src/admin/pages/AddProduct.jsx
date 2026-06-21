@@ -340,17 +340,29 @@ const AddProduct = () => {
   };
 
   /* =========================
-     IMAGE URL
-  ========================= */
+   IMAGE URL
+========================= */
 
   const getImageUrl = (image) => {
     if (!image) return "";
 
+    // Handle object format
+    if (typeof image === "object") {
+      image = image.url || image.path || "";
+    }
+
+    // Convert Windows paths
+    image = String(image).replace(/\\/g, "/");
+
+    // External URL
     if (image.startsWith("http")) {
       return image;
     }
 
-    return `${API_URL}${image}`;
+    // Ensure leading slash
+    const cleanPath = image.startsWith("/") ? image : `/${image}`;
+
+    return `${API_URL}${cleanPath}`;
   };
 
   /* =========================
@@ -429,47 +441,49 @@ const AddProduct = () => {
       {/* SIZE TABLE */}
 
       {form.sizes.length > 0 && (
-        <table className="size-table">
-          <thead>
-            <tr>
-              <th>Size</th>
+        <div className="table-wrapper">
+          <table className="size-table">
+            <thead>
+              <tr>
+                <th>Size</th>
 
-              <th>MRP per Bottle</th>
+                <th>MRP per Bottle</th>
 
-              <th>Bottles per Case</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {form.sizes.map((size) => (
-              <tr key={size}>
-                <td>{size}</td>
-
-                <td>
-                  <input
-                    type="number"
-                    placeholder="MRP"
-                    value={sizeInputs[size]?.mrp || ""}
-                    onChange={(e) =>
-                      handleSizeInput(size, "mrp", e.target.value)
-                    }
-                  />
-                </td>
-
-                <td>
-                  <input
-                    type="number"
-                    placeholder="Bottles"
-                    value={sizeInputs[size]?.bottlesPerCase || ""}
-                    onChange={(e) =>
-                      handleSizeInput(size, "bottlesPerCase", e.target.value)
-                    }
-                  />
-                </td>
+                <th>Bottles per Case</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {form.sizes.map((size) => (
+                <tr key={size}>
+                  <td>{size}</td>
+
+                  <td>
+                    <input
+                      type="number"
+                      placeholder="MRP"
+                      value={sizeInputs[size]?.mrp || ""}
+                      onChange={(e) =>
+                        handleSizeInput(size, "mrp", e.target.value)
+                      }
+                    />
+                  </td>
+
+                  <td>
+                    <input
+                      type="number"
+                      placeholder="Bottles"
+                      value={sizeInputs[size]?.bottlesPerCase || ""}
+                      onChange={(e) =>
+                        handleSizeInput(size, "bottlesPerCase", e.target.value)
+                      }
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {/* SAVE BUTTON */}
@@ -492,103 +506,99 @@ const AddProduct = () => {
 
       <h3>Products List</h3>
 
-      <table className="products-table">
-        <thead>
-          <tr>
-            <th>Product ID</th>
-
-            <th>Image</th>
-
-            <th>Name</th>
-
-            <th>Sizes</th>
-
-            <th>Stock</th>
-
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {products.length === 0 ? (
+      <div className="table-wrapper">
+        <table className="products-table">
+          <thead>
             <tr>
-              <td
-                colSpan="6"
-                style={{
-                  textAlign: "center",
-                }}
-              >
-                No products found
-              </td>
+              <th>Product ID</th>
+
+              <th>Image</th>
+
+              <th>Name</th>
+
+              <th>Sizes</th>
+
+              <th>Stock</th>
+
+              <th>Actions</th>
             </tr>
-          ) : (
-            products.map((p) => (
-              <tr key={p._id}>
-                <td>{p.productId}</td>
+          </thead>
 
-                <td>
-                  {p.images?.length > 0 ? (
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "6px",
-                      }}
-                    >
-                      {p.images.map((image, index) => (
-                        <img
-                          key={index}
-                          src={getImageUrl(image)}
-                          alt={p.name}
-                          width="60"
-                          height="60"
-                          style={{
-                            objectFit: "cover",
-                            borderRadius: "8px",
-                          }}
-                        />
-                      ))}
-                    </div>
-                  ) : p.image ? (
-                    <img
-                      src={getImageUrl(p.image)}
-                      alt={p.name}
-                      width="60"
-                      height="60"
-                      style={{
-                        objectFit: "cover",
-                        borderRadius: "8px",
-                      }}
-                    />
-                  ) : (
-                    "No Image"
-                  )}
-                </td>
-
-                <td>{p.name}</td>
-
-                <td>{(p.sizes || []).map((s) => s.size).join(", ")}</td>
-
-                <td>{p.stockStatus}</td>
-
-                <td>
-                  <div className="action-buttons">
-                    <button className="edit-btn" onClick={() => handleEdit(p)}>
-                      Edit
-                    </button>
-
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDelete(p._id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
+          <tbody>
+            {products.length === 0 ? (
+              <tr>
+                <td
+                  colSpan="6"
+                  style={{
+                    textAlign: "center",
+                  }}
+                >
+                  No products found
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              products.map((p) => (
+                <tr key={p._id}>
+                  <td>{p.productId}</td>
+
+                  <td>
+                    {p.images?.length > 0 ? (
+                      <div className="product-images">
+                        {p.images.map((image, index) => (
+                          <img
+                            key={index}
+                            src={getImageUrl(image)}
+                            alt={p.name}
+                            className="product-thumbnail"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                            }}
+                          />
+                        ))}
+                      </div>
+                    ) : p.image ? (
+                      <img
+                        src={getImageUrl(p.image)}
+                        alt={p.name}
+                        className="product-thumbnail"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      "No Image"
+                    )}
+                  </td>
+
+                  <td>{p.name}</td>
+
+                  <td>{(p.sizes || []).map((s) => s.size).join(", ")}</td>
+
+                  <td>{p.stockStatus}</td>
+
+                  <td>
+                    <div className="action-buttons">
+                      <button
+                        className="edit-btn"
+                        onClick={() => handleEdit(p)}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDelete(p._id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
