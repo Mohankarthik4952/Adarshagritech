@@ -1,4 +1,25 @@
 /* =========================================
+   GLOBAL RESET
+========================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* =========================================
    ROOT LAYOUT
 ========================================= */
 
@@ -8,6 +29,7 @@
   flex-direction: column;
   background: #eef2f7;
   font-family: "Segoe UI", sans-serif;
+  overflow-x: hidden;
 }
 
 /* =========================================
@@ -30,12 +52,17 @@
   top: 0;
 
   z-index: 1400;
+
+  flex-shrink: 0;
 }
 
 .admin-header-left {
   display: flex;
   align-items: center;
   gap: 14px;
+
+  min-width: 0;
+  flex: 1;
 
   cursor: pointer;
 }
@@ -44,6 +71,7 @@
   width: 50px;
   height: 50px;
   object-fit: contain;
+  flex-shrink: 0;
 }
 
 .admin-header-left h2 {
@@ -53,12 +81,18 @@
   font-weight: 800;
 
   color: #0f172a;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .admin-header-right {
   display: flex;
   align-items: center;
   gap: 16px;
+
+  flex-shrink: 0;
 }
 
 .admin-name {
@@ -121,7 +155,13 @@
 .admin-body {
   flex: 1;
   display: flex;
+
   min-height: calc(100vh - 80px);
+
+  width: 100%;
+  max-width: 100%;
+
+  overflow-x: hidden;
 }
 
 /* =========================================
@@ -137,6 +177,8 @@
   color: #ffffff;
 
   overflow-y: auto;
+  overflow-x: hidden;
+
   flex-shrink: 0;
 
   padding: 24px 0;
@@ -175,6 +217,9 @@
   font-weight: 600;
 
   transition: all 0.3s ease;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .admin-sidebar a:hover {
@@ -199,6 +244,8 @@
   flex: 1;
 
   min-width: 0;
+  width: 100%;
+  max-width: 100%;
 
   padding: 28px;
 
@@ -217,6 +264,8 @@
   font-weight: 700;
 
   color: #0f172a;
+
+  word-break: break-word;
 }
 
 /* =========================================
@@ -243,6 +292,8 @@
   border-radius: 20px;
 
   padding: 24px;
+
+  min-width: 0;
 
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
 
@@ -271,6 +322,8 @@
 
   font-size: 2rem;
   font-weight: 800;
+
+  word-break: break-word;
 }
 
 /* =========================================
@@ -285,7 +338,42 @@
 
   border-radius: 20px;
 
+  overflow: hidden;
+
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+/* =========================================
+   RESPONSIVE TABLES
+========================================= */
+
+.table-wrapper,
+.admin-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrapper table,
+.admin-table-wrapper table {
+  width: 100%;
+  min-width: 900px;
+
+  border-collapse: collapse;
+}
+
+.table-wrapper img,
+.admin-table-wrapper img,
+table img {
+  width: 60px;
+  height: 60px;
+
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 /* =========================================
@@ -303,6 +391,8 @@
   justify-content: center;
 
   z-index: 1500;
+
+  padding: 16px;
 }
 
 .modal {
@@ -357,19 +447,13 @@
     gap: 12px;
   }
 
-  .admin-header-left {
-    flex: 1;
-    min-width: 0;
-  }
-
   .admin-header-left img {
     width: 40px;
     height: 40px;
   }
 
   .admin-header-left h2 {
-    font-size: 1.4rem;
-    line-height: 1.2;
+    font-size: 1.15rem;
   }
 
   .admin-name {
@@ -424,6 +508,11 @@
   .stats-grid {
     grid-template-columns: 1fr;
   }
+
+  .table-wrapper table,
+  .admin-table-wrapper table {
+    min-width: 700px;
+  }
 }
 
 /* =========================================
@@ -432,7 +521,7 @@
 
 @media (max-width: 576px) {
   .admin-header-left h2 {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
 
   .admin-sidebar {
@@ -448,5 +537,18 @@
   .logout-btn {
     padding: 8px 12px;
     font-size: 0.8rem;
+  }
+
+  .stats-card {
+    padding: 20px;
+  }
+
+  .stats-card h2 {
+    font-size: 1.6rem;
+  }
+
+  .table-wrapper table,
+  .admin-table-wrapper table {
+    min-width: 600px;
   }
 }
