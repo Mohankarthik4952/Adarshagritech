@@ -452,6 +452,30 @@ table img {
 @media (max-width: 768px) {
   .admin-mobile-toggle {
     display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: fixed;
+
+    top: 96px;
+    left: 12px;
+
+    width: 56px;
+    height: 56px;
+
+    border: none;
+    border-radius: 16px;
+
+    background: #041c43;
+    color: #ffffff;
+
+    font-size: 1.6rem;
+
+    cursor: pointer;
+
+    z-index: 1501;
+
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
   }
 
   .admin-header {
@@ -512,6 +536,7 @@ table img {
 
   .admin-content {
     padding: 18px;
+    padding-top: 86px; /* creates space below floating button */
   }
 
   .stats-grid {
@@ -540,6 +565,7 @@ table img {
 
   .admin-content {
     padding: 14px;
+    padding-top: 86px;
   }
 
   .logout-btn {
