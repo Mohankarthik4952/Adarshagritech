@@ -1,6 +1,9 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+
+import cloudinary from "../config/cloudinary.js";
 
 /* =================================
    CREATE UPLOAD FOLDERS
@@ -19,61 +22,39 @@ const createFolder = (folderPath) => {
 ================================= */
 
 createFolder("uploads");
-
 createFolder("uploads/documents");
-
-createFolder("uploads/products");
-
 createFolder("uploads/profiles");
-
 createFolder("uploads/invoices");
-
 createFolder("uploads/terms");
 
 /* =================================
-   STORAGE CONFIGURATION
+   LOCAL STORAGE
 ================================= */
 
-const storage = multer.diskStorage({
+const localStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     try {
-      /* =========================
-           DEALER DOCUMENTS
-        ========================= */
-
       if (
         file.fieldname === "gstCertificate" ||
         file.fieldname === "shopPhoto" ||
         file.fieldname === "dealerSelfie"
       ) {
-        cb(null, "uploads/documents");
-      } else if (
-        file.fieldname === "productImage" ||
-        file.fieldname === "image" ||
-        file.fieldname === "images"
-      ) {
-        cb(null, "uploads/products");
-      } else if (file.fieldname === "profileImage") {
-        /* =========================
-           PROFILE IMAGES
-        ========================= */
-        cb(null, "uploads/profiles");
-      } else if (file.fieldname === "invoiceFile") {
-        /* =========================
-           INVOICE FILES
-        ========================= */
-        cb(null, "uploads/invoices");
-      } else if (file.fieldname === "termsFile") {
-        /* =========================
-           TERMS PDF
-        ========================= */
-        cb(null, "uploads/terms");
-      } else {
-        /* =========================
-           DEFAULT
-        ========================= */
-        cb(null, "uploads");
+        return cb(null, "uploads/documents");
       }
+
+      if (file.fieldname === "profileImage") {
+        return cb(null, "uploads/profiles");
+      }
+
+      if (file.fieldname === "invoiceFile") {
+        return cb(null, "uploads/invoices");
+      }
+
+      if (file.fieldname === "termsFile") {
+        return cb(null, "uploads/terms");
+      }
+
+      return cb(null, "uploads");
     } catch (error) {
       cb(error);
     }
@@ -81,7 +62,7 @@ const storage = multer.diskStorage({
 
   filename: (req, file, cb) => {
     try {
-      const uniqueName = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 
       cb(null, uniqueName + path.extname(file.originalname));
     } catch (error) {
@@ -91,30 +72,37 @@ const storage = multer.diskStorage({
 });
 
 /* =================================
+   CLOUDINARY STORAGE
+================================= */
+
+const productStorage = new CloudinaryStorage({
+  cloudinary,
+
+  params: async (req, file) => ({
+    folder: "sunrise-products",
+
+    resource_type: "image",
+
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+
+    public_id: `${Date.now()}-${Math.round(Math.random() * 1e9)}`,
+  }),
+});
+
+/* =================================
    FILE VALIDATION
 ================================= */
 
 const fileFilter = (req, file, cb) => {
   try {
-    /* IMAGE TYPES */
-
     const imageTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-
-    /* EXCEL TYPES */
 
     const excelTypes = [
       "application/vnd.ms-excel",
-
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     ];
 
-    /* PDF TYPES */
-
     const pdfTypes = ["application/pdf"];
-
-    /* =========================
-       IMAGE FILES
-    ========================= */
 
     if (
       file.fieldname === "gstCertificate" ||
@@ -125,46 +113,51 @@ const fileFilter = (req, file, cb) => {
       file.fieldname === "image" ||
       file.fieldname === "images"
     ) {
-      if (imageTypes.includes(file.mimetype)) {
-        cb(null, true);
-      } else {
-        cb(new Error("Only image files are allowed"));
+      if (!imageTypes.includes(file.mimetype)) {
+        return cb(new Error("Only image files are allowed"));
       }
-    } else if (file.fieldname === "invoiceFile") {
-      /* =========================
-       EXCEL FILES
-    ========================= */
-      if (excelTypes.includes(file.mimetype)) {
-        cb(null, true);
-      } else {
-        cb(new Error("Only Excel files allowed"));
-      }
-    } else if (file.fieldname === "termsFile") {
-      /* =========================
-       PDF FILES
-    ========================= */
-      if (pdfTypes.includes(file.mimetype)) {
-        cb(null, true);
-      } else {
-        cb(new Error("Only PDF files are allowed"));
-      }
-    } else {
-      /* =========================
-       DEFAULT
-    ========================= */
-      cb(null, true);
+
+      return cb(null, true);
     }
+
+    if (file.fieldname === "invoiceFile") {
+      if (!excelTypes.includes(file.mimetype)) {
+        return cb(new Error("Only Excel files allowed"));
+      }
+
+      return cb(null, true);
+    }
+
+    if (file.fieldname === "termsFile") {
+      if (!pdfTypes.includes(file.mimetype)) {
+        return cb(new Error("Only PDF files are allowed"));
+      }
+
+      return cb(null, true);
+    }
+
+    cb(null, true);
   } catch (error) {
     cb(error);
   }
 };
 
 /* =================================
-   MULTER INSTANCE
+   MULTER INSTANCES
 ================================= */
 
 const upload = multer({
-  storage,
+  storage: localStorage,
+
+  fileFilter,
+
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+  },
+});
+
+const productUpload = multer({
+  storage: productStorage,
 
   fileFilter,
 
@@ -174,39 +167,32 @@ const upload = multer({
 });
 
 /* =================================
-   EXPORTS
+   DEALER DOCUMENTS
 ================================= */
-
-/* DEALER DOCUMENTS */
 
 export const uploadDealerDocuments = upload.fields([
   {
     name: "gstCertificate",
-
     maxCount: 1,
   },
-
   {
     name: "shopPhoto",
-
     maxCount: 1,
   },
-
   {
     name: "dealerSelfie",
-
     maxCount: 1,
   },
 ]);
 
-/* PRODUCT IMAGE */
+/* =================================
+   PRODUCT IMAGES (CLOUDINARY)
+================================= */
 
 export const uploadProductImage = (req, res, next) => {
-  console.log("uploadProductImage -> next type:", typeof next);
-
-  upload.array("images", 2)(req, res, (error) => {
+  productUpload.array("images", 5)(req, res, (error) => {
     if (error) {
-      console.error("MULTER ERROR:", error);
+      console.error("PRODUCT UPLOAD ERROR:", error);
 
       return res.status(400).json({
         success: false,
@@ -218,18 +204,26 @@ export const uploadProductImage = (req, res, next) => {
   });
 };
 
-/* PROFILE IMAGE */
+/* =================================
+   PROFILE IMAGE
+================================= */
 
 export const uploadProfileImage = upload.single("profileImage");
 
-/* INVOICE FILE */
+/* =================================
+   INVOICE FILE
+================================= */
 
 export const uploadInvoiceFile = upload.single("invoiceFile");
 
-/* TERMS FILE */
+/* =================================
+   TERMS FILE
+================================= */
 
 export const uploadTermsFile = upload.single("termsFile");
 
-/* DEFAULT EXPORT */
+/* =================================
+   DEFAULT EXPORT
+================================= */
 
 export default upload;

@@ -73,7 +73,7 @@ router.post("/products", uploadProductImage, async (req, res) => {
 
       name: name.trim(),
 
-      images: req.files.map((file) => `/uploads/products/${file.filename}`),
+      images: req.files.map((file) => file.path),
 
       stockStatus: stockStatus || "AVAILABLE",
 
@@ -149,16 +149,14 @@ router.put("/products/:id", uploadProductImage, async (req, res) => {
     };
 
     if (req.files && req.files.length > 0) {
-      updateData.images = req.files.map(
-        (file) => `/uploads/products/${file.filename}`,
-      );
+      updateData.images = req.files.map((file) => file.path);
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       updateData,
       {
-        new: true,
+        returnDocument: "after",
         runValidators: true,
       },
     );

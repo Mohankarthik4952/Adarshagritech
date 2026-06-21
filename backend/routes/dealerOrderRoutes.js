@@ -145,13 +145,17 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       invoiceGenerated: false,
     });
 
-    sendOrderNotification({
-      role: "DEALER",
-      dealer,
-      order,
-    }).catch((err) => {
+    try {
+      sendOrderNotification({
+        role: "DEALER",
+        dealer,
+        order,
+      });
+
+      console.log("ORDER EMAIL SENT");
+    } catch (err) {
       console.error("DEALER EMAIL ERROR:", err);
-    });
+    }
 
     console.log("ORDER CREATED:", order.orderNo);
 
