@@ -145,147 +145,149 @@ const Payments = () => {
       </div>
 
       <div className="admin-table-card">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Payment For</th>
-              <th>User</th>
-              <th>Role</th>
-              <th>Amount</th>
-              <th>Method</th>
-              <th>App</th>
-              <th>UTR</th>
-              <th>Screenshot</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {payments.length === 0 ? (
+        <div className="admin-table-wrapper">
+          <table className="admin-table">
+            <thead>
               <tr>
-                <td colSpan="10">No Payments Found</td>
+                <th>Payment For</th>
+                <th>User</th>
+                <th>Role</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>App</th>
+                <th>UTR</th>
+                <th>Screenshot</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ) : (
-              payments.map((payment) => {
-                const isOutstanding =
-                  payment.paymentCategory === "OUTSTANDING_PAYMENT";
+            </thead>
 
-                const isProcessing = processingId === payment._id;
+            <tbody>
+              {payments.length === 0 ? (
+                <tr>
+                  <td colSpan="10">No Payments Found</td>
+                </tr>
+              ) : (
+                payments.map((payment) => {
+                  const isOutstanding =
+                    payment.paymentCategory === "OUTSTANDING_PAYMENT";
 
-                const screenshotUrl = payment.paymentProof
-                  ? payment.paymentProof.startsWith("http")
-                    ? payment.paymentProof
-                    : `${API_URL}${payment.paymentProof}`
-                  : "";
+                  const isProcessing = processingId === payment._id;
 
-                const displayName =
-                  payment.dealerName ||
-                  payment.customerName ||
-                  payment.orderId?.dealerName ||
-                  payment.orderId?.customerName ||
-                  "-";
+                  const screenshotUrl = payment.paymentProof
+                    ? payment.paymentProof.startsWith("http")
+                      ? payment.paymentProof
+                      : `${API_URL}${payment.paymentProof}`
+                    : "";
 
-                return (
-                  <tr key={payment._id}>
-                    <td>
-                      {isOutstanding
-                        ? "Outstanding Payment"
-                        : payment.orderId?.orderNo || payment.orderNo || "-"}
-                    </td>
+                  const displayName =
+                    payment.dealerName ||
+                    payment.customerName ||
+                    payment.orderId?.dealerName ||
+                    payment.orderId?.customerName ||
+                    "-";
 
-                    <td>{displayName}</td>
+                  return (
+                    <tr key={payment._id}>
+                      <td>
+                        {isOutstanding
+                          ? "Outstanding Payment"
+                          : payment.orderId?.orderNo || payment.orderNo || "-"}
+                      </td>
 
-                    <td>{payment.role || "-"}</td>
+                      <td>{displayName}</td>
 
-                    <td>
-                      ₹
-                      {Number(payment.amount || 0).toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </td>
+                      <td>{payment.role || "-"}</td>
 
-                    <td>{payment.paymentType || "-"}</td>
+                      <td>
+                        ₹
+                        {Number(payment.amount || 0).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </td>
 
-                    <td>
-                      {payment.paymentType === "CASH"
-                        ? "N/A"
-                        : payment.paymentApp || "-"}
-                    </td>
+                      <td>{payment.paymentType || "-"}</td>
 
-                    <td>
-                      {payment.paymentType === "CASH"
-                        ? "N/A"
-                        : payment.utrNumber || "-"}
-                    </td>
+                      <td>
+                        {payment.paymentType === "CASH"
+                          ? "N/A"
+                          : payment.paymentApp || "-"}
+                      </td>
 
-                    <td>
-                      {payment.paymentType === "CASH" ? (
-                        "N/A"
-                      ) : screenshotUrl ? (
-                        <a
-                          href={screenshotUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          View
-                        </a>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
+                      <td>
+                        {payment.paymentType === "CASH"
+                          ? "N/A"
+                          : payment.utrNumber || "-"}
+                      </td>
 
-                    <td>
-                      <span
-                        className={
-                          payment.status === "APPROVED"
-                            ? "approved-badge"
-                            : payment.status === "REJECTED"
-                              ? "rejected-badge"
-                              : "pending-badge"
-                        }
-                      >
-                        {(payment.status || "")
-                          .replaceAll("_", " ")
-                          .toUpperCase()}
-                      </span>
-                    </td>
-
-                    <td>
-                      {payment.status === "VERIFICATION_PENDING" ? (
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "10px",
-                          }}
-                        >
-                          <button
-                            className="approve-btn"
-                            disabled={isProcessing}
-                            onClick={() => approvePayment(payment._id)}
+                      <td>
+                        {payment.paymentType === "CASH" ? (
+                          "N/A"
+                        ) : screenshotUrl ? (
+                          <a
+                            href={screenshotUrl}
+                            target="_blank"
+                            rel="noreferrer"
                           >
-                            {isProcessing ? "Approving..." : "Approve"}
-                          </button>
+                            View
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
 
-                          <button
-                            className="reject-btn"
-                            disabled={isProcessing}
-                            onClick={() => rejectPayment(payment._id)}
+                      <td>
+                        <span
+                          className={
+                            payment.status === "APPROVED"
+                              ? "approved-badge"
+                              : payment.status === "REJECTED"
+                                ? "rejected-badge"
+                                : "pending-badge"
+                          }
+                        >
+                          {(payment.status || "")
+                            .replaceAll("_", " ")
+                            .toUpperCase()}
+                        </span>
+                      </td>
+
+                      <td>
+                        {payment.status === "VERIFICATION_PENDING" ? (
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                            }}
                           >
-                            {isProcessing ? "Processing..." : "Reject"}
-                          </button>
-                        </div>
-                      ) : (
-                        <span style={{ color: "#888" }}>—</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                            <button
+                              className="approve-btn"
+                              disabled={isProcessing}
+                              onClick={() => approvePayment(payment._id)}
+                            >
+                              {isProcessing ? "Approving..." : "Approve"}
+                            </button>
+
+                            <button
+                              className="reject-btn"
+                              disabled={isProcessing}
+                              onClick={() => rejectPayment(payment._id)}
+                            >
+                              {isProcessing ? "Processing..." : "Reject"}
+                            </button>
+                          </div>
+                        ) : (
+                          <span style={{ color: "#888" }}>—</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

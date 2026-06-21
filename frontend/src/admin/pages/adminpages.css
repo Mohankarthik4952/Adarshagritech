@@ -1770,13 +1770,6 @@
    TABLE
 =================================== */
 
-.admin-table {
-  width: 100%;
-  min-width: 1100px;
-
-  border-collapse: collapse;
-}
-
 .admin-table thead {
   background: linear-gradient(135deg, #0f172a, #1e293b);
 }
@@ -2071,6 +2064,41 @@
 
 .admin-table tbody tr:hover {
   background: #f9fafb;
+}
+
+.admin-table-card {
+  width: 100%;
+  max-width: 100%;
+
+  background: #ffffff;
+
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.admin-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-table {
+  width: max-content;
+  min-width: 100%;
+
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  white-space: nowrap;
 }
 
 /* =================================

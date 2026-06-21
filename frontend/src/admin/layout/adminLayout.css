@@ -552,3 +552,13 @@ table img {
     min-width: 600px;
   }
 }
+
+.admin-layout,
+.admin-main-wrapper,
+.admin-page-content,
+.admin-content,
+.admin-page {
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
