@@ -3,6 +3,8 @@
 import { NavLink } from "react-router-dom";
 
 import {
+  FaBars,
+  FaTimes,
   FaHome,
   FaPlusSquare,
   FaBoxOpen,
@@ -23,6 +25,18 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
   return (
     <>
+      {/* MOBILE TOGGLE BUTTON */}
+
+      <button
+        className="admin-mobile-toggle"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        aria-label={sidebarOpen ? "Close menu" : "Open menu"}
+      >
+        {sidebarOpen ? <FaTimes /> : <FaBars />}
+      </button>
+
+      {/* SIDEBAR */}
+
       <aside
         className={`admin-sidebar ${sidebarOpen ? "admin-sidebar-open" : ""}`}
       >
@@ -143,6 +157,8 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
           </NavLink>
         </nav>
       </aside>
+
+      {/* OVERLAY */}
 
       {sidebarOpen && (
         <div className="admin-sidebar-overlay" onClick={closeSidebar} />
