@@ -1,57 +1,32 @@
-// src/admin/layout/AdminHeader.jsx
+// src/admin/layout/AdminLayout.jsx
 
-import { useNavigate } from "react-router-dom";
-import logo from "../../assets/sunrise.png";
+import { Outlet } from "react-router-dom";
+import { useState } from "react";
+
+import AdminHeader from "./AdminHeader";
+import AdminSidebar from "./AdminSidebar";
+
 import "./adminLayout.css";
 
-const AdminHeader = () => {
-  const navigate = useNavigate();
+const AdminLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  /* =========================
-     GET ADMIN NAME
-  ========================= */
-  const storedAdmin =
-    JSON.parse(localStorage.getItem("admin")) ||
-    JSON.parse(localStorage.getItem("adminAuth")) ||
-    {};
-
-  /* =========================
-     LOGOUT
-  ========================= */
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("admin");
-    localStorage.removeItem("adminAuth");
-    localStorage.removeItem("adminToken");
-
-    navigate("/admin/login", {
-      replace: true,
-    });
-  };
-
-  /* =========================
-     UI
-  ========================= */
   return (
-    <header className="admin-header">
-      {/* LEFT SIDE */}
-      <div
-        className="admin-header-left"
-        onClick={() => navigate("/admin/home")}
-        style={{ cursor: "pointer" }}
-      >
-        <img src={logo} alt="Sunrise Agri Products Logo" />
-        <h2>Sunrise Agri Products</h2>
-      </div>
+    <div className="admin-layout">
+      <AdminHeader sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      {/* RIGHT SIDE */}
-      <div className="admin-header-right">
-        <button type="button" onClick={handleLogout} className="logout-btn">
-          Logout
-        </button>
+      <div className="admin-main-wrapper">
+        <AdminSidebar
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+        />
+
+        <main className="admin-page-content">
+          <Outlet />
+        </main>
       </div>
-    </header>
+    </div>
   );
 };
 
-export default AdminHeader;
+export default AdminLayout;
