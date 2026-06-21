@@ -275,45 +275,49 @@ export default function DealerInvoices() {
 
               <h3>Products</h3>
 
-              <table className="dealer-table invoice-products-table">
-                <thead>
-                  <tr>
-                    <th>S.No</th>
-                    <th>Product</th>
-                    <th>Size</th>
-                    <th>No. Of Cases</th>
-                    <th>Discount %</th>
-                    <th>Final Price</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {(selectedInvoice.items || []).length > 0 ? (
-                    selectedInvoice.items.map((item, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-
-                        <td>{item.productName}</td>
-
-                        <td>{item.size || "-"}</td>
-
-                        <td>{item.quantity || item.cases || 1}</td>
-
-                        <td>{item.discount || 0}%</td>
-
-                        <td>
-                          ₹
-                          {Number(item.finalPrice || 0).toLocaleString("en-IN")}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
+              <div className="invoice-products-wrapper">
+                <table className="dealer-table invoice-products-table">
+                  <thead>
                     <tr>
-                      <td colSpan="6">No products found</td>
+                      <th>S.No</th>
+                      <th>Product</th>
+                      <th>Size</th>
+                      <th>No. Of Cases</th>
+                      <th>Discount %</th>
+                      <th>Final Price</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+
+                  <tbody>
+                    {(selectedInvoice.items || []).length > 0 ? (
+                      selectedInvoice.items.map((item, index) => (
+                        <tr key={index}>
+                          <td>{index + 1}</td>
+
+                          <td>{item.productName}</td>
+
+                          <td>{item.size || "-"}</td>
+
+                          <td>{item.quantity || item.cases || 1}</td>
+
+                          <td>{item.discount || 0}%</td>
+
+                          <td>
+                            ₹
+                            {Number(item.finalPrice || 0).toLocaleString(
+                              "en-IN",
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="6">No products found</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
               <div className="invoice-total-box">
                 <h2>

@@ -1,11 +1,8 @@
 // src/admin/layout/AdminSidebar.jsx
 
-import { useState } from "react";
 import { NavLink } from "react-router-dom";
 
 import {
-  FaBars,
-  FaTimes,
   FaHome,
   FaPlusSquare,
   FaBoxOpen,
@@ -19,26 +16,13 @@ import {
 
 import "./adminLayout.css";
 
-const AdminSidebar = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
+const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const closeSidebar = () => {
     setSidebarOpen(false);
   };
 
   return (
     <>
-      {/* MOBILE TOGGLE BUTTON */}
-
-      <button
-        className="admin-mobile-toggle"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? <FaTimes /> : <FaBars />}
-      </button>
-
-      {/* SIDEBAR */}
-
       <aside
         className={`admin-sidebar ${sidebarOpen ? "admin-sidebar-open" : ""}`}
       >
@@ -160,10 +144,8 @@ const AdminSidebar = () => {
         </nav>
       </aside>
 
-      {/* OVERLAY */}
-
       {sidebarOpen && (
-        <div className="admin-sidebar-overlay" onClick={closeSidebar}></div>
+        <div className="admin-sidebar-overlay" onClick={closeSidebar} />
       )}
     </>
   );

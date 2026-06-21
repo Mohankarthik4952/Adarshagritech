@@ -1,6 +1,6 @@
 // src/admin/layout/AdminLayout.jsx
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
 import AdminHeader from "./AdminHeader";
@@ -11,10 +11,42 @@ import "./adminLayout.css";
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  /* =========================
+     CLOSE SIDEBAR ON RESIZE
+  ========================= */
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  /* =========================
+     PREVENT BODY SCROLL
+  ========================= */
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [sidebarOpen]);
+
   return (
     <div className="admin-layout">
       {/* HEADER */}
-      <AdminHeader sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <AdminHeader setSidebarOpen={setSidebarOpen} />
 
       {/* BODY */}
       <div className="admin-body">
@@ -25,7 +57,14 @@ const AdminLayout = () => {
         />
 
         {/* PAGE CONTENT */}
-        <main className="admin-content">
+        <main
+          className="admin-content"
+          onClick={() => {
+            if (window.innerWidth <= 768 && sidebarOpen) {
+              setSidebarOpen(false);
+            }
+          }}
+        >
           <Outlet />
         </main>
       </div>
