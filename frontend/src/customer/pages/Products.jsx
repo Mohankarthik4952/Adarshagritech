@@ -1,5 +1,3 @@
-// src/customer/pages/Products.jsx
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -20,7 +18,6 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [acreValues, setAcreValues] = useState({});
-  const [selectedSizes, setSelectedSizes] = useState({});
 
   /* =========================
      FETCH PRODUCTS
@@ -38,19 +35,7 @@ const Products = () => {
         console.log("CUSTOMER PRODUCTS:", data);
 
         if (data.success) {
-          const fetchedProducts = data.products || [];
-
-          setProducts(fetchedProducts);
-
-          const initialSizes = {};
-
-          fetchedProducts.forEach((product) => {
-            if (product.sizes?.length > 0) {
-              initialSizes[product._id] = product.sizes[0].size;
-            }
-          });
-
-          setSelectedSizes(initialSizes);
+          setProducts(data.products || []);
         } else {
           setProducts([]);
         }
@@ -138,11 +123,9 @@ const Products = () => {
       ) : (
         <div className="customer-products-grid">
           {products.map((product) => {
-            const selectedSize =
-              selectedSizes[product._id] || product.sizes?.[0]?.size;
+            const sizeData = product.sizes?.[0] || {};
 
-            const sizeData =
-              product.sizes?.find((size) => size.size === selectedSize) || {};
+            const selectedSize = sizeData.size || "";
 
             const mrp = Number(sizeData.mrp || 0);
 
@@ -184,28 +167,6 @@ const Products = () => {
                       product.description ||
                       "No description available"}
                   </p>
-
-                  {product.sizes?.length > 0 && (
-                    <div className="acre-input-box">
-                      <label>Select Size</label>
-
-                      <select
-                        value={selectedSize}
-                        onChange={(e) =>
-                          setSelectedSizes((prev) => ({
-                            ...prev,
-                            [product._id]: e.target.value,
-                          }))
-                        }
-                      >
-                        {product.sizes.map((size) => (
-                          <option key={size.size} value={size.size}>
-                            {size.size}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
 
                   <div className="product-size">
                     Size:
@@ -280,37 +241,25 @@ const Products = () => {
                       onClick={() => {
                         if (acres <= 0) {
                           alert("Please enter acres");
-
                           return;
                         }
 
                         if (quantity > stockQuantity) {
                           alert("Insufficient stock available");
-
                           return;
                         }
 
                         addToCart({
                           productId: product._id,
-
                           productName: product.name,
-
                           size: selectedSize,
-
                           acres,
-
                           acreCoverage,
-
                           quantity,
-
                           unitPrice: finalPrice,
-
                           mrp,
-
                           discountPercent: discount,
-
                           price: totalPrice,
-
                           image,
                         });
                       }}
@@ -325,37 +274,25 @@ const Products = () => {
                       onClick={() => {
                         if (acres <= 0) {
                           alert("Please enter acres");
-
                           return;
                         }
 
                         if (quantity > stockQuantity) {
                           alert("Insufficient stock available");
-
                           return;
                         }
 
                         buyNow({
                           productId: product._id,
-
                           productName: product.name,
-
                           size: selectedSize,
-
                           acres,
-
                           acreCoverage,
-
                           quantity,
-
                           unitPrice: finalPrice,
-
                           mrp,
-
                           discountPercent: discount,
-
                           price: totalPrice,
-
                           image,
                         });
                       }}
