@@ -145,15 +145,31 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       invoiceGenerated: false,
     });
 
+    console.log("================================");
+    console.log("📧 EMAIL FUNCTION CALLED");
+    console.log("ORDER:", order.orderNo);
+    console.log("ROLE:", "DEALER");
+    console.log("================================");
+
     void sendOrderNotification({
       role: "DEALER",
       dealer,
       order,
     })
-      .then(() => {})
+      .then((info) => {
+        console.log("================================");
+        console.log("✅ ORDER EMAIL SENT");
+        console.log("ORDER:", order.orderNo);
+        console.log("MESSAGE ID:", info?.messageId);
+        console.log("================================");
+      })
       .catch((err) => {
-        console.error(`❌ Order email failed: ${order.orderNo}`);
-        console.error(err);
+        console.error("================================");
+        console.error(`❌ ORDER EMAIL FAILED: ${order.orderNo}`);
+        console.error("MESSAGE:", err.message);
+        console.error("CODE:", err.code);
+        console.error("RESPONSE:", err.response);
+        console.error("================================");
       });
 
     console.log("ORDER CREATED:", order.orderNo);

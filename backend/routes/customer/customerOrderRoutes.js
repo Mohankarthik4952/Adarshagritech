@@ -211,13 +211,24 @@ router.post("/", protect, customerOnly, async (req, res) => {
 
     void sendOrderNotification({
       role: "CUSTOMER",
-      dealer,
+      customer,
       order,
     })
-      .then(() => {})
+      .then((info) => {
+        console.log("================================");
+        console.log("✅ CUSTOMER EMAIL SENT");
+        console.log("ORDER:", order.orderNo);
+        console.log("MESSAGE ID:", info?.messageId);
+        console.log("================================");
+      })
       .catch((err) => {
-        console.error(`❌ Order email failed: ${order.orderNo}`);
-        console.error(err);
+        console.error("================================");
+        console.error(`❌ CUSTOMER EMAIL FAILED: ${order.orderNo}`);
+        console.error("MESSAGE:", err.message);
+        console.error("CODE:", err.code);
+        console.error("RESPONSE:", err.response);
+        console.error("FULL ERROR:", err);
+        console.error("================================");
       });
 
     /* =================================
