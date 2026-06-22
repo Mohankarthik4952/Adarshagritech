@@ -339,19 +339,16 @@ router.post("/checkout", protect, async (req, res) => {
       invoiceGenerated: false,
     });
 
-    try {
-      sendOrderNotification({
-        role: "DEALER",
-        dealer,
-        order,
+    sendOrderNotification({
+      role: "DEALER",
+      dealer,
+      order,
+    })
+      .then(() => {})
+      .catch((err) => {
+        console.error(`❌ Order email failed: ${order.orderNo}`);
+        console.error(err);
       });
-    } catch (err) {
-      console.error("================================");
-      console.error("DEALER EMAIL ERROR");
-      console.error("MESSAGE:", err.message);
-      console.error("STACK:", err.stack);
-      console.error("================================");
-    }
 
     /* ===============================
        CREATE INVOICE

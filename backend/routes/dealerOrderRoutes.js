@@ -145,23 +145,16 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       invoiceGenerated: false,
     });
 
-    try {
-      console.log("Before dealer email notification");
-
-      sendOrderNotification({
-        role: "DEALER",
-        dealer,
-        order,
+    sendOrderNotification({
+      role: "DEALER",
+      dealer,
+      order,
+    })
+      .then(() => {})
+      .catch((err) => {
+        console.error(`❌ Order email failed: ${order.orderNo}`);
+        console.error(err);
       });
-
-      console.log("After dealer email notification");
-    } catch (err) {
-      console.error("================================");
-      console.error("DEALER EMAIL ERROR");
-      console.error("MESSAGE:", err.message);
-      console.error("STACK:", err.stack);
-      console.error("================================");
-    }
 
     console.log("ORDER CREATED:", order.orderNo);
 
