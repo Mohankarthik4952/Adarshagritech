@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
-import puppeteer from "puppeteer";
+
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 
 import generateInvoiceHtml from "./generateInvoiceHtml.js";
 
@@ -8,6 +10,10 @@ const generateInvoicePdf = async (invoice, totalOutstandingAmount = 0) => {
   let browser;
 
   try {
+    /* =========================
+       CREATE INVOICE DIRECTORY
+    ========================= */
+
     const invoicesDir = path.join(process.cwd(), "uploads", "invoices");
 
     if (!fs.existsSync(invoicesDir)) {
@@ -15,6 +21,10 @@ const generateInvoicePdf = async (invoice, totalOutstandingAmount = 0) => {
         recursive: true,
       });
     }
+
+    /* =========================
+       FILE NAME
+    ========================= */
 
     const safeInvoiceNo = String(
       invoice.invoiceNo || `INV-${Date.now()}`,
@@ -28,10 +38,18 @@ const generateInvoicePdf = async (invoice, totalOutstandingAmount = 0) => {
       fs.unlinkSync(filePath);
     }
 
-    browser = await puppeteer.launch({
-      headless: "new",
+    /* =========================
+       LAUNCH CHROMIUM
+    ========================= */
 
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    browser = await puppeteer.launch({
+      args: chromium.args,
+
+      defaultViewport: chromium.defaultViewport,
+
+      executablePath: await chromium.executablePath(),
+
+      headless: chromium.headless,
     });
 
     const page = await browser.newPage();
@@ -42,6 +60,10 @@ const generateInvoicePdf = async (invoice, totalOutstandingAmount = 0) => {
       deviceScaleFactor: 2,
     });
 
+    /* =========================
+       GENERATE HTML
+    ========================= */
+
     const html = generateInvoiceHtml(invoice, totalOutstandingAmount);
 
     await page.setContent(html, {
@@ -49,6 +71,10 @@ const generateInvoicePdf = async (invoice, totalOutstandingAmount = 0) => {
     });
 
     await page.emulateMediaType("screen");
+
+    /* =========================
+       GENERATE PDF
+    ========================= */
 
     await page.pdf({
       path: filePath,
@@ -69,7 +95,11 @@ const generateInvoicePdf = async (invoice, totalOutstandingAmount = 0) => {
 
     return `/uploads/invoices/${fileName}`;
   } catch (error) {
-    console.error("PDF GENERATION ERROR:", error);
+    console.error("================================");
+    console.error("PDF GENERATION ERROR");
+    console.error("MESSAGE:", error.message);
+    console.error("STACK:", error.stack);
+    console.error("================================");
 
     throw error;
   } finally {
