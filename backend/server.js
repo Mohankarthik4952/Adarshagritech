@@ -48,6 +48,7 @@ import orderRoutes from "./routes/orderRoutes.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import youtubeRoutes from "./routes/public/youtubeRoutes.js";
+import testMailRoutes from "./routes/testMailRoutes.js";
 
 // 🔹 PROFILE
 import profileUploadRoutes from "./routes/profileUploadRoutes.js";
@@ -174,6 +175,7 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/invoice-pdf", invoicePdfRoutes);
 app.use("/api/youtube", youtubeRoutes);
+app.use("/api/test", testMailRoutes);
 
 /* ===============================
    PROFILE ROUTES
