@@ -1,30 +1,45 @@
-// src/admin/pages/CustomerProducts.jsx
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { useEffect, useState } from "react";
 import API_URL from "../../config/api";
-
 import "./adminpages.css";
 
 const CustomerProducts = () => {
-  const token = localStorage.getItem("adminToken");
+  const navigate = useNavigate();
 
   /* =========================
      STATE
   ========================= */
 
   const [loading, setLoading] = useState(false);
-
   const [products, setProducts] = useState([]);
-
   const [customerConfig, setCustomerConfig] = useState({});
+  const [error, setError] = useState("");
+
+  /* =========================
+     TOKEN
+  ========================= */
+
+  const getToken = () => localStorage.getItem("adminToken");
 
   /* =========================
      FETCH PRODUCTS
   ========================= */
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
+      setError("");
+
+      const token = getToken();
+
+      if (!token) {
+        alert("Admin session expired. Please login again.");
+
+        navigate("/admin/login");
+
+        return;
+      }
 
       const res = await fetch(`${API_URL}/api/customer-products/admin/all`, {
         headers: {
@@ -33,6 +48,16 @@ const CustomerProducts = () => {
       });
 
       const data = await res.json();
+
+      if (res.status === 401) {
+        localStorage.removeItem("adminToken");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/admin/login");
+
+        return;
+      }
 
       if (!res.ok) {
         throw new Error(data.message || "Failed to fetch products");
@@ -46,19 +71,18 @@ const CustomerProducts = () => {
 
       setProducts(safeProducts);
 
-      /* INITIAL VALUES */
-
       const initial = {};
 
-      safeProducts.forEach((p) => {
-        initial[p._id] = {
-          visible: p.visibleToCustomers || false,
+      safeProducts.forEach((product) => {
+        initial[product._id] = {
+          visible: product.visibleToCustomers || false,
 
-          description: p.customerDescription || "",
+          description: product.customerDescription || "",
 
-          discount: p.customerDiscountPercent || "",
+          discount: product.customerDiscountPercent || "",
 
-          selectedSize: p.customerSelectedSize || p.sizes?.[0]?.size || "",
+          selectedSize:
+            product.customerSelectedSize || product.sizes?.[0]?.size || "",
         };
       });
 
@@ -66,15 +90,17 @@ const CustomerProducts = () => {
     } catch (error) {
       console.error("FETCH CUSTOMER PRODUCTS ERROR:", error);
 
+      setError(error.message || "Failed to load products");
+
       setProducts([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
   /* =========================
      HANDLE CHANGE
@@ -87,31 +113,35 @@ const CustomerProducts = () => {
       [productId]: {
         ...prev[productId],
 
-        [field]: value,
+        [field]:
+          field === "discount"
+            ? Math.min(100, Math.max(0, Number(value) || 0))
+            : value,
       },
     }));
   };
 
   /* =========================
-     GET SELECTED SIZE DATA
+     SELECTED SIZE
   ========================= */
 
   const getSelectedSizeData = (product) => {
     const selectedSize = customerConfig[product._id]?.selectedSize;
 
     return (
-      product.sizes?.find((s) => s.size === selectedSize) || product.sizes?.[0]
+      product.sizes?.find((size) => size.size === selectedSize) ||
+      product.sizes?.[0]
     );
   };
 
   /* =========================
-     GET PRODUCT MRP
+     PRODUCT MRP
   ========================= */
 
   const getProductMRP = (product) => {
     const sizeData = getSelectedSizeData(product);
 
-    return sizeData?.mrp || 0;
+    return Number(sizeData?.mrp || 0);
   };
 
   /* =========================
@@ -121,7 +151,7 @@ const CustomerProducts = () => {
   const getFinalPrice = (product, discount) => {
     const mrp = getProductMRP(product);
 
-    const discountValue = Number(discount) || 0;
+    const discountValue = Number(discount || 0);
 
     const finalPrice = mrp - (mrp * discountValue) / 100;
 
@@ -129,20 +159,19 @@ const CustomerProducts = () => {
   };
 
   /* =========================
-     SAVE CUSTOMER PRODUCTS
+     SAVE PRODUCTS
   ========================= */
 
   const saveCustomerProducts = async () => {
     try {
-      /* VALIDATION */
+      if (loading) return;
 
       const invalidProduct = products.find((product) => {
         const config = customerConfig[product._id];
 
         return (
           config?.visible &&
-          (!config.description ||
-            config.description.trim() === "" ||
+          (!config.description?.trim() ||
             config.discount === "" ||
             !config.selectedSize)
         );
@@ -156,7 +185,15 @@ const CustomerProducts = () => {
 
       setLoading(true);
 
-      /* PAYLOAD */
+      const token = getToken();
+
+      if (!token) {
+        alert("Admin session expired.");
+
+        navigate("/admin/login");
+
+        return;
+      }
 
       const payload = products.map((product) => ({
         productId: product._id,
@@ -165,12 +202,10 @@ const CustomerProducts = () => {
 
         description: customerConfig[product._id]?.description || "",
 
-        discount: customerConfig[product._id]?.discount || 0,
+        discount: Number(customerConfig[product._id]?.discount || 0),
 
         selectedSize: customerConfig[product._id]?.selectedSize || "",
       }));
-
-      /* API */
 
       const res = await fetch(`${API_URL}/api/customer-products`, {
         method: "POST",
@@ -187,6 +222,16 @@ const CustomerProducts = () => {
       });
 
       const data = await res.json();
+
+      if (res.status === 401) {
+        localStorage.removeItem("adminToken");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/admin/login");
+
+        return;
+      }
 
       if (!res.ok) {
         throw new Error(data.message || "Failed to save customer products");
@@ -229,13 +274,39 @@ const CustomerProducts = () => {
   };
 
   /* =========================
-     UI
+     LOADING
   ========================= */
+
+  if (loading && products.length === 0) {
+    return (
+      <div className="dealer-products-page">
+        <div className="loading-box">
+          <h2>Loading products...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  /* =========================
+     ERROR
+  ========================= */
+
+  if (error) {
+    return (
+      <div className="dealer-products-page">
+        <div className="error-box">
+          <h2>{error}</h2>
+
+          <button className="save-btn" onClick={fetchProducts}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dealer-products-page">
-      {/* HEADER */}
-
       <div className="page-header">
         <h2>Customer Products Management</h2>
 
@@ -248,28 +319,18 @@ const CustomerProducts = () => {
         </button>
       </div>
 
-      {/* TABLE */}
-
       <div className="table-wrapper">
         <table className="products-table">
           <thead>
             <tr>
               <th>Select</th>
-
               <th>Image</th>
-
               <th>Product ID</th>
-
               <th>Name</th>
-
               <th>Size</th>
-
               <th>MRP</th>
-
               <th>Description</th>
-
               <th>Discount %</th>
-
               <th>Final Price</th>
             </tr>
           </thead>
@@ -277,20 +338,13 @@ const CustomerProducts = () => {
           <tbody>
             {products.length === 0 ? (
               <tr>
-                <td
-                  colSpan="9"
-                  style={{
-                    textAlign: "center",
-                  }}
-                >
+                <td colSpan="9" style={{ textAlign: "center" }}>
                   No products found
                 </td>
               </tr>
             ) : (
               products.map((product) => (
                 <tr key={product._id}>
-                  {/* SELECT */}
-
                   <td>
                     <input
                       type="checkbox"
@@ -300,8 +354,6 @@ const CustomerProducts = () => {
                       }
                     />
                   </td>
-
-                  {/* IMAGE */}
 
                   <td>
                     <img
@@ -314,15 +366,9 @@ const CustomerProducts = () => {
                     />
                   </td>
 
-                  {/* PRODUCT ID */}
-
                   <td>{product.productId}</td>
 
-                  {/* NAME */}
-
                   <td>{product.name}</td>
-
-                  {/* SIZE */}
 
                   <td>
                     <select
@@ -346,11 +392,7 @@ const CustomerProducts = () => {
                     </select>
                   </td>
 
-                  {/* MRP */}
-
-                  <td>₹{getProductMRP(product)}</td>
-
-                  {/* DESCRIPTION */}
+                  <td>₹{getProductMRP(product).toLocaleString("en-IN")}</td>
 
                   <td>
                     <input
@@ -363,8 +405,6 @@ const CustomerProducts = () => {
                       className="table-input"
                     />
                   </td>
-
-                  {/* DISCOUNT */}
 
                   <td>
                     <input
@@ -379,8 +419,6 @@ const CustomerProducts = () => {
                       className="table-input"
                     />
                   </td>
-
-                  {/* FINAL PRICE */}
 
                   <td>
                     ₹

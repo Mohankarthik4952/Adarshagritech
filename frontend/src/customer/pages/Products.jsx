@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API_URL from "../../config/api";
 
 import { FaShoppingCart, FaBolt, FaBoxOpen } from "react-icons/fa";
+
+import API_URL from "../../config/api";
+import getImageUrl from "../../utils/getImageUrl";
 
 import "./customerpages.css";
 
@@ -18,6 +20,7 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [acreValues, setAcreValues] = useState({});
+  const [selectedSizes, setSelectedSizes] = useState({});
 
   /* =========================
      FETCH PRODUCTS
@@ -26,6 +29,8 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setLoading(true);
+
         const response = await fetch(`${API_URL}/api/customer-products`);
 
         const data = await response.json();
@@ -33,7 +38,19 @@ const Products = () => {
         console.log("CUSTOMER PRODUCTS:", data);
 
         if (data.success) {
-          setProducts(data.products || []);
+          const fetchedProducts = data.products || [];
+
+          setProducts(fetchedProducts);
+
+          const initialSizes = {};
+
+          fetchedProducts.forEach((product) => {
+            if (product.sizes?.length > 0) {
+              initialSizes[product._id] = product.sizes[0].size;
+            }
+          });
+
+          setSelectedSizes(initialSizes);
         } else {
           setProducts([]);
         }
@@ -50,31 +67,36 @@ const Products = () => {
   }, []);
 
   /* =========================
-     IMAGE URL
+     FORMAT PRICE
   ========================= */
 
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) {
-      return "/no-image.png";
-    }
-
-    if (imagePath.startsWith("http")) {
-      return imagePath;
-    }
-
-    const cleanPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
-
-    return `${API_URL}${cleanPath}`;
-  };
+  const formatCurrency = (amount) =>
+    Number(amount || 0).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
 
   /* =========================
      ADD TO CART
   ========================= */
 
-  const addToCart = (product) => {
+  const addToCart = (cartItem) => {
     const cart = JSON.parse(localStorage.getItem("customerCart")) || [];
 
-    cart.push(product);
+    const existingIndex = cart.findIndex(
+      (item) =>
+        item.productId === cartItem.productId && item.size === cartItem.size,
+    );
+
+    if (existingIndex !== -1) {
+      cart[existingIndex].acres += cartItem.acres;
+
+      cart[existingIndex].quantity += cartItem.quantity;
+
+      cart[existingIndex].price += cartItem.price;
+    } else {
+      cart.push(cartItem);
+    }
 
     localStorage.setItem("customerCart", JSON.stringify(cart));
 
@@ -86,14 +108,14 @@ const Products = () => {
   ========================= */
 
   const buyNow = (product) => {
+    localStorage.removeItem("checkoutProducts");
+
     localStorage.setItem("checkoutProducts", JSON.stringify([product]));
+
+    localStorage.setItem("transactionAmount", product.price);
 
     navigate("/customer/transaction");
   };
-
-  /* =========================
-     UI
-  ========================= */
 
   return (
     <div className="customer-products-page">
@@ -116,16 +138,21 @@ const Products = () => {
       ) : (
         <div className="customer-products-grid">
           {products.map((product) => {
-            const size =
-              product.selectedSize || product.sizes?.[0]?.size || "N/A";
+            const selectedSize =
+              selectedSizes[product._id] || product.sizes?.[0]?.size;
 
-            const mrp = Number(product.mrp || 0);
+            const sizeData =
+              product.sizes?.find((size) => size.size === selectedSize) || {};
 
-            const finalPrice = Number(product.finalPrice || mrp);
+            const mrp = Number(sizeData.mrp || 0);
 
-            const discount = Number(product.discountPercent || 0);
+            const discount = Number(
+              product.customerDiscountPercent || product.discountPercent || 0,
+            );
 
-            const acreCoverage = Number(product.acreCoverage || 1);
+            const finalPrice = mrp - (mrp * discount) / 100;
+
+            const acreCoverage = Number(sizeData.acreCoverage || 1);
 
             const acres = Number(acreValues[product._id] || 0);
 
@@ -133,33 +160,56 @@ const Products = () => {
 
             const totalPrice = finalPrice * quantity;
 
+            const image = product.images?.[0] || product.image || "";
+
+            const stockQuantity = Number(sizeData.stockQuantity || 0);
+
             return (
               <div className="customer-product-card" key={product._id}>
-                {/* IMAGE */}
-
                 <div className="product-image-wrapper">
                   <img
-                    src={getImageUrl(product.image)}
+                    src={getImageUrl(image)}
                     alt={product.name}
                     onError={(e) => {
-                      e.target.onerror = null;
                       e.target.src = "/no-image.png";
                     }}
                   />
                 </div>
 
-                {/* CONTENT */}
-
                 <div className="product-content">
                   <h3>{product.name}</h3>
 
                   <p className="product-description">
-                    {product.description || "No description available"}
+                    {product.customerDescription ||
+                      product.description ||
+                      "No description available"}
                   </p>
+
+                  {product.sizes?.length > 0 && (
+                    <div className="acre-input-box">
+                      <label>Select Size</label>
+
+                      <select
+                        value={selectedSize}
+                        onChange={(e) =>
+                          setSelectedSizes((prev) => ({
+                            ...prev,
+                            [product._id]: e.target.value,
+                          }))
+                        }
+                      >
+                        {product.sizes.map((size) => (
+                          <option key={size.size} value={size.size}>
+                            {size.size}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   <div className="product-size">
                     Size:
-                    <span>{size}</span>
+                    <span>{selectedSize}</span>
                   </div>
 
                   <div className="product-size">
@@ -170,10 +220,15 @@ const Products = () => {
                     </span>
                   </div>
 
+                  <div className="product-size">
+                    Stock:
+                    <span>{stockQuantity} Bottles</span>
+                  </div>
+
                   <div className="price-section">
                     <div className="mrp-price">
                       Original:
-                      <span>₹{mrp.toLocaleString("en-IN")}</span>
+                      <span>₹{formatCurrency(mrp)}</span>
                     </div>
 
                     <div className="discount-price">
@@ -182,11 +237,7 @@ const Products = () => {
                     </div>
 
                     <div className="final-price">
-                      ₹
-                      {finalPrice.toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      ₹{formatCurrency(finalPrice)}
                     </div>
                   </div>
 
@@ -215,13 +266,7 @@ const Products = () => {
 
                   <div className="required-qty">
                     Total Amount:
-                    <span>
-                      ₹
-                      {totalPrice.toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
+                    <span>₹{formatCurrency(totalPrice)}</span>
                   </div>
 
                   <div className="non-returnable">
@@ -231,9 +276,17 @@ const Products = () => {
                   <div className="product-buttons">
                     <button
                       className="cart-btn"
+                      disabled={quantity <= 0 || quantity > stockQuantity}
                       onClick={() => {
-                        if (!acres || acres <= 0) {
+                        if (acres <= 0) {
                           alert("Please enter acres");
+
+                          return;
+                        }
+
+                        if (quantity > stockQuantity) {
+                          alert("Insufficient stock available");
+
                           return;
                         }
 
@@ -242,7 +295,7 @@ const Products = () => {
 
                           productName: product.name,
 
-                          size,
+                          size: selectedSize,
 
                           acres,
 
@@ -258,7 +311,7 @@ const Products = () => {
 
                           price: totalPrice,
 
-                          image: product.image,
+                          image,
                         });
                       }}
                     >
@@ -268,9 +321,17 @@ const Products = () => {
 
                     <button
                       className="buy-btn"
+                      disabled={quantity <= 0 || quantity > stockQuantity}
                       onClick={() => {
-                        if (!acres || acres <= 0) {
+                        if (acres <= 0) {
                           alert("Please enter acres");
+
+                          return;
+                        }
+
+                        if (quantity > stockQuantity) {
+                          alert("Insufficient stock available");
+
                           return;
                         }
 
@@ -279,7 +340,7 @@ const Products = () => {
 
                           productName: product.name,
 
-                          size,
+                          size: selectedSize,
 
                           acres,
 
@@ -295,7 +356,7 @@ const Products = () => {
 
                           price: totalPrice,
 
-                          image: product.image,
+                          image,
                         });
                       }}
                     >

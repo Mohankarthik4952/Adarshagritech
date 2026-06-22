@@ -8,6 +8,7 @@ import {
   FaBoxOpen,
 } from "react-icons/fa";
 import API_URL from "../../config/api";
+import getImageUrl from "../../utils/getImageUrl";
 
 import "./dealerpages.css";
 
@@ -369,12 +370,11 @@ const Products = () => {
               <div className="dealer-product-card" key={product._id}>
                 <div className="product-image-box">
                   <img
-                    src={
-                      product.images?.length
-                        ? `${API_URL}${product.images[0]}`
-                        : "/no-image.png"
-                    }
+                    src={getImageUrl(product.images?.[0])}
                     alt={product.name}
+                    onError={(e) => {
+                      e.target.src = "/no-image.png";
+                    }}
                   />
                 </div>
 
@@ -382,7 +382,9 @@ const Products = () => {
                   <h2>{product.name}</h2>
 
                   <p>
-                    {product.dealerDescription || "No description available"}
+                    {product.dealerDescription ||
+                      product.description ||
+                      "No description available"}
                   </p>
 
                   <div className="input-group">

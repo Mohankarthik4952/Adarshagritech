@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+// src/admin/pages/AllInvoices.jsx
+
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import API_URL from "../../config/api";
@@ -6,60 +9,144 @@ import API_URL from "../../config/api";
 import "./adminpages.css";
 
 export default function AllInvoices() {
+  const navigate = useNavigate();
+
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [selectedInvoice, setSelectedInvoice] = useState(null);
 
-  useEffect(() => {
-    fetchInvoices();
-  }, []);
+  const [error, setError] = useState("");
 
-  const fetchInvoices = async () => {
+  const [downloadingId, setDownloadingId] = useState("");
+
+  /* =========================
+     TOKEN CONFIG
+  ========================= */
+
+  const getConfig = () => {
+    const token = localStorage.getItem("adminToken");
+
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  };
+
+  /* =========================
+     HANDLE SESSION EXPIRED
+  ========================= */
+
+  const handleUnauthorized = () => {
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("admin");
+    localStorage.removeItem("adminAuth");
+
+    alert("Session expired. Please login again.");
+
+    navigate("/admin/login");
+  };
+
+  /* =========================
+     FILE URL
+  ========================= */
+
+  const getFileUrl = (path) => {
+    if (!path) return "";
+
+    if (path.startsWith("http")) {
+      return path;
+    }
+
+    return `${API_URL}${path}`;
+  };
+
+  /* =========================
+     FETCH INVOICES
+  ========================= */
+
+  const fetchInvoices = useCallback(async () => {
     try {
+      setLoading(true);
+      setError("");
+
       const token = localStorage.getItem("adminToken");
 
-      const res = await axios.get(`${API_URL}/api/admin/invoices`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      if (!token) {
+        handleUnauthorized();
+        return;
+      }
 
-      setInvoices(res.data.invoices || []);
+      const response = await axios.get(
+        `${API_URL}/api/admin/invoices`,
+        getConfig(),
+      );
+
+      const data = response.data;
+
+      const safeInvoices = Array.isArray(data?.invoices) ? data.invoices : [];
+
+      safeInvoices.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+      );
+
+      setInvoices(safeInvoices);
     } catch (error) {
       console.error("FETCH INVOICES ERROR:", error);
 
-      alert(
+      if (error.response?.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
+      setError(
         error.response?.data?.message ||
           error.message ||
           "Failed to load invoices",
       );
+
+      setInvoices([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    fetchInvoices();
+  }, [fetchInvoices]);
+
+  /* =========================
+     CLOSE MODAL
+  ========================= */
 
   const closeInvoice = () => {
     setSelectedInvoice(null);
   };
 
+  /* =========================
+     DOWNLOAD PDF
+  ========================= */
+
   const downloadInvoice = async (invoiceId) => {
     try {
-      const token = localStorage.getItem("adminToken");
+      setDownloadingId(invoiceId);
 
       const response = await axios.get(
         `${API_URL}/api/admin/invoices/${invoiceId}/download`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        getConfig(),
       );
 
-      if (!response.data.success || !response.data.pdfUrl) {
-        throw new Error("PDF URL not found");
+      if (response.status === 401) {
+        handleUnauthorized();
+        return;
       }
 
-      window.open(`${API_URL}${response.data.pdfUrl}`, "_blank");
+      if (!response.data.success || !response.data.pdfUrl) {
+        throw new Error("Invoice PDF not found");
+      }
+
+      window.open(getFileUrl(response.data.pdfUrl), "_blank");
     } catch (error) {
       console.error("DOWNLOAD ERROR:", error);
 
@@ -68,8 +155,14 @@ export default function AllInvoices() {
           error.message ||
           "Failed to download invoice",
       );
+    } finally {
+      setDownloadingId("");
     }
   };
+
+  /* =========================
+     HELPERS
+  ========================= */
 
   const formatCurrency = (amount) => {
     return Number(amount || 0).toLocaleString("en-IN", {
@@ -84,10 +177,34 @@ export default function AllInvoices() {
     return new Date(date).toLocaleDateString("en-IN");
   };
 
+  /* =========================
+     LOADING
+  ========================= */
+
   if (loading) {
     return (
       <div className="admin-page">
-        <h2>Loading Invoices...</h2>
+        <div className="loading-box">
+          <h2>Loading invoices...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  /* =========================
+     ERROR
+  ========================= */
+
+  if (error) {
+    return (
+      <div className="admin-page">
+        <div className="error-box">
+          <h3>{error}</h3>
+
+          <button className="retry-btn" onClick={fetchInvoices}>
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -95,12 +212,21 @@ export default function AllInvoices() {
   return (
     <div className="admin-page">
       <div className="page-header">
-        <h1>All Invoices</h1>
-        <p>Manage all dealer and customer invoices</p>
+        <div>
+          <h1>All Invoices</h1>
+
+          <p>Manage all dealer and customer invoices</p>
+        </div>
+
+        <button className="refresh-btn" onClick={fetchInvoices}>
+          Refresh
+        </button>
       </div>
 
       {invoices.length === 0 ? (
-        <div className="empty-box">No invoices found</div>
+        <div className="empty-box">
+          <h3>No invoices found</h3>
+        </div>
       ) : (
         <div className="table-container">
           <table className="admin-table">
@@ -128,7 +254,7 @@ export default function AllInvoices() {
 
                   <td>
                     {invoice.role === "DEALER"
-                      ? invoice.dealerName || "-"
+                      ? invoice.dealerName || invoice.shopName || "-"
                       : invoice.customerName || "-"}
                   </td>
 
@@ -150,7 +276,7 @@ export default function AllInvoices() {
 
                   <td>{formatDate(invoice.createdAt)}</td>
 
-                  <td>
+                  <td className="action-buttons">
                     <button
                       className="admin-view-btn"
                       onClick={() => setSelectedInvoice(invoice)}
@@ -160,9 +286,12 @@ export default function AllInvoices() {
 
                     <button
                       className="admin-download-btn"
+                      disabled={downloadingId === invoice._id}
                       onClick={() => downloadInvoice(invoice._id)}
                     >
-                      Download
+                      {downloadingId === invoice._id
+                        ? "Downloading..."
+                        : "Download"}
                     </button>
                   </td>
                 </tr>
@@ -181,7 +310,9 @@ export default function AllInvoices() {
             <div className="invoice-modal-header">
               <h1 className="invoice-title">INVOICE</h1>
 
-              <button onClick={closeInvoice}>✕</button>
+              <button className="invoice-close-btn" onClick={closeInvoice}>
+                ✕
+              </button>
             </div>
 
             <div className="invoice-modal-body">

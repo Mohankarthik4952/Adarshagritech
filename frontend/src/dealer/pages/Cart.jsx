@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API_URL from "../../config/api";
+import getImageUrl from "../../utils/getImageUrl";
 
 import "./dealerpages.css";
 
@@ -13,6 +14,7 @@ const Cart = () => {
 
   const [cartItems, setCartItems] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [placingOrder, setPlacingOrder] = useState(false);
 
   /* =========================
      LOAD CART
@@ -40,24 +42,6 @@ const Cart = () => {
   };
 
   /* =========================
-     IMAGE URL
-  ========================= */
-
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) {
-      return "/no-image.png";
-    }
-
-    if (imagePath.startsWith("http")) {
-      return imagePath;
-    }
-
-    const cleanPath = imagePath.replace(/^\/+/, "");
-
-    return `${API_URL}/${cleanPath}`;
-  };
-
-  /* =========================
      REMOVE ITEM
   ========================= */
 
@@ -76,14 +60,26 @@ const Cart = () => {
   ========================= */
 
   const handlePayNow = () => {
+    if (placingOrder) return;
+
     if (cartItems.length === 0) {
       alert("Cart is empty");
       return;
     }
 
+    const token = localStorage.getItem("dealerToken");
+
+    if (!token) {
+      alert("Please login again");
+
+      navigate("/dealer/login");
+
+      return;
+    }
+
     localStorage.setItem("checkoutProducts", JSON.stringify(cartItems));
 
-    localStorage.setItem("transactionAmount", totalAmount);
+    localStorage.setItem("transactionAmount", totalAmount.toString());
 
     localStorage.setItem("paymentType", "PAY_NOW");
 
@@ -96,6 +92,8 @@ const Cart = () => {
 
   const handlePayLater = async () => {
     try {
+      if (placingOrder) return;
+
       if (cartItems.length === 0) {
         alert("Cart is empty");
         return;
@@ -111,6 +109,42 @@ const Cart = () => {
         return;
       }
 
+      setPlacingOrder(true);
+
+      const payload = {
+        items: cartItems.map((item) => ({
+          productId: item.productId,
+
+          productName: item.productName || item.name || "",
+
+          image: item.image || "",
+
+          size: item.size || "",
+
+          cases: Number(item.cases || 1),
+
+          bottlesPerCase: Number(item.bottlesPerCase || 1),
+
+          totalBottles: Number(item.totalBottles || 0),
+
+          quantity: Number(item.quantity || item.totalBottles || 0),
+
+          mrp: Number(item.mrp || 0),
+
+          pricePerBottle: Number(item.pricePerBottle || item.mrp || 0),
+
+          discountPercent: Number(item.discountPercent || 0),
+
+          gstPercent: Number(item.gstPercent || 0),
+
+          gstAmount: Number(item.gstAmount || 0),
+
+          finalPrice: Number(item.finalPrice || 0),
+        })),
+
+        paymentType: "PAY_LATER",
+      };
+
       const response = await fetch(`${API_URL}/api/dealer/orders`, {
         method: "POST",
 
@@ -120,37 +154,7 @@ const Cart = () => {
           Authorization: `Bearer ${token}`,
         },
 
-        body: JSON.stringify({
-          items: cartItems.map((item) => ({
-            productId: item.productId,
-
-            productName: item.productName || item.name || "",
-
-            size: item.size || "",
-
-            cases: Number(item.cases || 1),
-
-            bottlesPerCase: Number(item.bottlesPerCase || 1),
-
-            totalBottles: Number(item.totalBottles || 0),
-
-            quantity: Number(item.quantity || item.totalBottles || 0),
-
-            mrp: Number(item.mrp || 0),
-
-            pricePerBottle: Number(item.pricePerBottle || item.mrp || 0),
-
-            discountPercent: Number(item.discountPercent || 0),
-
-            gstPercent: Number(item.gstPercent || 0),
-
-            gstAmount: Number(item.gstAmount || 0),
-
-            finalPrice: Number(item.finalPrice || 0),
-          })),
-
-          paymentType: "PAY_LATER",
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -160,12 +164,12 @@ const Cart = () => {
       }
 
       localStorage.removeItem("dealerCart");
-
       localStorage.removeItem("checkoutProducts");
-
       localStorage.removeItem("transactionAmount");
-
       localStorage.removeItem("paymentType");
+
+      setCartItems([]);
+      setTotalAmount(0);
 
       alert(
         "Order placed successfully ✅\n\nTax invoice generated successfully.",
@@ -175,7 +179,23 @@ const Cart = () => {
     } catch (error) {
       console.error("ORDER ERROR:", error);
 
+      if (
+        error.message?.toLowerCase().includes("jwt") ||
+        error.message?.toLowerCase().includes("token") ||
+        error.message?.toLowerCase().includes("unauthorized")
+      ) {
+        localStorage.removeItem("dealerToken");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/dealer/login");
+
+        return;
+      }
+
       alert(error.message || "Order failed");
+    } finally {
+      setPlacingOrder(false);
     }
   };
 
@@ -197,7 +217,10 @@ const Cart = () => {
 
       <div className="cart-items-container">
         {cartItems.map((item, index) => (
-          <div className="cart-item-card" key={index}>
+          <div
+            className="cart-item-card"
+            key={`${item.productId}-${item.size}-${index}`}
+          >
             <div className="cart-image-box">
               <img
                 src={getImageUrl(item.image)}

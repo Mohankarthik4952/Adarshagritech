@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { FaPlayCircle } from "react-icons/fa";
+import { useEffect, useState, useCallback } from "react";
+import { FaPlayCircle, FaYoutube, FaRedo } from "react-icons/fa";
+
 import API_URL from "../../config/api";
 
 import "./customerpages.css";
@@ -7,42 +8,84 @@ import "./customerpages.css";
 const Home = () => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   /* =========================
      FETCH YOUTUBE VIDEOS
   ========================= */
 
-  useEffect(() => {
-    const fetchVideos = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/youtube/reviews`);
+  const fetchVideos = useCallback(async () => {
+    try {
+      setLoading(true);
+      setErrorMessage("");
 
-        const data = await response.json();
+      const response = await fetch(`${API_URL}/api/youtube/reviews`);
 
-        console.log("YOUTUBE VIDEOS:", data);
+      const data = await response.json();
 
-        if (data.success) {
-          setVideos(data.videos || []);
-        } else {
-          setVideos([]);
-        }
-      } catch (error) {
-        console.error("VIDEO FETCH ERROR:", error);
+      console.log("YOUTUBE VIDEOS:", data);
+
+      if (response.status === 429) {
+        setErrorMessage("Video service limit reached. Please try again later.");
 
         setVideos([]);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchVideos();
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to load videos");
+      }
+
+      if (data.success) {
+        const sortedVideos = [...(data.videos || [])].sort(
+          (a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0),
+        );
+
+        setVideos(sortedVideos);
+      } else {
+        setVideos([]);
+      }
+    } catch (error) {
+      console.error("VIDEO FETCH ERROR:", error);
+
+      setVideos([]);
+
+      setErrorMessage(error.message || "Unable to load review videos");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchVideos();
+  }, [fetchVideos]);
+
+  /* =========================
+     OPEN VIDEO
+  ========================= */
+
+  const openYoutubeVideo = (videoId) => {
+    window.open(
+      `https://www.youtube.com/watch?v=${videoId}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
+
+  /* =========================
+     FORMAT DATE
+  ========================= */
+
+  const formatDate = (date) => {
+    if (!date) return "-";
+
+    return new Date(date).toLocaleDateString("en-IN");
+  };
 
   return (
     <div className="customer-home-page">
-      {/* =========================
-          HERO SECTION
-      ========================= */}
+      {/* HERO SECTION */}
 
       <div className="customer-hero">
         <div className="hero-content">
@@ -70,19 +113,25 @@ const Home = () => {
         </div>
       </div>
 
-      {/* =========================
-          VIDEOS SECTION
-      ========================= */}
+      {/* VIDEOS */}
 
       <div className="section-header">
         <h2>Customer Review Videos</h2>
 
         <p>Watch real farmer experiences and product reviews</p>
       </div>
-
       {loading ? (
         <div className="loading-box">
           <h3>Loading videos...</h3>
+        </div>
+      ) : errorMessage ? (
+        <div className="empty-videos">
+          <h3>{errorMessage}</h3>
+
+          <button className="retry-btn" onClick={fetchVideos}>
+            <FaRedo />
+            Retry
+          </button>
         </div>
       ) : videos.length === 0 ? (
         <div className="empty-videos">
@@ -101,14 +150,21 @@ const Home = () => {
               <iframe
                 src={`https://www.youtube.com/embed/${video.videoId}`}
                 title={video.title}
+                loading="lazy"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
 
               <div className="video-info">
-                <small>
-                  {new Date(video.publishedAt).toLocaleDateString("en-IN")}
-                </small>
+                <small>{formatDate(video.publishedAt)}</small>
+
+                <button
+                  className="youtube-btn"
+                  onClick={() => openYoutubeVideo(video.videoId)}
+                >
+                  <FaYoutube />
+                  Watch on YouTube
+                </button>
               </div>
             </div>
           ))}

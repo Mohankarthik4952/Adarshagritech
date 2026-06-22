@@ -2,6 +2,7 @@ import express from "express";
 import Payment from "../../models/Payment.js";
 import Order from "../../models/Order.js";
 import { protect, customerOnly } from "../../middleware/authMiddleware.js";
+import { sendOrderNotification } from "../../utils/sendOrderNotification.js";
 
 const router = express.Router();
 
@@ -20,21 +21,21 @@ router.post("/", protect, customerOnly, async (req, res) => {
       });
     }
 
-    if (!amount) {
+    if (!amount || Number(amount) <= 0) {
       return res.status(400).json({
         success: false,
-        message: "Amount is required",
+        message: "Valid amount is required",
       });
     }
 
-    if (!paymentApp) {
+    if (!paymentApp?.trim()) {
       return res.status(400).json({
         success: false,
         message: "Payment App is required",
       });
     }
 
-    if (!utrNumber) {
+    if (!utrNumber?.trim()) {
       return res.status(400).json({
         success: false,
         message: "UTR Number is required",
@@ -50,18 +51,67 @@ router.post("/", protect, customerOnly, async (req, res) => {
       });
     }
 
-    /* UPDATE ORDER */
+    /* =========================
+       VERIFY ORDER OWNERSHIP
+    ========================= */
+
+    if (
+      String(order.userId) !== String(req.user.id) ||
+      order.role !== "CUSTOMER"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    /* =========================
+       PREVENT DUPLICATE PAYMENTS
+    ========================= */
+
+    const existingPayment = await Payment.findOne({
+      orderId,
+      status: {
+        $in: ["VERIFICATION_PENDING", "APPROVED"],
+      },
+    });
+
+    if (existingPayment) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment already submitted for this order",
+      });
+    }
+
+    /* =========================
+       VERIFY AMOUNT
+    ========================= */
+
+    const orderAmount = Number(order.totalAmount || 0);
+
+    if (Number(amount) !== orderAmount) {
+      return res.status(400).json({
+        success: false,
+        message: `Payment amount must be ₹${orderAmount}`,
+      });
+    }
+
+    /* =========================
+       UPDATE ORDER
+    ========================= */
 
     order.paymentType = "PAY_NOW";
     order.paymentStatus = "VERIFICATION_PENDING";
-    order.paymentApp = paymentApp;
-    order.utrNumber = utrNumber;
+    order.paymentApp = paymentApp.trim();
+    order.utrNumber = utrNumber.trim();
     order.paymentProof = paymentProof || "";
     order.paymentDate = new Date();
 
     await order.save();
 
-    /* CREATE PAYMENT */
+    /* =========================
+       CREATE PAYMENT
+    ========================= */
 
     const payment = await Payment.create({
       orderId: order._id,
@@ -70,13 +120,17 @@ router.post("/", protect, customerOnly, async (req, res) => {
 
       role: "CUSTOMER",
 
+      customerName: order.customerName || "",
+
+      customerPhoneNumber: order.customerPhoneNumber || "",
+
       amount: Number(amount),
 
       paymentType: "UPI",
 
-      paymentApp: paymentApp, // FIXED
+      paymentApp: paymentApp.trim(),
 
-      utrNumber,
+      utrNumber: utrNumber.trim(),
 
       paymentProof: paymentProof || "",
 
@@ -86,6 +140,23 @@ router.post("/", protect, customerOnly, async (req, res) => {
     });
 
     console.log("CUSTOMER PAYMENT CREATED:", payment._id);
+
+    /* =========================
+       SEND EMAIL NOTIFICATION
+    ========================= */
+
+    sendOrderNotification({
+      role: "CUSTOMER",
+      customer: {
+        name: order.customerName,
+        phone: order.customerPhoneNumber,
+        village: order.customerVillage,
+        nearBusStand: order.customerNearBusStand,
+      },
+      order,
+    }).catch((err) => {
+      console.error("CUSTOMER EMAIL ERROR:", err);
+    });
 
     return res.status(201).json({
       success: true,

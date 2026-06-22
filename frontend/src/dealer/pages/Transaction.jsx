@@ -25,7 +25,9 @@ const Transaction = () => {
   const [cashReceivedBy, setCashReceivedBy] = useState("");
 
   const [cashRemarks, setCashRemarks] = useState("");
-  const paymentMode = localStorage.getItem("paymentMode") || "PAY_NOW";
+  const [paymentMode, setPaymentMode] = useState(
+    localStorage.getItem("paymentMode") || "PAY_NOW",
+  );
 
   const selectedOrderId = localStorage.getItem("selectedOrderId");
   const isExistingOrder = !!selectedOrderId;
@@ -60,11 +62,20 @@ const Transaction = () => {
     };
   }, []);
 
+  const clearCheckoutData = () => {
+    localStorage.removeItem("dealerCart");
+    localStorage.removeItem("checkoutProducts");
+    localStorage.removeItem("transactionAmount");
+    localStorage.removeItem("paymentMode");
+    localStorage.removeItem("selectedOrderId");
+  };
+
   /* =========================
      PAY NOW
   ========================= */
 
   const startPayment = async () => {
+    if (loading) return;
     try {
       setLoading(true);
 
@@ -110,6 +121,15 @@ const Transaction = () => {
         });
 
         const uploadData = await uploadResponse.json();
+        if (uploadResponse.status === 401) {
+          localStorage.removeItem("dealerToken");
+
+          alert("Session expired. Please login again.");
+
+          navigate("/dealer/login");
+
+          return;
+        }
 
         if (!uploadResponse.ok) {
           throw new Error(uploadData.message || "Screenshot upload failed");
@@ -151,6 +171,15 @@ const Transaction = () => {
         );
 
         const data = await response.json();
+        if (response.status === 401) {
+          localStorage.removeItem("dealerToken");
+
+          alert("Session expired. Please login again.");
+
+          navigate("/dealer/login");
+
+          return;
+        }
 
         if (!response.ok) {
           throw new Error(data.message || "Payment failed");
@@ -210,6 +239,15 @@ const Transaction = () => {
         });
 
         const data = await response.json();
+        if (response.status === 401) {
+          localStorage.removeItem("dealerToken");
+
+          alert("Session expired. Please login again.");
+
+          navigate("/dealer/login");
+
+          return;
+        }
 
         if (!response.ok) {
           throw new Error(data.message || "Payment failed");
@@ -220,11 +258,7 @@ const Transaction = () => {
         );
       }
 
-      localStorage.removeItem("dealerCart");
-      localStorage.removeItem("checkoutProducts");
-      localStorage.removeItem("transactionAmount");
-      localStorage.removeItem("paymentMode");
-      localStorage.removeItem("selectedOrderId");
+      clearCheckoutData();
 
       navigate("/dealer/orders");
     } catch (error) {
@@ -241,6 +275,7 @@ const Transaction = () => {
   ========================= */
 
   const placePayLaterOrder = async () => {
+    if (loading) return;
     try {
       setLoading(true);
 
@@ -297,6 +332,15 @@ const Transaction = () => {
       });
 
       const data = await response.json();
+      if (response.status === 401) {
+        localStorage.removeItem("dealerToken");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/dealer/login");
+
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(data.message || "Order failed");
@@ -306,10 +350,7 @@ const Transaction = () => {
         "Order placed successfully ✅\n\nTax invoice generated successfully.",
       );
 
-      localStorage.removeItem("dealerCart");
-      localStorage.removeItem("checkoutProducts");
-      localStorage.removeItem("transactionAmount");
-      localStorage.removeItem("paymentMode");
+      clearCheckoutData();
 
       navigate("/dealer/orders");
     } catch (error) {
@@ -329,6 +370,13 @@ const Transaction = () => {
     return (
       <div className="empty-cart-page">
         <h2>No products selected</h2>
+
+        <button
+          className="pay-later-btn"
+          onClick={() => navigate("/dealer/products")}
+        >
+          Browse Products
+        </button>
       </div>
     );
   }
@@ -360,16 +408,22 @@ const Transaction = () => {
           </thead>
 
           <tbody>
-            {products.map((product, index) => (
-              <tr key={index}>
-                <td>{product.productName}</td>
+            {products.map((product) => (
+              <tr key={`${product.productId}-${product.size}`}>
+                <td>{product.productName || product.name || "-"}</td>
 
                 <td>{product.size}</td>
 
                 <td>{product.cases || product.quantity || 1}</td>
 
                 <td>
-                  ₹{Number(product.finalPrice || product.price || 0).toFixed(2)}
+                  ₹
+                  {Number(
+                    product.finalPrice || product.price || 0,
+                  ).toLocaleString("en-IN", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </td>
               </tr>
             ))}
@@ -389,7 +443,13 @@ const Transaction = () => {
         <div className="summary-row">
           <span>Grand Total</span>
 
-          <strong>₹{total.toFixed(2)}</strong>
+          <strong>
+            ₹
+            {Number(total).toLocaleString("en-IN", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </strong>
         </div>
 
         <div className="payment-section">
@@ -397,7 +457,13 @@ const Transaction = () => {
 
           <select
             value={paymentType}
-            onChange={(e) => setPaymentType(e.target.value)}
+            onChange={(e) => {
+              setPaymentType(e.target.value);
+
+              localStorage.setItem("paymentMode", e.target.value);
+
+              setPaymentMode(e.target.value);
+            }}
             className="payment-input"
           >
             <option value="PAY_NOW">UPI Payment</option>
@@ -422,7 +488,13 @@ const Transaction = () => {
 
             <p>
               Amount:
-              <strong> ₹{total.toFixed(2)}</strong>
+              <strong>
+                ₹
+                {Number(total).toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </strong>
             </p>
           </div>
         )}
@@ -444,7 +516,9 @@ const Transaction = () => {
             <button
               type="button"
               className="open-upi-btn"
-              onClick={() => window.open(upiLink)}
+              onClick={() => {
+                window.location.href = upiLink;
+              }}
             >
               Open Payment App
             </button>
@@ -475,7 +549,32 @@ const Transaction = () => {
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setPaymentProof(e.target.files[0])}
+              onChange={(e) => {
+                const file = e.target.files[0];
+
+                if (!file) return;
+
+                const allowedTypes = [
+                  "image/jpeg",
+                  "image/jpg",
+                  "image/png",
+                  "image/webp",
+                ];
+
+                if (!allowedTypes.includes(file.type)) {
+                  alert("Only JPG, PNG and WEBP images are allowed");
+                  e.target.value = "";
+                  return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                  alert("Image size must be less than 5 MB");
+                  e.target.value = "";
+                  return;
+                }
+
+                setPaymentProof(file);
+              }}
               className="payment-input"
             />
           </div>
@@ -541,7 +640,11 @@ const Transaction = () => {
               <button
                 className="pay-later-btn"
                 onClick={() => {
+                  if (loading) return;
+
                   localStorage.setItem("paymentMode", "PAY_LATER");
+
+                  setPaymentMode("PAY_LATER");
 
                   placePayLaterOrder();
                 }}

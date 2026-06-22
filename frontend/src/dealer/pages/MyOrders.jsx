@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+
 import API_URL from "../../config/api";
+
 import "./dealerpages.css";
 
 const MyOrders = () => {
@@ -13,9 +15,16 @@ const MyOrders = () => {
      FETCH ORDERS
   ========================= */
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const token = localStorage.getItem("dealerToken");
+
+      if (!token) {
+        navigate("/dealer/login");
+        return;
+      }
+
+      setLoading(true);
 
       const response = await fetch(`${API_URL}/api/dealer/orders`, {
         headers: {
@@ -25,22 +34,51 @@ const MyOrders = () => {
 
       const data = await response.json();
 
-      if (data.success) {
-        setOrders(data.orders || []);
-      } else {
-        setOrders([]);
+      if (response.status === 401) {
+        localStorage.removeItem("dealerToken");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/dealer/login");
+
+        return;
       }
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch orders");
+      }
+
+      setOrders(data.orders || []);
     } catch (error) {
-      console.error("Failed to fetch orders", error);
+      console.error("FETCH ORDERS ERROR:", error);
+
       setOrders([]);
+
+      alert(error.message || "Failed to load orders");
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
+
+  /* =========================
+     REFRESH ON WINDOW FOCUS
+  ========================= */
+
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchOrders();
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [fetchOrders]);
 
   /* =========================
      VIEW INVOICE
@@ -52,7 +90,11 @@ const MyOrders = () => {
       return;
     }
 
-    navigate("/dealer/invoices");
+    navigate("/dealer/invoices", {
+      state: {
+        invoiceId,
+      },
+    });
   };
 
   /* =========================
@@ -127,6 +169,10 @@ const MyOrders = () => {
     };
   };
 
+  /* =========================
+     LOADING
+  ========================= */
+
   if (loading) {
     return (
       <div className="orders-loading">
@@ -190,20 +236,40 @@ const MyOrders = () => {
                     const delivery = getDeliveryStatus(order.deliveryStatus);
 
                     return (
-                      <tr key={order._id}>
-                        <td>{order.orderNo}</td>
+                      <tr key={order._id || order.orderNo}>
+                        <td>{order.orderNo || "-"}</td>
 
                         <td>
-                          {order.items
-                            ?.map((item) => item.productName || "-")
-                            .join(", ")}
+                          {order.items?.length
+                            ? order.items
+                                .map((item) => item.productName || "-")
+                                .join(", ")
+                            : "-"}
                         </td>
 
-                        <td>₹{totalAmount.toLocaleString("en-IN")}</td>
+                        <td>
+                          ₹
+                          {totalAmount.toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </td>
 
-                        <td>₹{paidAmount.toLocaleString("en-IN")}</td>
+                        <td>
+                          ₹
+                          {paidAmount.toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </td>
 
-                        <td>₹{balanceAmount.toLocaleString("en-IN")}</td>
+                        <td>
+                          ₹
+                          {balanceAmount.toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </td>
 
                         <td>
                           {order.paymentType

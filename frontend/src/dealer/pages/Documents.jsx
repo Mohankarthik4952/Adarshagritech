@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import API_URL from "../../config/api";
+import getImageUrl from "../../utils/getImageUrl";
+
 import "./dealerpages.css";
 
 const Documents = () => {
+  const navigate = useNavigate();
+
   /* =================================
      GET DEALER DATA
   ================================= */
@@ -10,8 +17,6 @@ const Documents = () => {
     JSON.parse(localStorage.getItem("dealerAuth")) ||
     JSON.parse(localStorage.getItem("dealer")) ||
     {};
-
-  console.log("Dealer Data:", dealer);
 
   const dealerId = dealer._id;
 
@@ -27,39 +32,67 @@ const Documents = () => {
 
   const [uploadedDocs, setUploadedDocs] = useState({});
 
+  const [uploading, setUploading] = useState(false);
+
   /* =================================
      FETCH DOCUMENTS
   ================================= */
 
   const fetchDocuments = async () => {
     try {
-      if (!dealerId) {
-        console.log("Dealer ID not found");
+      const token = localStorage.getItem("dealerToken");
+
+      if (!token || !dealerId) {
+        navigate("/dealer/login");
         return;
       }
 
-      const res = await fetch(`${API_URL}/api/documents/${dealerId}`);
+      const response = await fetch(`${API_URL}/api/documents/${dealerId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const data = await res.json();
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to load documents");
+      }
 
       setUploadedDocs(data);
     } catch (error) {
-      console.log(error);
+      console.error("FETCH DOCUMENTS ERROR:", error);
+
+      alert(error.message || "Failed to load documents");
     }
   };
 
   useEffect(() => {
     fetchDocuments();
-  }, []);
+  }, [dealerId]);
 
   /* =================================
      HANDLE FILE CHANGE
   ================================= */
 
   const handleFileChange = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert("Only JPG, PNG and WEBP images are allowed");
+
+      e.target.value = "";
+
+      return;
+    }
+
     setDocuments((prev) => ({
       ...prev,
-      [e.target.name]: e.target.files[0],
+      [e.target.name]: file,
     }));
   };
 
@@ -69,10 +102,27 @@ const Documents = () => {
 
   const uploadDocuments = async () => {
     try {
-      if (!dealerId) {
-        alert("Dealer ID not found. Please login again.");
+      if (uploading) return;
+
+      const token = localStorage.getItem("dealerToken");
+
+      if (!token || !dealerId) {
+        alert("Please login again");
+
+        navigate("/dealer/login");
+
         return;
       }
+
+      const hasFiles = Object.values(documents).some((file) => file !== null);
+
+      if (!hasFiles) {
+        alert("Please select at least one document");
+
+        return;
+      }
+
+      setUploading(true);
 
       const formData = new FormData();
 
@@ -86,12 +136,25 @@ const Documents = () => {
 
       const response = await fetch(`${API_URL}/api/documents/upload`, {
         method: "POST",
+
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+
         body: formData,
       });
 
       const data = await response.json();
 
-      console.log("UPLOAD RESPONSE:", data);
+      if (response.status === 401) {
+        localStorage.removeItem("dealerToken");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/dealer/login");
+
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(data.message || "Upload failed");
@@ -99,22 +162,20 @@ const Documents = () => {
 
       alert("Documents uploaded successfully ✅");
 
-      fetchDocuments();
+      setDocuments({
+        gstCertificate: null,
+        shopPhoto: null,
+        dealerSelfie: null,
+      });
+
+      await fetchDocuments();
     } catch (error) {
       console.error("UPLOAD ERROR:", error);
 
-      alert(error.message);
+      alert(error.message || "Upload failed");
+    } finally {
+      setUploading(false);
     }
-  };
-
-  /* =================================
-     FILE URL
-  ================================= */
-
-  const getFileUrl = (path) => {
-    if (!path) return "#";
-
-    return `${API_URL}${path}`;
   };
 
   return (
@@ -134,12 +195,13 @@ const Documents = () => {
           <input
             type="file"
             name="gstCertificate"
+            accept="image/*"
             onChange={handleFileChange}
           />
 
           {uploadedDocs.gstCertificate && (
             <a
-              href={getFileUrl(uploadedDocs.gstCertificate)}
+              href={getImageUrl(uploadedDocs.gstCertificate)}
               target="_blank"
               rel="noreferrer"
               className="document-link"
@@ -154,11 +216,16 @@ const Documents = () => {
         <div className="document-group">
           <label>Shop Photo</label>
 
-          <input type="file" name="shopPhoto" onChange={handleFileChange} />
+          <input
+            type="file"
+            name="shopPhoto"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
 
           {uploadedDocs.shopPhoto && (
             <a
-              href={getFileUrl(uploadedDocs.shopPhoto)}
+              href={getImageUrl(uploadedDocs.shopPhoto)}
               target="_blank"
               rel="noreferrer"
               className="document-link"
@@ -173,11 +240,16 @@ const Documents = () => {
         <div className="document-group">
           <label>Dealer Selfie</label>
 
-          <input type="file" name="dealerSelfie" onChange={handleFileChange} />
+          <input
+            type="file"
+            name="dealerSelfie"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
 
           {uploadedDocs.dealerSelfie && (
             <a
-              href={getFileUrl(uploadedDocs.dealerSelfie)}
+              href={getImageUrl(uploadedDocs.dealerSelfie)}
               target="_blank"
               rel="noreferrer"
               className="document-link"
@@ -187,8 +259,12 @@ const Documents = () => {
           )}
         </div>
 
-        <button className="upload-btn" onClick={uploadDocuments}>
-          Upload Documents
+        <button
+          className="upload-btn"
+          onClick={uploadDocuments}
+          disabled={uploading}
+        >
+          {uploading ? "Uploading..." : "Upload Documents"}
         </button>
       </div>
     </div>

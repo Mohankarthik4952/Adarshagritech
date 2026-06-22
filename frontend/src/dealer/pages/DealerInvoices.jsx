@@ -1,16 +1,31 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
 import API_URL from "../../config/api";
+
 import "./dealerpages.css";
 
 export default function DealerInvoices() {
+  const navigate = useNavigate();
+
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [downloadingId, setDownloadingId] = useState("");
+
+  /* =================================
+     FETCH INVOICES
+  ================================= */
 
   const fetchInvoices = async () => {
     try {
       const token = localStorage.getItem("dealerToken");
+
+      if (!token) {
+        navigate("/dealer/login");
+        return;
+      }
 
       const res = await axios.get(`${API_URL}/api/dealer/invoices`, {
         headers: {
@@ -21,7 +36,18 @@ export default function DealerInvoices() {
       setInvoices(res.data.invoices || []);
     } catch (error) {
       console.error("INVOICE ERROR:", error);
-      alert("Failed to load invoices");
+
+      if (error.response?.status === 401) {
+        localStorage.removeItem("dealerToken");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/dealer/login");
+
+        return;
+      }
+
+      alert(error.response?.data?.message || "Failed to load invoices");
     } finally {
       setLoading(false);
     }
@@ -31,6 +57,10 @@ export default function DealerInvoices() {
     fetchInvoices();
   }, []);
 
+  /* =================================
+     TOTAL OUTSTANDING
+  ================================= */
+
   const totalOutstandingAmount = invoices.reduce((sum, invoice) => {
     if (invoice.invoiceStatus === "PAID") {
       return sum;
@@ -38,6 +68,10 @@ export default function DealerInvoices() {
 
     return sum + Number(invoice.balanceAmount ?? invoice.grandTotal ?? 0);
   }, 0);
+
+  /* =================================
+     VIEW INVOICE
+  ================================= */
 
   const viewInvoice = (invoice) => {
     setSelectedInvoice(invoice);
@@ -47,9 +81,20 @@ export default function DealerInvoices() {
     setSelectedInvoice(null);
   };
 
+  /* =================================
+     DOWNLOAD INVOICE
+  ================================= */
+
   const downloadInvoice = async (invoiceId) => {
     try {
       const token = localStorage.getItem("dealerToken");
+
+      if (!token) {
+        navigate("/dealer/login");
+        return;
+      }
+
+      setDownloadingId(invoiceId);
 
       const response = await axios.get(
         `${API_URL}/api/dealer/invoices/${invoiceId}/download`,
@@ -64,13 +109,38 @@ export default function DealerInvoices() {
         throw new Error("PDF URL not found");
       }
 
-      window.open(`${API_URL}${response.data.pdfUrl}`, "_blank");
+      const pdfUrl = response.data.pdfUrl;
+
+      window.open(
+        pdfUrl.startsWith("http") ? pdfUrl : `${API_URL}${pdfUrl}`,
+        "_blank",
+      );
     } catch (error) {
       console.error("DOWNLOAD ERROR:", error);
 
-      alert(error?.response?.data?.message || "Failed to download invoice");
+      if (error.response?.status === 401) {
+        localStorage.removeItem("dealerToken");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/dealer/login");
+
+        return;
+      }
+
+      alert(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to download invoice",
+      );
+    } finally {
+      setDownloadingId("");
     }
   };
+
+  /* =================================
+     LOADING
+  ================================= */
 
   if (loading) {
     return (
@@ -84,13 +154,14 @@ export default function DealerInvoices() {
     <div className="dealer-page">
       <div className="page-header">
         <h1>My Invoices</h1>
+
         <p>View all generated invoices</p>
       </div>
 
       {invoices.length === 0 ? (
         <div className="dealer-empty-box">No invoices found</div>
       ) : (
-        <div className="dealer-table-container">
+        <div className="dealer-table-wrapper">
           <table className="dealer-table">
             <thead>
               <tr>
@@ -108,7 +179,7 @@ export default function DealerInvoices() {
 
             <tbody>
               {invoices.map((invoice) => (
-                <tr key={invoice._id}>
+                <tr key={invoice._id || invoice.invoiceNo}>
                   <td>{invoice.invoiceNo}</td>
 
                   <td>{invoice.orderNo}</td>
@@ -162,9 +233,12 @@ export default function DealerInvoices() {
 
                     <button
                       className="dealer-download-btn"
+                      disabled={downloadingId === invoice._id}
                       onClick={() => downloadInvoice(invoice._id)}
                     >
-                      Download
+                      {downloadingId === invoice._id
+                        ? "Downloading..."
+                        : "Download"}
                     </button>
                   </td>
                 </tr>
@@ -261,7 +335,7 @@ export default function DealerInvoices() {
 
                   <p>
                     <strong>Dealer GST :</strong>{" "}
-                    {selectedInvoice.dealerGSTNumber || "-"}
+                    {selectedInvoice.dealerGSTNumber}
                   </p>
 
                   <p>
@@ -291,7 +365,7 @@ export default function DealerInvoices() {
                   <tbody>
                     {(selectedInvoice.items || []).length > 0 ? (
                       selectedInvoice.items.map((item, index) => (
-                        <tr key={index}>
+                        <tr key={`${item.productId}-${item.size}-${index}`}>
                           <td>{index + 1}</td>
 
                           <td>{item.productName}</td>

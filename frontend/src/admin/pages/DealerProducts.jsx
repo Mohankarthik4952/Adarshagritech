@@ -1,34 +1,45 @@
-// src/admin/pages/DealerProducts.jsx
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { useEffect, useState } from "react";
 import API_URL from "../../config/api";
-
 import "./adminpages.css";
 
 const DealerProducts = () => {
-  /* =================================
-     TOKEN
-  ================================= */
-
-  const token = localStorage.getItem("adminToken");
+  const navigate = useNavigate();
 
   /* =================================
      STATES
   ================================= */
 
   const [products, setProducts] = useState([]);
-
-  const [loading, setLoading] = useState(false);
-
   const [dealerConfig, setDealerConfig] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  /* =================================
+     TOKEN
+  ================================= */
+
+  const getToken = () => localStorage.getItem("adminToken");
 
   /* =================================
      FETCH PRODUCTS
   ================================= */
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
+      setError("");
+
+      const token = getToken();
+
+      if (!token) {
+        alert("Admin session expired. Please login again.");
+
+        navigate("/admin/login");
+
+        return;
+      }
 
       const res = await fetch(`${API_URL}/api/admin/products`, {
         headers: {
@@ -38,6 +49,20 @@ const DealerProducts = () => {
 
       const data = await res.json();
 
+      if (res.status === 401) {
+        localStorage.removeItem("adminToken");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/admin/login");
+
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to fetch products");
+      }
+
       const safeProducts = Array.isArray(data)
         ? data
         : Array.isArray(data.products)
@@ -45,10 +70,6 @@ const DealerProducts = () => {
           : [];
 
       setProducts(safeProducts);
-
-      /* =========================
-           INITIAL CONFIG
-        ========================= */
 
       const initial = {};
 
@@ -77,32 +98,44 @@ const DealerProducts = () => {
         };
       });
 
-      console.log("INITIAL DEALER CONFIG:", initial);
-
       setDealerConfig(initial);
     } catch (error) {
-      console.log("FETCH DEALER PRODUCTS ERROR:", error);
+      console.error("FETCH DEALER PRODUCTS ERROR:", error);
+
+      setError(error.message || "Failed to load products");
+
+      setProducts([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
   /* =================================
      HANDLE CHANGE
   ================================= */
 
   const handleChange = (productId, field, value) => {
+    let updatedValue = value;
+
+    if (field === "discount" || field === "gst") {
+      updatedValue = Math.min(100, Math.max(0, Number(value) || 0));
+    }
+
+    if (field === "stockQuantity") {
+      updatedValue = Math.max(0, Number(value) || 0);
+    }
+
     setDealerConfig((prev) => ({
       ...prev,
 
       [productId]: {
         ...prev[productId],
 
-        [field]: value,
+        [field]: updatedValue,
       },
     }));
   };
@@ -113,7 +146,19 @@ const DealerProducts = () => {
 
   const saveDealerProducts = async () => {
     try {
+      if (loading) return;
+
       setLoading(true);
+
+      const token = getToken();
+
+      if (!token) {
+        alert("Admin session expired. Please login again.");
+
+        navigate("/admin/login");
+
+        return;
+      }
 
       const payload = products.map((product) => ({
         productId: product._id,
@@ -128,8 +173,6 @@ const DealerProducts = () => {
 
         stockQuantity: Number(dealerConfig[product._id]?.stockQuantity || 0),
       }));
-
-      console.log("DEALER PAYLOAD:", payload);
 
       const response = await fetch(`${API_URL}/api/admin/dealer-products`, {
         method: "POST",
@@ -147,7 +190,15 @@ const DealerProducts = () => {
 
       const data = await response.json();
 
-      console.log("SAVE RESPONSE:", data);
+      if (response.status === 401) {
+        localStorage.removeItem("adminToken");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/admin/login");
+
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(data.message || "Failed to save dealer products");
@@ -194,29 +245,57 @@ const DealerProducts = () => {
   ================================= */
 
   const getFinalPrice = (product, discount, gst) => {
-    if (!product.sizes || product.sizes.length === 0) {
-      return 0;
+    if (!product.sizes?.length) {
+      return "0.00";
     }
 
-    const mrp = product.sizes[0]?.mrp || 0;
+    const mrp = Number(product.sizes[0]?.mrp || 0);
 
-    const discountValue = Number(discount) || 0;
+    const discountValue = Number(discount || 0);
 
-    const gstValue = Number(gst) || 0;
+    const gstValue = Number(gst || 0);
 
     const priceAfterDiscount = mrp - (mrp * discountValue) / 100;
 
     const gstAmount = (priceAfterDiscount * gstValue) / 100;
 
-    const finalPrice = priceAfterDiscount + gstAmount;
-
-    return finalPrice.toFixed(2);
+    return (priceAfterDiscount + gstAmount).toFixed(2);
   };
+
+  /* =================================
+     LOADING
+  ================================= */
+
+  if (loading && products.length === 0) {
+    return (
+      <div className="dealer-products-page">
+        <div className="loading-box">
+          <h2>Loading products...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  /* =================================
+     ERROR
+  ================================= */
+
+  if (error) {
+    return (
+      <div className="dealer-products-page">
+        <div className="error-box">
+          <h2>{error}</h2>
+
+          <button className="save-btn" onClick={fetchProducts}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dealer-products-page">
-      {/* HEADER */}
-
       <div className="page-header">
         <h2>Dealer Products Management</h2>
 
@@ -228,8 +307,6 @@ const DealerProducts = () => {
           {loading ? "Saving..." : "Save Dealer Products"}
         </button>
       </div>
-
-      {/* TABLE */}
 
       <div className="table-wrapper">
         <table className="products-table">
@@ -257,8 +334,6 @@ const DealerProducts = () => {
             ) : (
               products.map((product) => (
                 <tr key={product._id}>
-                  {/* SELECT */}
-
                   <td>
                     <input
                       type="checkbox"
@@ -268,8 +343,6 @@ const DealerProducts = () => {
                       }
                     />
                   </td>
-
-                  {/* IMAGE */}
 
                   <td>
                     <img
@@ -282,20 +355,15 @@ const DealerProducts = () => {
                     />
                   </td>
 
-                  {/* PRODUCT ID */}
-
                   <td>{product.productId}</td>
 
-                  {/* NAME */}
-
                   <td>{product.name}</td>
-
-                  {/* DESCRIPTION */}
 
                   <td>
                     <input
                       type="number"
                       min="0"
+                      className="table-input"
                       value={dealerConfig[product._id]?.stockQuantity || ""}
                       onChange={(e) =>
                         handleChange(
@@ -304,35 +372,32 @@ const DealerProducts = () => {
                           e.target.value,
                         )
                       }
-                      className="table-input"
                     />
                   </td>
 
                   <td>
                     <input
                       type="text"
+                      className="table-input"
                       placeholder="Description"
                       value={dealerConfig[product._id]?.description || ""}
                       onChange={(e) =>
                         handleChange(product._id, "description", e.target.value)
                       }
-                      className="table-input"
                     />
                   </td>
-
-                  {/* DISCOUNT */}
 
                   <td>
                     <input
                       type="number"
                       min="0"
                       max="100"
+                      className="table-input"
                       placeholder="Discount %"
                       value={dealerConfig[product._id]?.discount || ""}
                       onChange={(e) =>
                         handleChange(product._id, "discount", e.target.value)
                       }
-                      className="table-input"
                     />
                   </td>
 
@@ -341,16 +406,14 @@ const DealerProducts = () => {
                       type="number"
                       min="0"
                       max="100"
+                      className="table-input"
                       placeholder="GST %"
                       value={dealerConfig[product._id]?.gst || ""}
                       onChange={(e) =>
                         handleChange(product._id, "gst", e.target.value)
                       }
-                      className="table-input"
                     />
                   </td>
-
-                  {/* FINAL PRICE */}
 
                   <td>
                     ₹

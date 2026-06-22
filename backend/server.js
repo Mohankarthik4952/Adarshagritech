@@ -7,6 +7,7 @@ import path from "path";
 
 // 🔹 DB
 import connectDB from "./config/db.js";
+import "./config/cloudinary.js";
 
 // 🔹 RATE LIMITER
 import { apiLimiter, authLimiter } from "./middleware/rateLimit.js";

@@ -1,7 +1,12 @@
+// src/customer/pages/Transaction.jsx
+
 import { useEffect, useState } from "react";
-import { FaMoneyBillWave, FaCheckCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+
+import { FaMoneyBillWave, FaCheckCircle } from "react-icons/fa";
+
 import { QRCodeCanvas } from "qrcode.react";
+
 import API_URL from "../../config/api";
 
 import "./customerpages.css";
@@ -15,9 +20,12 @@ const Transaction = () => {
 
   const [products, setProducts] = useState([]);
   const [total, setTotal] = useState(0);
+
   const [loading, setLoading] = useState(false);
 
   const [paymentApp, setPaymentApp] = useState("PHONEPE");
+
+  const [utrNumber, setUtrNumber] = useState("");
 
   const [paymentProof, setPaymentProof] = useState(null);
 
@@ -40,14 +48,20 @@ const Transaction = () => {
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem("checkoutProducts")) || [];
 
+    const storedAmount = Number(localStorage.getItem("transactionAmount") || 0);
+
     setProducts(items);
 
-    const totalAmount = items.reduce(
-      (sum, item) => sum + Number(item.price || 0),
-      0,
-    );
+    if (storedAmount > 0) {
+      setTotal(storedAmount);
+    } else {
+      const totalAmount = items.reduce(
+        (sum, item) => sum + Number(item.price || item.finalPrice || 0),
+        0,
+      );
 
-    setTotal(totalAmount);
+      setTotal(totalAmount);
+    }
 
     return () => {
       setProducts([]);
@@ -60,20 +74,44 @@ const Transaction = () => {
 
   const submitOrder = async () => {
     try {
-      setLoading(true);
+      if (loading) return;
 
-      const token = localStorage.getItem("customerToken");
+      const token =
+        localStorage.getItem("customerToken") || localStorage.getItem("token");
 
       if (!token) {
         alert("Please login again");
+
         navigate("/customer/login");
+
+        return;
+      }
+
+      if (products.length === 0) {
+        alert("No products selected");
+
+        return;
+      }
+
+      if (!utrNumber.trim()) {
+        alert("Please enter UTR number");
+
+        return;
+      }
+
+      if (utrNumber.trim().length < 10) {
+        alert("UTR number must contain at least 10 characters");
+
         return;
       }
 
       if (!paymentProof) {
         alert("Please upload payment screenshot");
+
         return;
       }
+
+      setLoading(true);
 
       let paymentProofPath = "";
 
@@ -87,19 +125,33 @@ const Transaction = () => {
 
       const uploadResponse = await fetch(`${API_URL}/api/payment/upload`, {
         method: "POST",
+
         headers: {
           Authorization: `Bearer ${token}`,
         },
+
         body: formData,
       });
 
       const uploadData = await uploadResponse.json();
 
+      if (uploadResponse.status === 401) {
+        localStorage.removeItem("customerToken");
+
+        localStorage.removeItem("token");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/customer/login");
+
+        return;
+      }
+
       if (!uploadResponse.ok) {
         throw new Error(uploadData.message || "Screenshot upload failed");
       }
 
-      paymentProofPath = uploadData.filePath;
+      paymentProofPath = uploadData.filePath || uploadData.url || "";
 
       /* =========================
          CREATE ORDER
@@ -123,25 +175,43 @@ const Transaction = () => {
 
           paymentApp,
 
+          utrNumber: utrNumber.trim(),
+
           paymentProof: paymentProofPath,
         }),
       });
 
       const data = await response.json();
 
+      if (response.status === 401) {
+        localStorage.removeItem("customerToken");
+
+        localStorage.removeItem("token");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/customer/login");
+
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(data.message || "Order submission failed");
       }
 
-      alert("Order Submitted Successfully. Waiting for Admin Verification.");
+      alert(
+        "Order submitted successfully ✅\n\nWaiting for admin verification.",
+      );
 
       localStorage.removeItem("customerCart");
 
       localStorage.removeItem("checkoutProducts");
 
+      localStorage.removeItem("transactionAmount");
+
       navigate("/customer/myorders");
     } catch (error) {
-      console.error(error);
+      console.error("CUSTOMER ORDER ERROR:", error);
 
       alert(error.message || "Order submission failed");
     } finally {
@@ -163,8 +233,6 @@ const Transaction = () => {
 
   return (
     <div className="customer-transaction-page">
-      {/* HEADER */}
-
       <div className="page-header">
         <h1>
           <FaMoneyBillWave />
@@ -173,8 +241,6 @@ const Transaction = () => {
 
         <p>Review your selected products before payment</p>
       </div>
-
-      {/* TABLE */}
 
       <div className="transaction-table-wrapper">
         <table className="transaction-table">
@@ -190,7 +256,7 @@ const Transaction = () => {
 
           <tbody>
             {products.map((product, index) => (
-              <tr key={index}>
+              <tr key={`${product.productId}-${product.size}-${index}`}>
                 <td>{product.productName}</td>
 
                 <td>{product.size}</td>
@@ -199,14 +265,18 @@ const Transaction = () => {
 
                 <td>{product.quantity}</td>
 
-                <td>₹{Number(product.price || 0).toFixed(2)}</td>
+                <td>
+                  ₹
+                  {Number(product.price || 0).toLocaleString("en-IN", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
-      {/* SUMMARY */}
 
       <div className="payment-summary-card">
         <div className="summary-row">
@@ -218,10 +288,14 @@ const Transaction = () => {
         <div className="summary-row">
           <span>Grand Total</span>
 
-          <strong>₹{total.toFixed(2)}</strong>
+          <strong>
+            ₹
+            {Number(total).toLocaleString("en-IN", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </strong>
         </div>
-
-        {/* QR CODE */}
 
         <div className="qr-payment-box">
           <h3>Scan & Pay</h3>
@@ -235,11 +309,15 @@ const Transaction = () => {
 
           <p>
             Amount:
-            <strong>₹{total.toFixed(2)}</strong>
+            <strong>
+              ₹
+              {Number(total).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </strong>
           </p>
         </div>
-
-        {/* PAYMENT APP */}
 
         <div className="payment-section">
           <label>Select Payment App</label>
@@ -265,7 +343,17 @@ const Transaction = () => {
           </button>
         </div>
 
-        {/* SCREENSHOT */}
+        <div className="payment-section">
+          <label>UTR Number</label>
+
+          <input
+            type="text"
+            value={utrNumber}
+            onChange={(e) => setUtrNumber(e.target.value)}
+            placeholder="Enter UTR Number"
+            className="payment-input"
+          />
+        </div>
 
         <div className="payment-section">
           <label>Payment Screenshot</label>
@@ -273,12 +361,10 @@ const Transaction = () => {
           <input
             type="file"
             accept="image/*"
-            onChange={(e) => setPaymentProof(e.target.files[0])}
+            onChange={(e) => setPaymentProof(e.target.files?.[0] || null)}
             className="payment-input"
           />
         </div>
-
-        {/* SUBMIT */}
 
         <button className="pay-btn" onClick={submitOrder} disabled={loading}>
           <FaCheckCircle />

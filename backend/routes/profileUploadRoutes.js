@@ -1,46 +1,19 @@
 import express from "express";
-import multer from "multer";
-import path from "path";
+
 import Admin from "../models/Admin.js";
 import Dealer from "../models/Dealer.js";
 import Customer from "../models/Customer.js";
+
 import { protect } from "../middleware/authMiddleware.js";
+import { uploadProfileImage } from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
 /* =========================
-   MULTER CONFIG
-========================= */
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/profiles");
-  },
-  filename: (req, file, cb) => {
-    cb(
-      null,
-      `${req.user.role}_${req.user.id}_${Date.now()}${path.extname(
-        file.originalname
-      )}`
-    );
-  },
-});
-
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    const allowed = /jpeg|jpg|png/;
-    const isValid =
-      allowed.test(file.mimetype) &&
-      allowed.test(path.extname(file.originalname).toLowerCase());
-
-    cb(isValid ? null : new Error("Only images allowed"), isValid);
-  },
-});
-
-/* =========================
    PROFILE UPLOAD ROUTE
 ========================= */
-router.post("/upload", protect, upload.single("profile"), async (req, res) => {
+
+router.post("/upload", protect, uploadProfileImage, async (req, res) => {
   try {
     let user;
 
@@ -53,18 +26,35 @@ router.post("/upload", protect, upload.single("profile"), async (req, res) => {
     }
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
 
-    user.profileImage = `/uploads/profiles/${req.file.filename}`;
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Please select an image",
+      });
+    }
+
+    user.profileImage = req.file.path;
+
     await user.save();
 
-    res.json({
+    return res.status(200).json({
       success: true,
+      message: "Profile image uploaded successfully",
       profileImage: user.profileImage,
     });
   } catch (error) {
-    res.status(500).json({ message: "Profile upload failed" });
+    console.error("PROFILE UPLOAD ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Profile upload failed",
+    });
   }
 });
 

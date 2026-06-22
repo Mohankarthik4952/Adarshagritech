@@ -18,12 +18,11 @@ const createFolder = (folderPath) => {
 };
 
 /* =================================
-   REQUIRED FOLDERS
+   REQUIRED LOCAL FOLDERS
+   (ONLY FOR PDF / EXCEL FILES)
 ================================= */
 
 createFolder("uploads");
-createFolder("uploads/documents");
-createFolder("uploads/profiles");
 createFolder("uploads/invoices");
 createFolder("uploads/terms");
 
@@ -34,18 +33,6 @@ createFolder("uploads/terms");
 const localStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     try {
-      if (
-        file.fieldname === "gstCertificate" ||
-        file.fieldname === "shopPhoto" ||
-        file.fieldname === "dealerSelfie"
-      ) {
-        return cb(null, "uploads/documents");
-      }
-
-      if (file.fieldname === "profileImage") {
-        return cb(null, "uploads/profiles");
-      }
-
       if (file.fieldname === "invoiceFile") {
         return cb(null, "uploads/invoices");
       }
@@ -72,20 +59,62 @@ const localStorage = multer.diskStorage({
 });
 
 /* =================================
-   CLOUDINARY STORAGE
+   CLOUDINARY STORAGES
 ================================= */
 
 const productStorage = new CloudinaryStorage({
   cloudinary,
 
-  params: async (req, file) => ({
-    folder: "sunrise-products",
+  params: async () => ({
+    folder: "sunrise/products",
 
     resource_type: "image",
 
     allowed_formats: ["jpg", "jpeg", "png", "webp"],
 
-    public_id: `${Date.now()}-${Math.round(Math.random() * 1e9)}`,
+    public_id: `product-${Date.now()}`,
+  }),
+});
+
+const profileStorage = new CloudinaryStorage({
+  cloudinary,
+
+  params: async () => ({
+    folder: "sunrise/profiles",
+
+    resource_type: "image",
+
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+
+    public_id: `profile-${Date.now()}`,
+  }),
+});
+
+const documentStorage = new CloudinaryStorage({
+  cloudinary,
+
+  params: async () => ({
+    folder: "sunrise/documents",
+
+    resource_type: "image",
+
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+
+    public_id: `document-${Date.now()}`,
+  }),
+});
+
+const paymentStorage = new CloudinaryStorage({
+  cloudinary,
+
+  params: async () => ({
+    folder: "sunrise/payments",
+
+    resource_type: "image",
+
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+
+    public_id: `payment-${Date.now()}`,
   }),
 });
 
@@ -105,13 +134,16 @@ const fileFilter = (req, file, cb) => {
     const pdfTypes = ["application/pdf"];
 
     if (
-      file.fieldname === "gstCertificate" ||
-      file.fieldname === "shopPhoto" ||
-      file.fieldname === "dealerSelfie" ||
-      file.fieldname === "productImage" ||
-      file.fieldname === "profileImage" ||
-      file.fieldname === "image" ||
-      file.fieldname === "images"
+      [
+        "gstCertificate",
+        "shopPhoto",
+        "dealerSelfie",
+        "productImage",
+        "profileImage",
+        "paymentProof",
+        "image",
+        "images",
+      ].includes(file.fieldname)
     ) {
       if (!imageTypes.includes(file.mimetype)) {
         return cb(new Error("Only image files are allowed"));
@@ -166,11 +198,41 @@ const productUpload = multer({
   },
 });
 
+const profileUpload = multer({
+  storage: profileStorage,
+
+  fileFilter,
+
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+  },
+});
+
+const documentUpload = multer({
+  storage: documentStorage,
+
+  fileFilter,
+
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+  },
+});
+
+const paymentUpload = multer({
+  storage: paymentStorage,
+
+  fileFilter,
+
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+  },
+});
+
 /* =================================
    DEALER DOCUMENTS
 ================================= */
 
-export const uploadDealerDocuments = upload.fields([
+export const uploadDealerDocuments = documentUpload.fields([
   {
     name: "gstCertificate",
     maxCount: 1,
@@ -186,17 +248,15 @@ export const uploadDealerDocuments = upload.fields([
 ]);
 
 /* =================================
-   PRODUCT IMAGES (CLOUDINARY)
+   PRODUCT IMAGES
 ================================= */
 
 export const uploadProductImage = (req, res, next) => {
   productUpload.array("images", 5)(req, res, (error) => {
     if (error) {
-      console.error("PRODUCT UPLOAD ERROR:", error);
-
       return res.status(400).json({
         success: false,
-        message: error.message || "File upload failed",
+        message: error.message || "Product upload failed",
       });
     }
 
@@ -208,7 +268,13 @@ export const uploadProductImage = (req, res, next) => {
    PROFILE IMAGE
 ================================= */
 
-export const uploadProfileImage = upload.single("profileImage");
+export const uploadProfileImage = profileUpload.single("profileImage");
+
+/* =================================
+   PAYMENT PROOF
+================================= */
+
+export const uploadPaymentProof = paymentUpload.single("paymentProof");
 
 /* =================================
    INVOICE FILE

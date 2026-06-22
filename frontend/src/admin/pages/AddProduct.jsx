@@ -35,7 +35,6 @@ const AddProduct = () => {
     "275ml",
     "495ml",
     "120gms",
-    "495ml",
     "350gms",
     "300gms",
     "250gms",
@@ -320,7 +319,6 @@ const AddProduct = () => {
       if (!res.ok) {
         throw new Error(data.message || "Failed to save product");
       }
-
       alert(
         editingId
           ? "Product updated successfully ✅"
@@ -551,7 +549,8 @@ const AddProduct = () => {
                             alt={p.name}
                             className="product-thumbnail"
                             onError={(e) => {
-                              e.target.style.display = "none";
+                              console.error("Image load failed:", e.target.src);
+                              e.target.src = "/placeholder-product.png";
                             }}
                           />
                         ))}
@@ -562,7 +561,8 @@ const AddProduct = () => {
                         alt={p.name}
                         className="product-thumbnail"
                         onError={(e) => {
-                          e.target.style.display = "none";
+                          console.error("Image load failed:", e.target.src);
+                          e.target.src = "/placeholder-product.png";
                         }}
                       />
                     ) : (

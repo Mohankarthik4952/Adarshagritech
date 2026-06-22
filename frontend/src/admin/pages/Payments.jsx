@@ -1,21 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+
 import API_URL from "../../config/api";
+
 import "./adminpages.css";
 
 const Payments = () => {
+  const navigate = useNavigate();
+
+  /* =========================
+     STATES
+  ========================= */
+
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState("");
+  const [error, setError] = useState("");
 
-  const token = localStorage.getItem("adminToken");
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
 
   /* =========================
-     LOAD PAYMENTS
+     FETCH PAYMENTS
   ========================= */
 
-  const fetchPayments = async () => {
+  const fetchPayments = useCallback(async () => {
     try {
       setLoading(true);
+      setError("");
+
+      const token = localStorage.getItem("adminToken");
+
+      if (!token) {
+        navigate("/admin/login");
+        return;
+      }
 
       const response = await fetch(`${API_URL}/api/admin/payments`, {
         headers: {
@@ -25,25 +44,43 @@ const Payments = () => {
 
       const data = await response.json();
 
+      if (response.status === 401) {
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("admin");
+        localStorage.removeItem("adminAuth");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/admin/login");
+
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(data.message || "Failed to load payments");
       }
 
-      setPayments(data.payments || []);
+      const safePayments = Array.isArray(data.payments) ? data.payments : [];
+
+      safePayments.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+      );
+
+      setPayments(safePayments);
     } catch (error) {
       console.error("PAYMENT ERROR:", error);
 
-      alert(error.message || "Failed to load payments");
+      setError(error.message || "Failed to load payments");
 
       setPayments([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     fetchPayments();
-  }, []);
+  }, [fetchPayments]);
 
   /* =========================
      APPROVE PAYMENT
@@ -52,6 +89,8 @@ const Payments = () => {
   const approvePayment = async (paymentId) => {
     try {
       setProcessingId(paymentId);
+
+      const token = localStorage.getItem("adminToken");
 
       const response = await fetch(
         `${API_URL}/api/admin/payments/${paymentId}/approve`,
@@ -65,11 +104,19 @@ const Payments = () => {
 
       const data = await response.json();
 
+      if (response.status === 401) {
+        localStorage.removeItem("adminToken");
+
+        navigate("/admin/login");
+
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(data.message || "Approval failed");
       }
 
-      alert("Payment Approved Successfully ✅");
+      alert("Payment approved successfully ✅");
 
       await fetchPayments();
     } catch (error) {
@@ -87,33 +134,45 @@ const Payments = () => {
 
   const rejectPayment = async (paymentId) => {
     try {
-      const reason = prompt("Enter rejection reason");
+      const rejectionReason = prompt("Enter rejection reason");
 
-      if (!reason?.trim()) return;
+      if (!rejectionReason?.trim()) return;
 
       setProcessingId(paymentId);
+
+      const token = localStorage.getItem("adminToken");
 
       const response = await fetch(
         `${API_URL}/api/admin/payments/${paymentId}/reject`,
         {
           method: "PUT",
+
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+
           body: JSON.stringify({
-            rejectionReason: reason,
+            rejectionReason,
           }),
         },
       );
 
       const data = await response.json();
 
+      if (response.status === 401) {
+        localStorage.removeItem("adminToken");
+
+        navigate("/admin/login");
+
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(data.message || "Rejection failed");
       }
 
-      alert("Payment Rejected ❌");
+      alert("Payment rejected ❌");
 
       await fetchPayments();
     } catch (error) {
@@ -126,13 +185,70 @@ const Payments = () => {
   };
 
   /* =========================
+     FILTER PAYMENTS
+  ========================= */
+
+  const filteredPayments = useMemo(() => {
+    let result = [...payments];
+
+    if (statusFilter !== "ALL") {
+      result = result.filter((payment) => payment.status === statusFilter);
+    }
+
+    if (search.trim()) {
+      const value = search.toLowerCase().trim();
+
+      result = result.filter((payment) => {
+        const displayName =
+          payment.dealerName ||
+          payment.customerName ||
+          payment.orderId?.dealerName ||
+          payment.orderId?.customerName ||
+          "";
+
+        return (
+          String(payment.orderId?.orderNo || "")
+            .toLowerCase()
+            .includes(value) ||
+          String(displayName).toLowerCase().includes(value) ||
+          String(payment.utrNumber || "")
+            .toLowerCase()
+            .includes(value)
+        );
+      });
+    }
+
+    return result;
+  }, [payments, search, statusFilter]);
+
+  /* =========================
      LOADING
   ========================= */
 
   if (loading) {
     return (
       <div className="admin-page">
-        <h2>Loading Payments...</h2>
+        <div className="loading-box">
+          <h2>Loading payments...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  /* =========================
+     ERROR
+  ========================= */
+
+  if (error) {
+    return (
+      <div className="admin-page">
+        <div className="error-box">
+          <h2>{error}</h2>
+
+          <button className="refresh-btn" onClick={fetchPayments}>
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -140,8 +256,39 @@ const Payments = () => {
   return (
     <div className="admin-page">
       <div className="page-header">
-        <h1>Payment Verification</h1>
-        <p>Verify Dealer & Customer Payments</p>
+        <div>
+          <h1>Payment Verification</h1>
+          <p>Verify dealer and customer payments</p>
+        </div>
+
+        <button className="refresh-btn" onClick={fetchPayments}>
+          Refresh
+        </button>
+      </div>
+
+      <div className="orders-topbar">
+        <input
+          type="text"
+          placeholder="Search by Order No, Name or UTR"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="orders-search"
+        />
+
+        <select
+          className="payment-filter"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="ALL">All Status</option>
+          <option value="VERIFICATION_PENDING">Verification Pending</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+      </div>
+
+      <div className="orders-summary">
+        <strong>Total Payments: {filteredPayments.length}</strong>
       </div>
 
       <div className="admin-table-card">
@@ -163,12 +310,12 @@ const Payments = () => {
             </thead>
 
             <tbody>
-              {payments.length === 0 ? (
+              {filteredPayments.length === 0 ? (
                 <tr>
-                  <td colSpan="10">No Payments Found</td>
+                  <td colSpan="10">No payments found</td>
                 </tr>
               ) : (
-                payments.map((payment) => {
+                filteredPayments.map((payment) => {
                   const isOutstanding =
                     payment.paymentCategory === "OUTSTANDING_PAYMENT";
 
@@ -247,7 +394,7 @@ const Payments = () => {
                                 : "pending-badge"
                           }
                         >
-                          {(payment.status || "")
+                          {String(payment.status || "")
                             .replaceAll("_", " ")
                             .toUpperCase()}
                         </span>
@@ -255,12 +402,7 @@ const Payments = () => {
 
                       <td>
                         {payment.status === "VERIFICATION_PENDING" ? (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "10px",
-                            }}
-                          >
+                          <div className="action-buttons">
                             <button
                               className="approve-btn"
                               disabled={isProcessing}

@@ -1,17 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import "./adminpages.css";
-
 import API_URL from "../../config/api";
 
 export default function AdminReturnRequests() {
+  const navigate = useNavigate();
+
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState("");
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    loadRequests();
-  }, []);
+  /* =========================
+     CONFIG
+  ========================= */
 
   const getConfig = () => {
     const token = localStorage.getItem("adminToken");
@@ -23,15 +27,38 @@ export default function AdminReturnRequests() {
     };
   };
 
-  const loadRequests = async () => {
+  /* =========================
+     FILE URL
+  ========================= */
+
+  const getFileUrl = (path) => {
+    if (!path) return "#";
+
+    if (path.startsWith("http")) {
+      return path;
+    }
+
+    return `${API_URL}${path}`;
+  };
+
+  /* =========================
+     LOAD REQUESTS
+  ========================= */
+
+  const loadRequests = useCallback(async () => {
     try {
       setLoading(true);
+      setError("");
 
       const token = localStorage.getItem("adminToken");
 
       if (!token) {
-        alert("Admin login expired");
-        setRequests([]);
+        localStorage.removeItem("adminToken");
+
+        alert("Admin session expired");
+
+        navigate("/admin/login");
+
         return;
       }
 
@@ -50,7 +77,17 @@ export default function AdminReturnRequests() {
     } catch (error) {
       console.error("LOAD RETURN REQUESTS ERROR:", error);
 
-      alert(
+      if (error.response?.status === 401) {
+        localStorage.removeItem("adminToken");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/admin/login");
+
+        return;
+      }
+
+      setError(
         error.response?.data?.message ||
           error.message ||
           "Failed to load return requests",
@@ -60,10 +97,24 @@ export default function AdminReturnRequests() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    loadRequests();
+  }, [loadRequests]);
+
+  /* =========================
+     APPROVE
+  ========================= */
 
   const approveRequest = async (id) => {
+    const confirmed = window.confirm("Approve this return request?");
+
+    if (!confirmed) return;
+
     try {
+      setActionLoading(id);
+
       await axios.put(
         `${API_URL}/api/admin/returns/${id}/approve`,
         {},
@@ -81,18 +132,34 @@ export default function AdminReturnRequests() {
           error.message ||
           "Failed to approve request",
       );
+    } finally {
+      setActionLoading("");
     }
   };
+
+  /* =========================
+     REJECT
+  ========================= */
 
   const rejectRequest = async (id) => {
     const rejectionReason = prompt("Enter rejection reason");
 
     if (rejectionReason === null) return;
 
+    if (!rejectionReason.trim()) {
+      alert("Rejection reason is required");
+
+      return;
+    }
+
     try {
+      setActionLoading(id);
+
       await axios.put(
         `${API_URL}/api/admin/returns/${id}/reject`,
-        { rejectionReason },
+        {
+          rejectionReason: rejectionReason.trim(),
+        },
         getConfig(),
       );
 
@@ -107,20 +174,41 @@ export default function AdminReturnRequests() {
           error.message ||
           "Failed to reject request",
       );
+    } finally {
+      setActionLoading("");
     }
   };
 
+  /* =========================
+     LOADING
+  ========================= */
+
   if (loading) {
-    return <div className="admin-return-page">Loading return requests... </div>;
+    return <div className="admin-return-page">Loading return requests...</div>;
+  }
+
+  /* =========================
+     ERROR
+  ========================= */
+
+  if (error) {
+    return (
+      <div className="admin-return-page">
+        <div className="error-box">
+          <h3>{error}</h3>
+
+          <button onClick={loadRequests}>Retry</button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="admin-return-page">
-      {" "}
       <div className="page-header">
-        {" "}
-        <h2>Return Products</h2>{" "}
+        <h2>Return Products</h2>
       </div>
+
       <div className="admin-table-wrapper">
         <table className="admin-return-table">
           <thead>
@@ -182,7 +270,7 @@ export default function AdminReturnRequests() {
                   <td>
                     {request.returnInvoiceId?.pdfUrl ? (
                       <a
-                        href={`${API_URL}${request.returnInvoiceId.pdfUrl}`}
+                        href={getFileUrl(request.returnInvoiceId.pdfUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -198,16 +286,22 @@ export default function AdminReturnRequests() {
                       <div className="action-buttons">
                         <button
                           className="approve-btn"
+                          disabled={actionLoading === request._id}
                           onClick={() => approveRequest(request._id)}
                         >
-                          Approve
+                          {actionLoading === request._id
+                            ? "Processing..."
+                            : "Approve"}
                         </button>
 
                         <button
                           className="reject-btn"
+                          disabled={actionLoading === request._id}
                           onClick={() => rejectRequest(request._id)}
                         >
-                          Reject
+                          {actionLoading === request._id
+                            ? "Processing..."
+                            : "Reject"}
                         </button>
                       </div>
                     ) : (

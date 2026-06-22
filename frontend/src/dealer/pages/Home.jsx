@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaRupeeSign,
   FaShoppingCart,
   FaFileInvoice,
   FaExchangeAlt,
 } from "react-icons/fa";
+
 import Greeting from "../components/Greeting";
 import API_URL from "../../config/api";
+
 import "./dealerpages.css";
 
 const Home = () => {
+  const navigate = useNavigate();
+
   const [recentOrders, setRecentOrders] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
 
@@ -19,6 +24,8 @@ const Home = () => {
   const [invoiceCount, setInvoiceCount] = useState(0);
 
   const [dealerName, setDealerName] = useState("Dealer");
+
+  const [loading, setLoading] = useState(true);
 
   /* =========================
      LOAD DEALER NAME
@@ -45,7 +52,7 @@ const Home = () => {
         setDealerName(name);
       }
     } catch (error) {
-      console.error(error);
+      console.error("DEALER PARSE ERROR:", error);
     }
   }, []);
 
@@ -59,6 +66,13 @@ const Home = () => {
         const token =
           localStorage.getItem("dealerToken") || localStorage.getItem("token");
 
+        if (!token) {
+          navigate("/dealer/login");
+          return;
+        }
+
+        setLoading(true);
+
         const response = await fetch(
           `${API_URL}/api/dealer/dashboard/summary`,
           {
@@ -70,33 +84,61 @@ const Home = () => {
 
         const data = await response.json();
 
-        console.log("DASHBOARD DATA:", data);
+        if (response.status === 401) {
+          localStorage.removeItem("dealerToken");
+          localStorage.removeItem("token");
 
-        if (data.success) {
-          setPendingBills(data.pendingBills || 0);
+          alert("Session expired. Please login again.");
 
-          setOrderCount(data.orders || 0);
+          navigate("/dealer/login");
 
-          setTotalPaidAmount(data.totalPaidAmount || 0);
-
-          setInvoiceCount(data.invoices || 0);
-
-          setRecentOrders(data.recentOrders || []);
-
-          setRecentTransactions(data.recentTransactions || []);
+          return;
         }
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to load dashboard");
+        }
+
+        setPendingBills(Number(data.pendingBills || 0));
+
+        setOrderCount(Number(data.orders || 0));
+
+        setTotalPaidAmount(Number(data.totalPaidAmount || 0));
+
+        setInvoiceCount(Number(data.invoices || 0));
+
+        setRecentOrders(data.recentOrders || []);
+
+        setRecentTransactions(data.recentTransactions || []);
       } catch (error) {
-        console.error("Dashboard fetch error:", error);
+        console.error("DASHBOARD FETCH ERROR:", error);
+
+        alert(error.message || "Failed to load dashboard");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchDashboard();
-  }, []);
+  }, [navigate]);
+
+  /* =========================
+     LOADING
+  ========================= */
+
+  if (loading) {
+    return (
+      <div className="dealer-home-page">
+        <div className="dealer-loading">Loading dashboard...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="dealer-home-page">
       <div className="dealer-welcome-card">
         <Greeting name={dealerName} />
+
         <p>Welcome to your dealer dashboard.</p>
       </div>
 
@@ -110,7 +152,14 @@ const Home = () => {
 
           <div className="dealer-stat-content">
             <h3>Pending Bills</h3>
-            <h2>₹{Number(pendingBills).toFixed(2)}</h2>
+
+            <h2>
+              ₹
+              {pendingBills.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </h2>
           </div>
         </div>
 
@@ -121,6 +170,7 @@ const Home = () => {
 
           <div className="dealer-stat-content">
             <h3>Total Orders</h3>
+
             <h2>{orderCount}</h2>
           </div>
         </div>
@@ -133,7 +183,13 @@ const Home = () => {
           <div className="dealer-stat-content">
             <h3>Total Amount Paid</h3>
 
-            <h2>₹{Number(totalPaidAmount).toFixed(2)}</h2>
+            <h2>
+              ₹
+              {totalPaidAmount.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </h2>
           </div>
         </div>
 
@@ -144,6 +200,7 @@ const Home = () => {
 
           <div className="dealer-stat-content">
             <h3>Invoices</h3>
+
             <h2>{invoiceCount}</h2>
           </div>
         </div>
@@ -169,10 +226,16 @@ const Home = () => {
 
               <tbody>
                 {recentOrders.map((order) => (
-                  <tr key={order._id}>
+                  <tr key={order._id || order.orderNo}>
                     <td>{order.orderNo}</td>
 
-                    <td>₹{Number(order.totalAmount || 0).toFixed(2)}</td>
+                    <td>
+                      ₹
+                      {Number(order.totalAmount || 0).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
 
                     <td>{order.status}</td>
                   </tr>
@@ -204,9 +267,19 @@ const Home = () => {
               <tbody>
                 {recentTransactions.map((tx) => (
                   <tr key={tx._id}>
-                    <td>{new Date(tx.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      {tx.createdAt
+                        ? new Date(tx.createdAt).toLocaleDateString("en-IN")
+                        : "-"}
+                    </td>
 
-                    <td>₹{Number(tx.amount || 0).toFixed(2)}</td>
+                    <td>
+                      ₹
+                      {Number(tx.amount || 0).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
 
                     <td>{tx.status}</td>
                   </tr>

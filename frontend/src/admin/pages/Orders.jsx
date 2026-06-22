@@ -1,12 +1,15 @@
-// src/admin/pages/Orders.jsx
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { useEffect, useMemo, useState } from "react";
 import API_URL from "../../config/api";
+
 import "./adminpages.css";
 
 const Orders = () => {
+  const navigate = useNavigate();
+
   /* =========================
-     STATE
+     STATES
   ========================= */
 
   const [loading, setLoading] = useState(true);
@@ -17,29 +20,47 @@ const Orders = () => {
 
   const [selectedFilter, setSelectedFilter] = useState("ALL");
 
-  const token = localStorage.getItem("adminToken");
+  const [error, setError] = useState("");
 
   /* =========================
-     FETCH ALL ORDERS
+     FETCH ORDERS
   ========================= */
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
+      setError("");
 
-      const res = await fetch(`${API_URL}/api/admin/orders`, {
+      const token = localStorage.getItem("adminToken");
+
+      if (!token) {
+        navigate("/admin/login");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/api/admin/orders`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!res.ok) {
-        throw new Error(`Failed to load orders (${res.status})`);
+      const data = await response.json();
+
+      if (response.status === 401) {
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("admin");
+        localStorage.removeItem("adminAuth");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/admin/login");
+
+        return;
       }
 
-      const data = await res.json();
-
-      console.log("ORDERS API RESPONSE:", data);
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to load orders");
+      }
 
       const safeOrders = Array.isArray(data?.orders)
         ? data.orders
@@ -47,24 +68,26 @@ const Orders = () => {
           ? data
           : [];
 
-      console.log("SAFE ORDERS:", safeOrders);
+      safeOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       setOrders(safeOrders);
     } catch (error) {
       console.error("FETCH ORDERS ERROR:", error);
 
+      setError(error.message || "Failed to load orders");
+
       setOrders([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
   /* =========================
-     GET DISPLAY NAME
+     DISPLAY NAME
   ========================= */
 
   const getOrderName = (order) => {
@@ -78,47 +101,45 @@ const Orders = () => {
       );
     }
 
-    return order.customerName || order.userId?.name || "N/A";
+    return (
+      order.customerName ||
+      order.userId?.name ||
+      order.userId?.fullName ||
+      "N/A"
+    );
   };
 
   /* =========================
-     FILTERED ORDERS
+     FILTER ORDERS
   ========================= */
 
   const filteredOrders = useMemo(() => {
     let result = [...orders];
 
-    /* FILTER */
-
     if (selectedFilter !== "ALL") {
-      result = result.filter((order) => order.role === selectedFilter);
+      result = result.filter(
+        (order) => String(order.role || "").toUpperCase() === selectedFilter,
+      );
     }
 
-    /* SEARCH */
-
     if (search.trim()) {
-      const searchValue = search.toLowerCase().trim();
+      const value = search.toLowerCase().trim();
 
       result = result.filter((order) => {
-        const orderNo = order.orderNo?.toLowerCase() || "";
+        const searchFields = [
+          order.orderNo,
+          order.customerName,
+          order.dealerName,
+          order.shopName,
+          order.userId?.name,
+          order.userId?.shopName,
+          order.userId?.phone,
+        ];
 
-        const customerName = order.customerName?.toLowerCase() || "";
-
-        const dealerName = order.dealerName?.toLowerCase() || "";
-
-        const shopName = order.shopName?.toLowerCase() || "";
-
-        const userName = order.userId?.name?.toLowerCase() || "";
-
-        const userShop = order.userId?.shopName?.toLowerCase() || "";
-
-        return (
-          orderNo.includes(searchValue) ||
-          customerName.includes(searchValue) ||
-          dealerName.includes(searchValue) ||
-          shopName.includes(searchValue) ||
-          userName.includes(searchValue) ||
-          userShop.includes(searchValue)
+        return searchFields.some((field) =>
+          String(field || "")
+            .toLowerCase()
+            .includes(value),
         );
       });
     }
@@ -127,29 +148,55 @@ const Orders = () => {
   }, [orders, search, selectedFilter]);
 
   /* =========================
-     DEBUG
+     LOADING
   ========================= */
 
-  useEffect(() => {
-    console.log("TOTAL ORDERS:", orders.length);
-    console.log("FILTER:", selectedFilter);
-    console.log("FILTERED ORDERS:", filteredOrders.length);
-  }, [orders, selectedFilter, filteredOrders]);
+  if (loading) {
+    return (
+      <div className="orders-page">
+        <div className="loading-box">
+          <h2>Loading orders...</h2>
+        </div>
+      </div>
+    );
+  }
 
   /* =========================
-     UI
+     ERROR
   ========================= */
+
+  if (error) {
+    return (
+      <div className="orders-page">
+        <div className="error-box">
+          <h2>{error}</h2>
+
+          <button className="save-btn" onClick={fetchOrders}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="orders-page">
       <div className="orders-header">
         <h2>Orders Management</h2>
+
+        <button className="refresh-btn" onClick={fetchOrders}>
+          Refresh
+        </button>
+      </div>
+
+      <div className="orders-summary">
+        <strong>Total Orders: {filteredOrders.length}</strong>
       </div>
 
       <div className="orders-topbar">
         <input
           type="text"
-          placeholder="Search by Order No or Name"
+          placeholder="Search by Order No, Name, Shop or Phone"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="orders-search"
@@ -179,66 +226,78 @@ const Orders = () => {
         </div>
       </div>
 
-      {loading ? (
-        <p>Loading orders...</p>
-      ) : (
-        <div className="orders-table-wrapper">
-          <table className="orders-table">
-            <thead>
+      <div className="orders-table-wrapper">
+        <table className="orders-table">
+          <thead>
+            <tr>
+              <th>Order No</th>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Total Amount</th>
+              <th>Payment Status</th>
+              <th>Order Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filteredOrders.length === 0 ? (
               <tr>
-                <th>Order No</th>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Total Amount</th>
-                <th>Status</th>
-                <th>Date</th>
+                <td colSpan="7">No orders found</td>
               </tr>
-            </thead>
+            ) : (
+              filteredOrders.map((order) => (
+                <tr key={order._id}>
+                  <td>{order.orderNo || "-"}</td>
 
-            <tbody>
-              {filteredOrders.length === 0 ? (
-                <tr>
-                  <td colSpan="6">No orders found</td>
+                  <td>{getOrderName(order)}</td>
+
+                  <td>{order.role || "-"}</td>
+
+                  <td>
+                    ₹
+                    {Number(order.totalAmount || 0).toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </td>
+
+                  <td>
+                    <span
+                      className={`status-badge ${String(
+                        order.paymentStatus || "PENDING",
+                      )
+                        .toLowerCase()
+                        .replaceAll("_", "-")}`}
+                    >
+                      {String(order.paymentStatus || "PENDING").replaceAll(
+                        "_",
+                        " ",
+                      )}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span
+                      className={`status-badge ${String(order.status || "")
+                        .toLowerCase()
+                        .replaceAll("_", "-")}`}
+                    >
+                      {order.status || "-"}
+                    </span>
+                  </td>
+
+                  <td>
+                    {order.createdAt
+                      ? new Date(order.createdAt).toLocaleDateString("en-IN")
+                      : "-"}
+                  </td>
                 </tr>
-              ) : (
-                filteredOrders.map((order) => (
-                  <tr key={order._id}>
-                    <td>{order.orderNo || "-"}</td>
-
-                    <td>{getOrderName(order)}</td>
-
-                    <td>{order.role || "-"}</td>
-
-                    <td>
-                      ₹
-                      {Number(order.totalAmount || 0).toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </td>
-
-                    <td>
-                      <span
-                        className={`status-badge ${
-                          order.status?.toLowerCase() || ""
-                        }`}
-                      >
-                        {order.status || "-"}
-                      </span>
-                    </td>
-
-                    <td>
-                      {order.createdAt
-                        ? new Date(order.createdAt).toLocaleDateString("en-IN")
-                        : "-"}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

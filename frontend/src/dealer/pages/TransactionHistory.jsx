@@ -1,12 +1,12 @@
 // src/dealer/pages/TransactionHistory.jsx
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API_URL from "../../config/api";
 import "./dealerpages.css";
 
 const TransactionHistory = () => {
-  const token =
-    localStorage.getItem("token") || localStorage.getItem("dealerToken");
+  const navigate = useNavigate();
 
   const [transactions, setTransactions] = useState([]);
   const [fromDate, setFromDate] = useState("");
@@ -19,6 +19,16 @@ const TransactionHistory = () => {
 
   const fetchTransactions = async () => {
     try {
+      setLoading(true);
+
+      const token =
+        localStorage.getItem("dealerToken") || localStorage.getItem("token");
+
+      if (!token) {
+        navigate("/dealer/login");
+        return;
+      }
+
       const response = await fetch(`${API_URL}/api/dealer/payment/history`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -29,7 +39,26 @@ const TransactionHistory = () => {
 
       console.log("TRANSACTIONS:", data);
 
-      setTransactions(Array.isArray(data) ? data : []);
+      if (response.status === 401) {
+        localStorage.removeItem("dealerToken");
+        localStorage.removeItem("token");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/dealer/login");
+
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to load transactions");
+      }
+
+      const transactionList = Array.isArray(data)
+        ? data
+        : data.transactions || data.payments || [];
+
+      setTransactions(transactionList);
     } catch (error) {
       console.error("Transaction fetch error:", error);
 
@@ -44,36 +73,63 @@ const TransactionHistory = () => {
   }, []);
 
   /* =========================
-   FILTER
-========================= */
+     FILE URL
+  ========================= */
 
-  const filteredTransactions = transactions.filter((transaction) => {
-    const paymentDate = new Date(
-      transaction.paymentDate || transaction.createdAt,
-    );
+  const getFileUrl = (path) => {
+    if (!path) return "";
 
-    if (fromDate && paymentDate < new Date(fromDate)) {
-      return false;
+    if (path.startsWith("http")) {
+      return path;
     }
 
-    if (toDate && paymentDate > new Date(toDate)) {
-      return false;
-    }
-
-    return true;
-  });
+    return `${API_URL}${path}`;
+  };
 
   /* =========================
-   APPROVED PAYMENTS ONLY
-========================= */
+     FILTER TRANSACTIONS
+  ========================= */
+
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((transaction) => {
+      const paymentDate = new Date(
+        transaction.paymentDate || transaction.createdAt,
+      );
+
+      if (fromDate) {
+        const startDate = new Date(fromDate);
+        startDate.setHours(0, 0, 0, 0);
+
+        if (paymentDate < startDate) {
+          return false;
+        }
+      }
+
+      if (toDate) {
+        const endDate = new Date(toDate);
+        endDate.setHours(23, 59, 59, 999);
+
+        if (paymentDate > endDate) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [transactions, fromDate, toDate]);
+
+  /* =========================
+     APPROVED PAYMENTS
+  ========================= */
 
   const approvedTransactions = filteredTransactions.filter(
-    (transaction) => transaction.status === "APPROVED",
+    (transaction) =>
+      transaction.status === "APPROVED" || transaction.status === "RECEIVED",
   );
 
   /* =========================
-   TOTAL PAID AMOUNT
-========================= */
+     TOTAL PAID
+  ========================= */
 
   const totalPaidAmount = approvedTransactions.reduce(
     (sum, transaction) => sum + Number(transaction.amount || 0),
@@ -111,8 +167,6 @@ const TransactionHistory = () => {
           />
         </div>
       </div>
-
-      {/* SUMMARY */}
 
       {/* SUMMARY */}
 
@@ -168,7 +222,7 @@ const TransactionHistory = () => {
               <tbody>
                 {filteredTransactions.map((transaction) => (
                   <tr key={transaction._id}>
-                    <td>{transaction._id?.slice(-8)}</td>
+                    <td>{transaction._id?.slice(-8) || "-"}</td>
 
                     <td>
                       {new Date(
@@ -192,7 +246,7 @@ const TransactionHistory = () => {
                             : "upi-badge"
                         }
                       >
-                        {transaction.paymentType}
+                        {transaction.paymentType || "-"}
                       </span>
                     </td>
 
@@ -213,7 +267,7 @@ const TransactionHistory = () => {
                         "N/A"
                       ) : transaction.paymentProof ? (
                         <a
-                          href={`${API_URL}${transaction.paymentProof}`}
+                          href={getFileUrl(transaction.paymentProof)}
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -227,14 +281,15 @@ const TransactionHistory = () => {
                     <td>
                       <span
                         className={`transaction-status ${
-                          transaction.status === "APPROVED"
+                          transaction.status === "APPROVED" ||
+                          transaction.status === "RECEIVED"
                             ? "completed"
                             : transaction.status === "REJECTED"
                               ? "rejected"
                               : "pending"
                         }`}
                       >
-                        {transaction.status}
+                        {transaction.status || "PENDING"}
                       </span>
                     </td>
                   </tr>

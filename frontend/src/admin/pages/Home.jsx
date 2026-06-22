@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
 import API_URL from "../../config/api";
 
 import StatsCard from "../components/StatsCard";
@@ -8,8 +9,10 @@ import SalesChart from "../components/SalesChart";
 import "./adminpages.css";
 
 const Home = () => {
+  const navigate = useNavigate();
+
   /* =========================
-     STATE
+     STATES
   ========================= */
 
   const [admin, setAdmin] = useState(null);
@@ -17,16 +20,17 @@ const Home = () => {
   const [stats, setStats] = useState({
     monthlySales: 0,
     annualSales: 0,
-
     dealerPendingAmount: 0,
-
     totalAmountReceived: 0,
-
     totalProducts: 0,
     totalCustomers: 0,
     totalDealers: 0,
     totalOrders: 0,
   });
+
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
 
   /* =========================
      LOAD ADMIN DATA
@@ -35,13 +39,16 @@ const Home = () => {
   useEffect(() => {
     try {
       const storedAdmin =
-        localStorage.getItem("admin") || localStorage.getItem("adminAuth");
+        localStorage.getItem("adminAuth") || localStorage.getItem("admin");
 
       if (storedAdmin) {
         setAdmin(JSON.parse(storedAdmin));
       }
     } catch (error) {
       console.error("ADMIN PARSE ERROR:", error);
+
+      localStorage.removeItem("admin");
+      localStorage.removeItem("adminAuth");
     }
   }, []);
 
@@ -49,54 +56,71 @@ const Home = () => {
      FETCH DASHBOARD STATS
   ========================= */
 
-  useEffect(() => {
-    const fetchDashboardStats = async () => {
-      try {
-        const token = localStorage.getItem("adminToken");
+  const fetchDashboardStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-        if (!token) {
-          console.warn("No admin token found");
-          return;
-        }
+      const token = localStorage.getItem("adminToken");
 
-        const response = await fetch(`${API_URL}/api/admin/dashboard/stats`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to load dashboard stats");
-        }
-
-        const data = await response.json();
-
-        console.log("DASHBOARD STATS:", data);
-
-        setStats({
-          monthlySales: Number(data.monthlySales || 0),
-
-          annualSales: Number(data.annualSales || 0),
-
-          dealerPendingAmount: Number(data.dealerPendingAmount || 0),
-
-          totalAmountReceived: Number(data.totalAmountReceived || 0),
-
-          totalProducts: Number(data.totalProducts || 0),
-
-          totalCustomers: Number(data.totalCustomers || 0),
-
-          totalDealers: Number(data.totalDealers || 0),
-
-          totalOrders: Number(data.totalOrders || 0),
-        });
-      } catch (error) {
-        console.error("Dashboard stats fetch error:", error.message);
+      if (!token) {
+        navigate("/admin/login");
+        return;
       }
-    };
 
+      const response = await fetch(`${API_URL}/api/admin/dashboard/stats`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.status === 401) {
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("admin");
+        localStorage.removeItem("adminAuth");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/admin/login");
+
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to load dashboard stats");
+      }
+
+      setStats({
+        monthlySales: Number(data.monthlySales || 0),
+
+        annualSales: Number(data.annualSales || 0),
+
+        dealerPendingAmount: Number(data.dealerPendingAmount || 0),
+
+        totalAmountReceived: Number(data.totalAmountReceived || 0),
+
+        totalProducts: Number(data.totalProducts || 0),
+
+        totalCustomers: Number(data.totalCustomers || 0),
+
+        totalDealers: Number(data.totalDealers || 0),
+
+        totalOrders: Number(data.totalOrders || 0),
+      });
+    } catch (error) {
+      console.error("Dashboard stats fetch error:", error);
+
+      setError(error.message || "Failed to load dashboard statistics");
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     fetchDashboardStats();
-  }, []);
+  }, [fetchDashboardStats]);
 
   /* =========================
      GREETING
@@ -112,7 +136,7 @@ const Home = () => {
     return "Good Evening";
   };
 
-  const adminName = admin?.name || admin?.adminName || "Administrator";
+  const adminName = admin?.name || admin?.adminName || admin?.fullName || "GVR";
 
   const formatCurrency = (amount) => {
     return Number(amount || 0).toLocaleString("en-IN", {
@@ -120,6 +144,38 @@ const Home = () => {
       maximumFractionDigits: 2,
     });
   };
+
+  /* =========================
+     LOADING
+  ========================= */
+
+  if (loading) {
+    return (
+      <div className="admin-home">
+        <div className="loading-box">
+          <h2>Loading dashboard...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  /* =========================
+     ERROR
+  ========================= */
+
+  if (error) {
+    return (
+      <div className="admin-home">
+        <div className="error-box">
+          <h2>{error}</h2>
+
+          <button className="save-btn" onClick={fetchDashboardStats}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   /* =========================
      UI
@@ -131,7 +187,7 @@ const Home = () => {
 
       <div className="admin-welcome-card">
         <h1>
-          {getGreeting()}, {"GVR"}
+          {getGreeting()}, {adminName}
         </h1>
 
         <p>Welcome to the Sunrise Agri Products Admin Dashboard.</p>

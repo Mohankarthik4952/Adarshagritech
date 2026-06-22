@@ -1,10 +1,11 @@
 // src/customer/pages/Cart.jsx
 
 import { useEffect, useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 
 import { FaTrash, FaShoppingCart, FaArrowRight } from "react-icons/fa";
+
+import getImageUrl from "../../utils/getImageUrl";
 
 import "./customerpages.css";
 
@@ -22,9 +23,15 @@ const Cart = () => {
   ========================= */
 
   useEffect(() => {
-    const cart = JSON.parse(localStorage.getItem("customerCart")) || [];
+    try {
+      const cart = JSON.parse(localStorage.getItem("customerCart")) || [];
 
-    setCartItems(cart);
+      setCartItems(Array.isArray(cart) ? cart : []);
+    } catch (error) {
+      console.error("CART LOAD ERROR:", error);
+
+      setCartItems([]);
+    }
   }, []);
 
   /* =========================
@@ -32,9 +39,7 @@ const Cart = () => {
   ========================= */
 
   const removeItem = (index) => {
-    const updated = [...cartItems];
-
-    updated.splice(index, 1);
+    const updated = cartItems.filter((_, i) => i !== index);
 
     setCartItems(updated);
 
@@ -46,7 +51,13 @@ const Cart = () => {
   ========================= */
 
   const getTotal = () => {
-    return cartItems.reduce((sum, item) => sum + Number(item.price || 0), 0);
+    return cartItems.reduce((sum, item) => {
+      const quantity = Number(item.quantity || 1);
+
+      const price = Number(item.finalPrice || item.price || 0);
+
+      return sum + price * quantity;
+    }, 0);
   };
 
   /* =========================
@@ -54,21 +65,25 @@ const Cart = () => {
   ========================= */
 
   const proceedToPayment = () => {
-    /* REMOVE OLD BUY NOW DATA */
+    if (cartItems.length === 0) {
+      alert("Your cart is empty");
+
+      return;
+    }
 
     localStorage.removeItem("checkoutProducts");
-
-    /* SAVE CART ITEMS */
+    localStorage.removeItem("buyNowProduct");
+    localStorage.removeItem("transactionAmount");
 
     localStorage.setItem("checkoutProducts", JSON.stringify(cartItems));
+
+    localStorage.setItem("transactionAmount", getTotal());
 
     navigate("/customer/transaction");
   };
 
   return (
     <div className="customer-cart-page">
-      {/* PAGE HEADER */}
-
       <div className="page-header">
         <h1>
           <FaShoppingCart />
@@ -77,8 +92,6 @@ const Cart = () => {
 
         <p>Review your selected products before payment</p>
       </div>
-
-      {/* EMPTY CART */}
 
       {cartItems.length === 0 ? (
         <div className="empty-cart">
@@ -92,12 +105,12 @@ const Cart = () => {
         </div>
       ) : (
         <>
-          {/* CART TABLE */}
-
           <div className="cart-table-wrapper">
             <table className="cart-table">
               <thead>
                 <tr>
+                  <th>Image</th>
+
                   <th>Product</th>
 
                   <th>Size</th>
@@ -112,14 +125,33 @@ const Cart = () => {
 
               <tbody>
                 {cartItems.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.productName}</td>
+                  <tr key={`${item.productId}-${item.size}-${index}`}>
+                    <td>
+                      <img
+                        src={getImageUrl(item.image)}
+                        alt={item.productName || item.name || "Product"}
+                        className="cart-product-image"
+                        onError={(e) => {
+                          e.target.src = "/no-image.png";
+                        }}
+                      />
+                    </td>
 
-                    <td>{item.size}</td>
+                    <td>{item.productName || item.name || "-"}</td>
+
+                    <td>{item.size || "-"}</td>
 
                     <td>{item.quantity || 1}</td>
 
-                    <td>₹{Number(item.price).toFixed(2)}</td>
+                    <td>
+                      ₹
+                      {Number(
+                        item.finalPrice || item.price || 0,
+                      ).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
 
                     <td>
                       <button
@@ -135,8 +167,6 @@ const Cart = () => {
             </table>
           </div>
 
-          {/* SUMMARY */}
-
           <div className="cart-summary-card">
             <div className="summary-row">
               <span>Total Items</span>
@@ -147,7 +177,13 @@ const Cart = () => {
             <div className="summary-row total-row">
               <span>Total Amount</span>
 
-              <strong>₹{getTotal().toFixed(2)}</strong>
+              <strong>
+                ₹
+                {getTotal().toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </strong>
             </div>
 
             <button className="payment-btn" onClick={proceedToPayment}>

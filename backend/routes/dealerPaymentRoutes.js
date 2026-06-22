@@ -16,6 +16,7 @@ import Dealer from "../models/Dealer.js";
 
 import { protect } from "../middleware/authMiddleware.js";
 import generateInvoicePdf from "../utils/generateInvoicePdf.js";
+import { sendOrderNotification } from "../utils/sendOrderNotification.js";
 
 /* ===============================
    PAY NOW
@@ -336,6 +337,14 @@ router.post("/checkout", protect, async (req, res) => {
       deliveryStatus: "Delivered",
 
       invoiceGenerated: false,
+    });
+
+    sendOrderNotification({
+      role: "DEALER",
+      dealer,
+      order,
+    }).catch((err) => {
+      console.error("ORDER EMAIL ERROR:", err);
     });
 
     /* ===============================

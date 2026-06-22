@@ -1,75 +1,176 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { FaBoxOpen, FaCheckCircle, FaClock } from "react-icons/fa";
+import {
+  FaBoxOpen,
+  FaCheckCircle,
+  FaClock,
+  FaTimesCircle,
+  FaTruck,
+  FaRedo,
+  FaFileInvoice,
+} from "react-icons/fa";
+
 import API_URL from "../../config/api";
 
 import "./customerpages.css";
 
 const MyOrders = () => {
+  const navigate = useNavigate();
+
   /* =================================
      STATES
   ================================= */
 
   const [orders, setOrders] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
 
   /* =================================
      FETCH ORDERS
   ================================= */
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
+  const fetchOrders = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-        setError("");
+      const token =
+        localStorage.getItem("customerToken") || localStorage.getItem("token");
 
-        const token =
-          localStorage.getItem("customerToken") ||
-          localStorage.getItem("token");
-
-        /* API CALL */
-
-        const response = await fetch(
-          `${API_URL}/api/customer/orders/my-orders`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        const data = await response.json();
-
-        console.log("Orders API Response:", data);
-
-        /* HANDLE RESPONSE */
-
-        if (Array.isArray(data)) {
-          setOrders(data);
-        } else if (data && Array.isArray(data.orders)) {
-          setOrders(data.orders);
-        } else {
-          setOrders([]);
-        }
-      } catch (error) {
-        console.error("Orders Fetch Error:", error);
-
-        setError("Failed to load orders");
-
-        setOrders([]);
-      } finally {
-        setLoading(false);
+      if (!token) {
+        navigate("/customer/login");
+        return;
       }
-    };
 
+      const response = await fetch(`${API_URL}/api/customer/orders/my-orders`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      console.log("CUSTOMER ORDERS:", data);
+
+      if (response.status === 401) {
+        localStorage.removeItem("customerToken");
+        localStorage.removeItem("token");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/customer/login");
+
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to load orders");
+      }
+
+      if (Array.isArray(data)) {
+        setOrders(data);
+      } else if (data.success) {
+        setOrders(data.orders || []);
+      } else {
+        setOrders([]);
+      }
+    } catch (error) {
+      console.error("ORDERS FETCH ERROR:", error);
+
+      setError(error.message || "Failed to load orders");
+
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
+
+  /* =================================
+     HELPERS
+  ================================= */
+
+  const formatCurrency = (amount) => {
+    return Number(amount || 0).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "-";
+
+    return new Date(date).toLocaleDateString("en-IN");
+  };
+
+  const getPaymentStatus = (status) => {
+    const normalized = String(status || "PENDING").toUpperCase();
+
+    switch (normalized) {
+      case "RECEIVED":
+      case "PAID":
+        return {
+          label: "Paid",
+          icon: <FaCheckCircle />,
+          className: "paid",
+        };
+
+      case "REJECTED":
+        return {
+          label: "Rejected",
+          icon: <FaTimesCircle />,
+          className: "rejected",
+        };
+
+      case "VERIFICATION_PENDING":
+        return {
+          label: "Verification Pending",
+          icon: <FaClock />,
+          className: "processing",
+        };
+
+      default:
+        return {
+          label: "Pending",
+          icon: <FaClock />,
+          className: "pending",
+        };
+    }
+  };
+
+  const getOrderStatus = (status) => {
+    const normalized = String(status || "").toUpperCase();
+
+    switch (normalized) {
+      case "DELIVERED":
+        return {
+          label: "Delivered",
+          className: "completed",
+        };
+
+      case "SHIPPED":
+        return {
+          label: "Shipped",
+          className: "processing",
+        };
+
+      case "CANCELLED":
+        return {
+          label: "Cancelled",
+          className: "rejected",
+        };
+
+      default:
+        return {
+          label: "Processing",
+          className: "pending",
+        };
+    }
+  };
 
   /* =================================
      LOADING
@@ -91,25 +192,22 @@ const MyOrders = () => {
     return (
       <div className="loading-box">
         <h2>{error}</h2>
+
+        <button className="retry-btn" onClick={fetchOrders}>
+          <FaRedo />
+          Retry
+        </button>
       </div>
     );
   }
 
   return (
     <div className="customer-orders-page">
-      {/* =================================
-          PAGE HEADER
-      ================================= */}
-
       <div className="page-header">
         <h1>My Orders</h1>
 
         <p>View all your placed orders</p>
       </div>
-
-      {/* =================================
-          EMPTY ORDERS
-      ================================= */}
 
       {orders.length === 0 ? (
         <div className="empty-orders">
@@ -122,78 +220,68 @@ const MyOrders = () => {
       ) : (
         <div className="orders-table-wrapper">
           <table className="orders-table">
-            {/* TABLE HEAD */}
-
             <thead>
               <tr>
                 <th>Order No</th>
-
                 <th>Date</th>
-
+                <th>Products</th>
                 <th>Total</th>
-
                 <th>Payment</th>
-
-                <th>Status</th>
+                <th>Delivery</th>
+                <th>Invoice</th>
               </tr>
             </thead>
 
-            {/* TABLE BODY */}
-
             <tbody>
-              {orders.map((order, index) => {
-                const paymentStatus = order?.paymentStatus || "PENDING";
+              {orders.map((order) => {
+                const payment = getPaymentStatus(order.paymentStatus);
+
+                const delivery = getOrderStatus(
+                  order.deliveryStatus || order.status,
+                );
 
                 return (
-                  <tr key={order?._id || index}>
-                    {/* ORDER NO */}
+                  <tr key={order._id}>
+                    <td>{order.orderNo || "N/A"}</td>
 
-                    <td>{order?.orderNo || "N/A"}</td>
-
-                    {/* DATE */}
+                    <td>{formatDate(order.createdAt)}</td>
 
                     <td>
-                      {order?.createdAt
-                        ? new Date(order.createdAt).toLocaleDateString()
-                        : "N/A"}
+                      {order.items
+                        ?.map((item) => item.productName)
+                        .join(", ") || "-"}
                     </td>
 
-                    {/* TOTAL */}
-
-                    <td>₹{Number(order.totalAmount || 0).toFixed(2)}</td>
-
-                    {/* PAYMENT */}
+                    <td>₹{formatCurrency(order.totalAmount)}</td>
 
                     <td>
-                      <span
-                        className={`payment-badge ${
-                          paymentStatus === "RECEIVED" ? "paid" : "pending"
-                        }`}
-                      >
-                        {paymentStatus === "RECEIVED" ? (
-                          <>
-                            <FaCheckCircle />
-                            Paid
-                          </>
-                        ) : (
-                          <>
-                            <FaClock />
-                            Pending
-                          </>
-                        )}
+                      <span className={`payment-badge ${payment.className}`}>
+                        {payment.icon}
+
+                        {payment.label}
                       </span>
                     </td>
 
-                    {/* STATUS */}
+                    <td>
+                      <span className={`status-badge ${delivery.className}`}>
+                        <FaTruck />
+
+                        {delivery.label}
+                      </span>
+                    </td>
 
                     <td>
-                      <span
-                        className={`status-badge ${
-                          paymentStatus === "RECEIVED" ? "completed" : "pending"
-                        }`}
-                      >
-                        {paymentStatus === "RECEIVED" ? "Completed" : "Pending"}
-                      </span>
+                      {order.invoiceGenerated ? (
+                        <button
+                          className="invoice-btn"
+                          onClick={() => navigate("/customer/invoices")}
+                        >
+                          <FaFileInvoice />
+                          View
+                        </button>
+                      ) : (
+                        "-"
+                      )}
                     </td>
                   </tr>
                 );

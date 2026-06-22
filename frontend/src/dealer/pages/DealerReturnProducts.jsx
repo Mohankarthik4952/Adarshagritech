@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import API_URL from "../../config/api";
 
@@ -8,7 +9,7 @@ export default function DealerReturnProducts() {
   const [products, setProducts] = useState([]);
   const [requests, setRequests] = useState([]);
   const [remarks, setRemarks] = useState("");
-
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -17,11 +18,14 @@ export default function DealerReturnProducts() {
 
   const token = localStorage.getItem("dealerToken");
 
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
+  const config = useMemo(
+    () => ({
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+    [token],
+  );
 
   useEffect(() => {
     loadData();
@@ -29,6 +33,11 @@ export default function DealerReturnProducts() {
 
   const loadData = async () => {
     try {
+      if (!token) {
+        navigate("/dealer/login");
+        return;
+      }
+
       setLoading(true);
 
       const [productsRes, requestsRes] = await Promise.all([
@@ -52,7 +61,21 @@ export default function DealerReturnProducts() {
     } catch (error) {
       console.error("RETURN PAGE ERROR:", error);
 
-      alert(error.response?.data?.message || "Failed to load return products");
+      if (error.response?.status === 401) {
+        localStorage.removeItem("dealerToken");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/dealer/login");
+
+        return;
+      }
+
+      alert(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to load return products",
+      );
     } finally {
       setLoading(false);
     }
@@ -64,6 +87,7 @@ export default function DealerReturnProducts() {
     let qty = Number(value);
 
     if (qty < 0) qty = 0;
+    qty = Math.max(0, qty);
 
     if (qty > updated[index].availableToReturn) {
       qty = updated[index].availableToReturn;
@@ -76,17 +100,25 @@ export default function DealerReturnProducts() {
 
   const selectedItems = useMemo(() => {
     return products
-      .filter((item) => Number(item.returnQuantity || 0) > 0)
+      .filter(
+        (item) =>
+          Number(item.returnQuantity || 0) > 0 &&
+          Number(item.returnQuantity || 0) <=
+            Number(item.availableToReturn || 0),
+      )
       .map((item) => ({
         productId: item.productId,
         productName: item.productName,
         size: item.size,
         orderedBottles: item.orderedBottles,
         availableToReturn: item.availableToReturn,
+
         returnQuantity: Number(item.returnQuantity),
 
         pricePerBottle: Number(item.pricePerBottle || 0),
+
         discountPercent: Number(item.discountPercent || 0),
+
         gstPercent: Number(item.gstPercent || 0),
       }));
   }, [products]);
@@ -118,9 +150,10 @@ export default function DealerReturnProducts() {
   }, [selectedItems]);
 
   const submitReturn = async () => {
+    if (submitting) return;
+
     if (!selectedItems.length) {
       alert("Enter return quantity");
-
       return;
     }
 
@@ -142,9 +175,23 @@ export default function DealerReturnProducts() {
 
       await loadData();
     } catch (error) {
-      console.error(error);
+      console.error("RETURN SUBMIT ERROR:", error);
 
-      alert(error.response?.data?.message || "Failed to submit request");
+      if (error.response?.status === 401) {
+        localStorage.removeItem("dealerToken");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/dealer/login");
+
+        return;
+      }
+
+      alert(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to submit request",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -225,7 +272,7 @@ export default function DealerReturnProducts() {
                   );
 
                   return (
-                    <tr key={item.productKey}>
+                    <tr key={`${item.productId}-${item.size}`}>
                       <td>{item.productName}</td>
 
                       <td>{item.size}</td>
@@ -274,6 +321,7 @@ export default function DealerReturnProducts() {
             className="return-remarks"
             placeholder="Enter remarks (optional)"
             value={remarks}
+            maxLength={500}
             onChange={(e) => setRemarks(e.target.value)}
           />
 
@@ -312,7 +360,9 @@ export default function DealerReturnProducts() {
               ) : (
                 requests.map((request) => (
                   <tr key={request._id}>
-                    <td>{new Date(request.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      {new Date(request.createdAt).toLocaleDateString("en-IN")}
+                    </td>
 
                     <td>{request.items?.length || 0}</td>
 
@@ -333,7 +383,11 @@ export default function DealerReturnProducts() {
                       {request.returnInvoiceId?.pdfUrl ? (
                         <a
                           className="download-link"
-                          href={`${API_URL}${request.returnInvoiceId.pdfUrl}`}
+                          href={
+                            request.returnInvoiceId.pdfUrl.startsWith("http")
+                              ? request.returnInvoiceId.pdfUrl
+                              : `${API_URL}${request.returnInvoiceId.pdfUrl}`
+                          }
                           target="_blank"
                           rel="noreferrer"
                         >

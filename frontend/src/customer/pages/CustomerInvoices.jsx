@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
 import API_URL from "../../config/api";
 
 import "./customerpages.css";
 
 export default function CustomerInvoices() {
+  const navigate = useNavigate();
+
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -13,10 +17,21 @@ export default function CustomerInvoices() {
     fetchInvoices();
   }, []);
 
+  /* =========================
+     FETCH INVOICES
+  ========================= */
+
   const fetchInvoices = async () => {
     try {
+      setLoading(true);
+
       const token =
         localStorage.getItem("customerToken") || localStorage.getItem("token");
+
+      if (!token) {
+        navigate("/customer/login");
+        return;
+      }
 
       const res = await axios.get(`${API_URL}/api/customer/invoices`, {
         headers: {
@@ -24,21 +39,47 @@ export default function CustomerInvoices() {
         },
       });
 
+      if (res.status === 401) {
+        localStorage.removeItem("customerToken");
+        localStorage.removeItem("token");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/customer/login");
+
+        return;
+      }
+
       if (res.data.success) {
         setInvoices(res.data.invoices || []);
       } else {
         setInvoices([]);
       }
     } catch (error) {
-      console.error("FETCH INVOICES ERROR:", error);
+      console.error("FETCH INVOICES ERROR:", error.response?.data || error);
 
-      alert("Failed to load invoices");
+      if (error.response?.status === 401) {
+        localStorage.removeItem("customerToken");
+        localStorage.removeItem("token");
+
+        alert("Session expired. Please login again.");
+
+        navigate("/customer/login");
+
+        return;
+      }
+
+      alert(error.response?.data?.message || "Failed to load invoices");
 
       setInvoices([]);
     } finally {
       setLoading(false);
     }
   };
+
+  /* =========================
+     FORMATTERS
+  ========================= */
 
   const formatCurrency = (amount) => {
     return Number(amount || 0).toLocaleString("en-IN", {
@@ -53,11 +94,33 @@ export default function CustomerInvoices() {
     return new Date(date).toLocaleDateString("en-IN");
   };
 
+  /* =========================
+     DOWNLOAD INVOICE
+  ========================= */
+
+  const downloadInvoice = (invoice) => {
+    const pdfUrl = invoice.pdfUrl || invoice.invoicePdf || invoice.invoiceFile;
+
+    if (!pdfUrl) {
+      alert("Invoice PDF not available");
+
+      return;
+    }
+
+    const finalUrl = pdfUrl.startsWith("http") ? pdfUrl : `${API_URL}${pdfUrl}`;
+
+    window.open(finalUrl, "_blank");
+  };
+
+  /* =========================
+     LOADING
+  ========================= */
+
   if (loading) {
     return (
       <div className="customer-page">
         <div className="loading-box">
-          <h2>Loading Invoices...</h2>
+          <h2>Loading invoices...</h2>
         </div>
       </div>
     );
@@ -128,12 +191,31 @@ export default function CustomerInvoices() {
                   <td>{formatDate(invoice.createdAt)}</td>
 
                   <td>
-                    <button
-                      className="customer-view-btn"
-                      onClick={() => setSelectedInvoice(invoice)}
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        flexWrap: "wrap",
+                      }}
                     >
-                      View
-                    </button>
+                      <button
+                        className="customer-view-btn"
+                        onClick={() => setSelectedInvoice(invoice)}
+                      >
+                        View
+                      </button>
+
+                      {(invoice.pdfUrl ||
+                        invoice.invoicePdf ||
+                        invoice.invoiceFile) && (
+                        <button
+                          className="customer-view-btn"
+                          onClick={() => downloadInvoice(invoice)}
+                        >
+                          Download
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -256,7 +338,7 @@ export default function CustomerInvoices() {
                 <tbody>
                   {(selectedInvoice.items || []).length > 0 ? (
                     selectedInvoice.items.map((item, index) => (
-                      <tr key={index}>
+                      <tr key={`${item.productId}-${item.size}-${index}`}>
                         <td>{index + 1}</td>
 
                         <td>{item.productName || "-"}</td>
