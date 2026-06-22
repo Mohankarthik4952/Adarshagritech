@@ -1,7 +1,82 @@
 import "dotenv/config";
 import { Resend } from "resend";
 
+if (!process.env.RESEND_API_KEY) {
+  throw new Error("RESEND_API_KEY is missing");
+}
+
+if (!process.env.ADMIN_NOTIFICATION_EMAIL) {
+  throw new Error("ADMIN_NOTIFICATION_EMAIL is missing");
+}
+
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+/* =================================
+   FORMAT PRODUCTS
+================================= */
+
+const formatItems = (order, isDealer) => {
+  if (!Array.isArray(order?.items) || order.items.length === 0) {
+    return `
+      <tr>
+        <td
+          colspan="4"
+          style="
+            padding:12px;
+            text-align:center;
+            color:#666;
+          "
+        >
+          No products found
+        </td>
+      </tr>
+    `;
+  }
+
+  return order.items
+    .map((item, index) => {
+      const quantity = isDealer
+        ? Number(item.cases || item.quantity || 0)
+        : Number(
+            item.quantity ||
+              item.requiredBottles ||
+              item.totalBottles ||
+              item.cases ||
+              0,
+          );
+
+      return `
+        <tr>
+          <td style="padding:10px; border:1px solid #ddd;">
+            ${index + 1}
+          </td>
+
+          <td style="padding:10px; border:1px solid #ddd;">
+            ${item.productName || item.name || "-"}
+          </td>
+
+          <td style="padding:10px; border:1px solid #ddd;">
+            ${item.size || "-"}
+          </td>
+
+          <td
+            style="
+              padding:10px;
+              border:1px solid #ddd;
+              text-align:center;
+            "
+          >
+            ${quantity}
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
+};
+
+/* =================================
+   SEND ORDER NOTIFICATION
+================================= */
 
 export const sendOrderNotification = async ({
   role,
@@ -11,6 +86,8 @@ export const sendOrderNotification = async ({
 }) => {
   try {
     const isDealer = role === "DEALER";
+
+    console.log("ORDER ITEMS:", JSON.stringify(order.items || [], null, 2));
 
     const customerName = order.customerName || customer.name || "-";
 
@@ -36,8 +113,17 @@ export const sendOrderNotification = async ({
     const dealerPhone = order.dealerPhoneNumber || dealer.phone || "-";
 
     const html = `
-      <div style="font-family:Arial,sans-serif;color:#222;">
-        <h2>New ${role} Order Received</h2>
+      <div
+        style="
+          font-family: Arial, sans-serif;
+          color: #222;
+          max-width: 800px;
+          margin: auto;
+        "
+      >
+        <h2 style="color:#2e7d32;">
+          New ${role} Order Received
+        </h2>
 
         <p>
           <strong>Order ID:</strong>
@@ -64,6 +150,40 @@ export const sendOrderNotification = async ({
           <strong>Total Amount:</strong>
           ₹${Number(order.totalAmount || 0).toLocaleString("en-IN")}
         </p>
+
+        <h3 style="margin-top:30px;">
+          Ordered Products
+        </h3>
+
+        <table
+          style="
+            width:100%;
+            border-collapse:collapse;
+            margin-top:10px;
+          "
+        >
+          <thead>
+            <tr style="background:#f5f5f5;">
+              <th style="padding:10px; border:1px solid #ddd;">#</th>
+
+              <th style="padding:10px; border:1px solid #ddd;">
+                Product
+              </th>
+
+              <th style="padding:10px; border:1px solid #ddd;">
+                Size
+              </th>
+
+              <th style="padding:10px; border:1px solid #ddd;">
+                ${isDealer ? "Cases" : "Quantity"}
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${formatItems(order, isDealer)}
+          </tbody>
+        </table>
       </div>
     `;
 
