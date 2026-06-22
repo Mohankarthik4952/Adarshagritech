@@ -148,7 +148,7 @@ router.post("/", protect, dealerOnly, async (req, res) => {
     try {
       console.log("Before dealer email notification");
 
-      await sendOrderNotification({
+      sendOrderNotification({
         role: "DEALER",
         dealer,
         order,

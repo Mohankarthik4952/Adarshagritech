@@ -146,7 +146,7 @@ router.post("/", protect, customerOnly, async (req, res) => {
     ========================= */
 
     try {
-      await sendOrderNotification({
+      sendOrderNotification({
         role: "CUSTOMER",
         customer,
         order,

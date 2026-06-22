@@ -340,7 +340,7 @@ router.post("/checkout", protect, async (req, res) => {
     });
 
     try {
-      await sendOrderNotification({
+      sendOrderNotification({
         role: "DEALER",
         dealer,
         order,
