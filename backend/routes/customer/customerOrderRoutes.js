@@ -209,13 +209,19 @@ router.post("/", protect, customerOnly, async (req, res) => {
       invoiceGenerated: false,
     });
 
-    sendOrderNotification({
-      role: "CUSTOMER",
-      customer,
-      order,
-    }).catch((err) => {
-      console.error("CUSTOMER EMAIL ERROR:", err);
-    });
+    try {
+      await sendOrderNotification({
+        role: "CUSTOMER",
+        customer,
+        order,
+      });
+    } catch (err) {
+      console.error("================================");
+      console.error("CUSTOMER EMAIL ERROR");
+      console.error("MESSAGE:", err.message);
+      console.error("STACK:", err.stack);
+      console.error("================================");
+    }
 
     /* =================================
        CREATE PAYMENT ENTRY

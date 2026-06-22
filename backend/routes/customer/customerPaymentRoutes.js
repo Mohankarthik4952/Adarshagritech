@@ -145,18 +145,19 @@ router.post("/", protect, customerOnly, async (req, res) => {
        SEND EMAIL NOTIFICATION
     ========================= */
 
-    sendOrderNotification({
-      role: "CUSTOMER",
-      customer: {
-        name: order.customerName,
-        phone: order.customerPhoneNumber,
-        village: order.customerVillage,
-        nearBusStand: order.customerNearBusStand,
-      },
-      order,
-    }).catch((err) => {
-      console.error("CUSTOMER EMAIL ERROR:", err);
-    });
+    try {
+      await sendOrderNotification({
+        role: "CUSTOMER",
+        customer,
+        order,
+      });
+    } catch (err) {
+      console.error("================================");
+      console.error("CUSTOMER EMAIL ERROR");
+      console.error("MESSAGE:", err.message);
+      console.error("STACK:", err.stack);
+      console.error("================================");
+    }
 
     return res.status(201).json({
       success: true,

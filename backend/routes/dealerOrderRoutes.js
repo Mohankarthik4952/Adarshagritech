@@ -146,15 +146,21 @@ router.post("/", protect, dealerOnly, async (req, res) => {
     });
 
     try {
-      sendOrderNotification({
+      console.log("Before dealer email notification");
+
+      await sendOrderNotification({
         role: "DEALER",
         dealer,
         order,
       });
 
-      console.log("ORDER EMAIL SENT");
+      console.log("After dealer email notification");
     } catch (err) {
-      console.error("DEALER EMAIL ERROR:", err);
+      console.error("================================");
+      console.error("DEALER EMAIL ERROR");
+      console.error("MESSAGE:", err.message);
+      console.error("STACK:", err.stack);
+      console.error("================================");
     }
 
     console.log("ORDER CREATED:", order.orderNo);
