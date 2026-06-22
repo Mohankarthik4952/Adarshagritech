@@ -43,7 +43,9 @@ const transporter = nodemailer.createTransport({
 
   port: Number(process.env.EMAIL_PORT),
 
-  secure: Number(process.env.EMAIL_PORT) === 465,
+  secure: false,
+
+  requireTLS: true,
 
   auth: {
     user: process.env.EMAIL_USER,
@@ -56,11 +58,11 @@ const transporter = nodemailer.createTransport({
 
   maxMessages: 100,
 
-  connectionTimeout: 30000,
+  connectionTimeout: 60000,
 
-  greetingTimeout: 30000,
+  greetingTimeout: 60000,
 
-  socketTimeout: 30000,
+  socketTimeout: 60000,
 
   logger: true,
 
