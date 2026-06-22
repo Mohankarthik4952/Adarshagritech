@@ -145,7 +145,7 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       invoiceGenerated: false,
     });
 
-    sendOrderNotification({
+    void sendOrderNotification({
       role: "DEALER",
       dealer,
       order,

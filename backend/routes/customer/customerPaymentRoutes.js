@@ -145,7 +145,7 @@ router.post("/", protect, customerOnly, async (req, res) => {
        SEND EMAIL NOTIFICATION
     ========================= */
 
-    sendOrderNotification({
+    void sendOrderNotification({
       role: "CUSTOMER",
       dealer,
       order,

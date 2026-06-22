@@ -209,7 +209,7 @@ router.post("/", protect, customerOnly, async (req, res) => {
       invoiceGenerated: false,
     });
 
-    sendOrderNotification({
+    void sendOrderNotification({
       role: "CUSTOMER",
       dealer,
       order,

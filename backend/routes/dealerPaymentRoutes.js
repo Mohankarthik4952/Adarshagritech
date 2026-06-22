@@ -339,7 +339,7 @@ router.post("/checkout", protect, async (req, res) => {
       invoiceGenerated: false,
     });
 
-    sendOrderNotification({
+    void sendOrderNotification({
       role: "DEALER",
       dealer,
       order,
