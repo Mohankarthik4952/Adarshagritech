@@ -209,26 +209,20 @@ router.post("/", protect, customerOnly, async (req, res) => {
       invoiceGenerated: false,
     });
 
+    console.log("📧 STARTING CUSTOMER EMAIL:", order.orderNo);
+
     void sendOrderNotification({
       role: "CUSTOMER",
       customer,
       order,
     })
       .then((info) => {
-        console.log("================================");
-        console.log("✅ CUSTOMER EMAIL SENT");
-        console.log("ORDER:", order.orderNo);
-        console.log("MESSAGE ID:", info?.messageId);
-        console.log("================================");
+        console.log("✅ CUSTOMER EMAIL SENT:", order.orderNo, info?.messageId);
       })
       .catch((err) => {
-        console.error("================================");
-        console.error(`❌ CUSTOMER EMAIL FAILED: ${order.orderNo}`);
-        console.error("MESSAGE:", err.message);
-        console.error("CODE:", err.code);
-        console.error("RESPONSE:", err.response);
-        console.error("FULL ERROR:", err);
-        console.error("================================");
+        console.error("❌ CUSTOMER EMAIL FAILED:", order.orderNo);
+
+        console.error(err);
       });
 
     /* =================================

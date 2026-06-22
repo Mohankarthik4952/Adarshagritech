@@ -22,6 +22,19 @@ if (missingEnv.length > 0) {
 }
 
 /* =================================
+   EMAIL CONFIG LOGS
+================================= */
+
+console.log("================================");
+console.log("📧 EMAIL CONFIG");
+console.log("HOST:", process.env.EMAIL_HOST);
+console.log("PORT:", process.env.EMAIL_PORT);
+console.log("USER:", process.env.EMAIL_USER);
+console.log("PASSWORD EXISTS:", Boolean(process.env.EMAIL_PASSWORD));
+console.log("ADMIN EMAIL:", process.env.ADMIN_NOTIFICATION_EMAIL);
+console.log("================================");
+
+/* =================================
    MAIL TRANSPORTER
 ================================= */
 
@@ -37,9 +50,11 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASSWORD,
   },
 
-  tls: {
-    rejectUnauthorized: false,
-  },
+  pool: true,
+
+  maxConnections: 5,
+
+  maxMessages: 100,
 
   connectionTimeout: 30000,
 
@@ -59,6 +74,10 @@ const transporter = nodemailer.createTransport({
 (async () => {
   try {
     await transporter.verify();
+
+    console.log("================================");
+    console.log("✅ SMTP SERVER READY");
+    console.log("================================");
   } catch (error) {
     console.error("================================");
     console.error("❌ SMTP VERIFY ERROR");
@@ -216,7 +235,10 @@ export const sendOrderNotification = async ({
     `;
 
     const mailOptions = {
-      from: `"Sunrise Agri Products" <${process.env.EMAIL_USER}>`,
+      from: {
+        name: "Sunrise Agri Products",
+        address: process.env.EMAIL_USER,
+      },
 
       to: process.env.ADMIN_NOTIFICATION_EMAIL,
 
@@ -225,7 +247,20 @@ export const sendOrderNotification = async ({
       html,
     };
 
+    console.log("================================");
+    console.log("📧 SENDING EMAIL");
+    console.log("TO:", process.env.ADMIN_NOTIFICATION_EMAIL);
+    console.log("ORDER:", order.orderNo || order._id);
+    console.log("ROLE:", role);
+    console.log("================================");
+
     const info = await transporter.sendMail(mailOptions);
+
+    console.log("================================");
+    console.log("✅ EMAIL SENT SUCCESSFULLY");
+    console.log("MESSAGE ID:", info.messageId);
+    console.log("RESPONSE:", info.response);
+    console.log("================================");
 
     return info;
   } catch (error) {

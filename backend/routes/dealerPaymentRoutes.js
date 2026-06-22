@@ -339,11 +339,7 @@ router.post("/checkout", protect, async (req, res) => {
       invoiceGenerated: false,
     });
 
-    console.log("================================");
-    console.log("📧 EMAIL FUNCTION CALLED");
-    console.log("ORDER:", order.orderNo);
-    console.log("ROLE:", "DEALER");
-    console.log("================================");
+    console.log("📧 STARTING DEALER EMAIL:", order.orderNo);
 
     void sendOrderNotification({
       role: "DEALER",
@@ -351,19 +347,12 @@ router.post("/checkout", protect, async (req, res) => {
       order,
     })
       .then((info) => {
-        console.log("================================");
-        console.log("✅ ORDER EMAIL SENT");
-        console.log("ORDER:", order.orderNo);
-        console.log("MESSAGE ID:", info?.messageId);
-        console.log("================================");
+        console.log("✅ DEALER EMAIL SENT:", order.orderNo, info?.messageId);
       })
       .catch((err) => {
-        console.error("================================");
-        console.error(`❌ ORDER EMAIL FAILED: ${order.orderNo}`);
-        console.error("MESSAGE:", err.message);
-        console.error("CODE:", err.code);
-        console.error("RESPONSE:", err.response);
-        console.error("================================");
+        console.error("❌ DEALER EMAIL FAILED:", order.orderNo);
+
+        console.error(err);
       });
 
     /* ===============================
