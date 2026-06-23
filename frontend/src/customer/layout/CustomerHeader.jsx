@@ -66,7 +66,9 @@ const CustomerHeader = ({ setSidebarOpen }) => {
      LOGOUT
   ========================= */
   const logout = () => {
-    localStorage.clear();
+    localStorage.removeItem("token");
+    localStorage.removeItem("customerAuth");
+    localStorage.removeItem("customerToken");
     navigate("/customer/login");
   };
 

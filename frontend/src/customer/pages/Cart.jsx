@@ -52,11 +52,7 @@ const Cart = () => {
 
   const getTotal = () => {
     return cartItems.reduce((sum, item) => {
-      const quantity = Number(item.quantity || 1);
-
-      const price = Number(item.finalPrice || item.price || 0);
-
-      return sum + price * quantity;
+      return sum + Number(item.finalPrice || item.price || 0);
     }, 0);
   };
 
