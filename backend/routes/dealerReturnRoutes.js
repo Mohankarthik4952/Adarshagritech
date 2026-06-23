@@ -9,43 +9,34 @@ import { protect, dealerOnly } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 /* =================================
-   RETURN WINDOW
+   RETURN ELIGIBILITY (75 DAYS)
 ================================= */
 
-const isReturnWindowOpen = () => {
-  const today = new Date();
+const getReturnDetails = (orderDate) => {
+  const returnStartDate = new Date(orderDate);
 
-  const year = today.getFullYear();
+  // Start from next day
+  returnStartDate.setDate(returnStartDate.getDate() + 1);
 
-  const startDate = new Date(year, 2, 1, 0, 0, 0); // March 1
+  const returnExpiryDate = new Date(returnStartDate);
 
-  const endDate = new Date(year, 4, 31, 23, 59, 59); // May 31
+  // 75 days from next day
+  returnExpiryDate.setDate(returnExpiryDate.getDate() + 75);
 
-  return today >= startDate && today <= endDate;
+  const now = new Date();
+
+  return {
+    eligible: now >= returnStartDate && now <= returnExpiryDate,
+    returnStartDate,
+    returnExpiryDate,
+  };
 };
-
-/* =================================
-   FINANCIAL YEAR (APR → MAR)
-================================= */
-
-const getFinancialYear = (date = new Date()) => {
-  const year = date.getFullYear();
-
-  return date.getMonth() >= 3 ? `${year}-${year + 1}` : `${year - 1}-${year}`;
-};
-
-/* =================================
-   GET RETURN STATUS
-================================= */
 
 router.get("/status", protect, dealerOnly, async (req, res) => {
   try {
     return res.status(200).json({
       success: true,
-      isReturnWindowOpen: isReturnWindowOpen(),
-      financialYear: getFinancialYear(),
-      returnStartDate: "March 1",
-      returnEndDate: "May 31",
+      returnPolicy: "75 Days From Next Day Of Order",
     });
   } catch (error) {
     console.error("RETURN STATUS ERROR:", error);
@@ -63,8 +54,6 @@ router.get("/status", protect, dealerOnly, async (req, res) => {
 
 router.get("/orders", protect, dealerOnly, async (req, res) => {
   try {
-    const financialYear = getFinancialYear();
-
     const orders = await Order.find({
       userId: req.user.id,
       role: "DEALER",
@@ -82,13 +71,11 @@ router.get("/orders", protect, dealerOnly, async (req, res) => {
 
     const approvedReturns = await ReturnRequest.find({
       dealerId: req.user.id,
-      financialYear,
       approvalStatus: "APPROVED",
     }).lean();
 
     const pendingReturns = await ReturnRequest.find({
       dealerId: req.user.id,
-      financialYear,
       approvalStatus: "PENDING",
     }).lean();
 
@@ -110,6 +97,13 @@ router.get("/orders", protect, dealerOnly, async (req, res) => {
     const productsMap = new Map();
 
     orders.forEach((order) => {
+      const { eligible, returnStartDate, returnExpiryDate } = getReturnDetails(
+        order.createdAt,
+      );
+
+      if (!eligible) {
+        return;
+      }
       (order.items || []).forEach((item) => {
         if (!item.productId) return;
 
@@ -136,6 +130,8 @@ router.get("/orders", protect, dealerOnly, async (req, res) => {
 
             productId,
 
+            orderId: String(order._id),
+
             productName: item.productName || "Unknown Product",
 
             size: item.size || "",
@@ -157,6 +153,17 @@ router.get("/orders", protect, dealerOnly, async (req, res) => {
             orderIds: [String(order._id)],
 
             orderNos: [order.orderNo],
+
+            returnStartDate,
+
+            returnExpiryDate,
+
+            daysRemaining: Math.max(
+              0,
+              Math.ceil(
+                (returnExpiryDate - new Date()) / (1000 * 60 * 60 * 24),
+              ),
+            ),
           });
         } else {
           const existing = productsMap.get(productKey);
@@ -169,9 +176,13 @@ router.get("/orders", protect, dealerOnly, async (req, res) => {
             item.discountPercent || existing.discountPercent || 0,
           );
 
-          existing.orderIds.push(String(order._id));
+          if (!existing.orderIds.includes(String(order._id))) {
+            existing.orderIds.push(String(order._id));
+          }
 
-          existing.orderNos.push(order.orderNo);
+          if (!existing.orderNos.includes(order.orderNo)) {
+            existing.orderNos.push(order.orderNo);
+          }
         }
       });
     });
@@ -182,8 +193,7 @@ router.get("/orders", protect, dealerOnly, async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      isReturnWindowOpen: isReturnWindowOpen(),
-      financialYear,
+      returnPolicy: "75 Days From Next Day Of Order",
       products,
     });
   } catch (error) {
@@ -229,15 +239,6 @@ router.get("/my-requests", protect, dealerOnly, async (req, res) => {
 
 router.post("/", protect, dealerOnly, async (req, res) => {
   try {
-    if (!isReturnWindowOpen()) {
-      return res.status(400).json({
-        success: false,
-        message: "Returns are allowed only from March 1 to May 31",
-      });
-    }
-
-    const financialYear = getFinancialYear();
-
     const { items, remarks } = req.body;
 
     if (!Array.isArray(items) || items.length === 0) {
@@ -261,13 +262,32 @@ router.post("/", protect, dealerOnly, async (req, res) => {
     let totalAmount = 0;
 
     for (const requestItem of items) {
+      const order = await Order.findOne({
+        _id: requestItem.orderId,
+        userId: req.user.id,
+      });
+
+      if (!order) {
+        return res.status(400).json({
+          success: false,
+          message: "Order not found",
+        });
+      }
+
+      const { eligible } = getReturnDetails(order.createdAt);
+
+      if (!eligible) {
+        return res.status(400).json({
+          success: false,
+          message: `${requestItem.productName} return period expired`,
+        });
+      }
       const productId = requestItem.productId.toString();
 
       const productKey = `${productId}_${requestItem.size || ""}`;
 
       const existingRequest = await ReturnRequest.findOne({
         dealerId: req.user.id,
-        financialYear,
         approvalStatus: {
           $in: ["PENDING", "APPROVED"],
         },
@@ -310,6 +330,8 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       totalAmount += returnAmount;
 
       returnItems.push({
+        orderId: requestItem.orderId,
+
         productId,
 
         productKey,
@@ -353,10 +375,7 @@ router.post("/", protect, dealerOnly, async (req, res) => {
 
       dealerPhoneNumber: dealer.phone || "",
 
-      financialYear,
-
-      orderId: null,
-
+      orderId: returnItems[0]?.orderId || null,
       orderNo: "MULTIPLE",
 
       items: returnItems,

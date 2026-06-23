@@ -12,10 +12,7 @@ export default function DealerReturnProducts() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-
-  const [returnWindowOpen, setReturnWindowOpen] = useState(false);
-  const [financialYear, setFinancialYear] = useState("");
-
+  const [returnPolicy, setReturnPolicy] = useState("");
   const token = localStorage.getItem("dealerToken");
 
   const config = useMemo(
@@ -53,10 +50,7 @@ export default function DealerReturnProducts() {
         })),
       );
 
-      setReturnWindowOpen(productsRes.data.isReturnWindowOpen || false);
-
-      setFinancialYear(productsRes.data.financialYear || "");
-
+      setReturnPolicy(productsRes.data.returnPolicy || "");
       setRequests(requestsRes.data.requests || []);
     } catch (error) {
       console.error("RETURN PAGE ERROR:", error);
@@ -84,10 +78,17 @@ export default function DealerReturnProducts() {
   const updateQuantity = (index, value) => {
     const updated = [...products];
 
+    if (value === "") {
+      updated[index].returnQuantity = "";
+      setProducts(updated);
+      return;
+    }
+
     let qty = Number(value);
 
+    if (isNaN(qty)) qty = 0;
+
     if (qty < 0) qty = 0;
-    qty = Math.max(0, qty);
 
     if (qty > updated[index].availableToReturn) {
       qty = updated[index].availableToReturn;
@@ -107,10 +108,16 @@ export default function DealerReturnProducts() {
             Number(item.availableToReturn || 0),
       )
       .map((item) => ({
+        orderId: item.orderId,
+
         productId: item.productId,
+
         productName: item.productName,
+
         size: item.size,
+
         orderedBottles: item.orderedBottles,
+
         availableToReturn: item.availableToReturn,
 
         returnQuantity: Number(item.returnQuantity),
@@ -210,16 +217,10 @@ export default function DealerReturnProducts() {
       <div className="return-header">
         <h2>Return Products</h2>
 
-        {financialYear && (
-          <span className="financial-year-badge">FY {financialYear}</span>
+        {returnPolicy && (
+          <span className="financial-year-badge">{returnPolicy}</span>
         )}
       </div>
-
-      {!returnWindowOpen && (
-        <div className="return-warning">
-          Product returns are allowed only from March 1 to May 31.
-        </div>
-      )}
 
       {products.length === 0 ? (
         <div className="empty-return-products">
@@ -257,6 +258,8 @@ export default function DealerReturnProducts() {
                   <th>Product</th>
                   <th>Size</th>
                   <th>Ordered Bottles</th>
+                  <th>Days Left</th>
+                  <th>Expiry Date</th>
                   <th>Price + GST</th>
                   <th>Return Bottles</th>
                   <th>Status</th>
@@ -277,7 +280,17 @@ export default function DealerReturnProducts() {
 
                       <td>{item.size}</td>
 
-                      <td>{item.availableToReturn}</td>
+                      <td>{item.orderedBottles}</td>
+
+                      <td>{item.daysRemaining} Days</td>
+
+                      <td>
+                        {item.returnExpiryDate
+                          ? new Date(item.returnExpiryDate).toLocaleDateString(
+                              "en-IN",
+                            )
+                          : "-"}
+                      </td>
 
                       <td>
                         ₹
@@ -293,7 +306,7 @@ export default function DealerReturnProducts() {
                           type="number"
                           min="0"
                           max={item.availableToReturn}
-                          disabled={item.pending || !returnWindowOpen}
+                          disabled={item.pending}
                           value={item.returnQuantity || ""}
                           onChange={(e) =>
                             updateQuantity(index, e.target.value)
@@ -327,7 +340,7 @@ export default function DealerReturnProducts() {
 
           <button
             className="return-submit-btn"
-            disabled={!returnWindowOpen || !selectedItems.length || submitting}
+            disabled={!selectedItems.length || submitting}
             onClick={submitReturn}
           >
             {submitting ? "Submitting..." : "Submit Return Request"}
@@ -343,7 +356,9 @@ export default function DealerReturnProducts() {
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Products</th>
+                <th>No. Of Products</th>
+                <th>Product Names</th>
+                <th>Returned Bottles</th>
                 <th>Amount</th>
                 <th>Status</th>
                 <th>Invoice</th>
@@ -353,7 +368,7 @@ export default function DealerReturnProducts() {
             <tbody>
               {requests.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="empty-cell">
+                  <td colSpan="7" className="empty-cell">
                     No return requests found
                   </td>
                 </tr>
@@ -365,6 +380,21 @@ export default function DealerReturnProducts() {
                     </td>
 
                     <td>{request.items?.length || 0}</td>
+
+                    <td>
+                      {request.items?.map((item, index) => (
+                        <div key={index}>
+                          {item.productName}
+                          {item.size ? ` (${item.size})` : ""}
+                        </div>
+                      ))}
+                    </td>
+
+                    <td>
+                      {request.items?.map((item, index) => (
+                        <div key={index}>{item.returnQuantity} Bottles</div>
+                      ))}
+                    </td>
 
                     <td>
                       ₹

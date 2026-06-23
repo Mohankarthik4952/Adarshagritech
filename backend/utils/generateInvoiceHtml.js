@@ -307,15 +307,15 @@ const generateInvoiceHtml = (invoice, totalOutstandingAmount = 0) => {
             </p>
 
             <p>
-              GST : ${invoice.companyGSTNumber || "-"}
+              GST : ${invoice.companyGSTNumber || "37ARLPG5201F1Z3"}
             </p>
 
             <p>
-              Phone : ${invoice.companyPhoneNumber || "-"}
+              Phone : ${invoice.companyPhoneNumber || "8341198888"}
             </p>
 
             <p>
-              Address : ${invoice.companyAddress || "-"}
+              Address : ${invoice.companyAddress || "Door No. 15-146, Gayathri Towers, Ground Floor, Shop No. 5, Side of Sub-Register office road, Nandigama, Krishna Dist, A.P. 522185"}
             </p>
 
             ${

@@ -317,7 +317,14 @@ export default function DealerInvoices() {
 
                   <h4>Bank Details</h4>
 
-                  <p>{selectedInvoice.bankDetails || "Not Available"}</p>
+                  <p>
+                    <strong>Account Number : </strong>
+                    {"52950400000060"}
+                  </p>
+                  <p>
+                    <strong>IFSC : </strong>
+                    {"BARB0NANDIG	"}
+                  </p>
                 </div>
 
                 <div className="invoice-address-card">

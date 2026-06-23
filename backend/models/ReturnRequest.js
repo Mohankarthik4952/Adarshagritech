@@ -6,6 +6,11 @@ import mongoose from "mongoose";
 
 const returnItemSchema = new mongoose.Schema(
   {
+    orderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Order",
+      required: false,
+    },
     productId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -127,17 +132,6 @@ const returnRequestSchema = new mongoose.Schema(
     },
 
     /* =================================
-       FINANCIAL YEAR
-    ================================= */
-
-    financialYear: {
-      type: String,
-      required: true,
-      trim: true,
-      index: true,
-    },
-
-    /* =================================
        ORDER DETAILS
     ================================= */
 
@@ -245,11 +239,6 @@ const returnRequestSchema = new mongoose.Schema(
 /* =================================
    INDEXES
 ================================= */
-
-returnRequestSchema.index({
-  dealerId: 1,
-  financialYear: 1,
-});
 
 returnRequestSchema.index({
   createdAt: -1,

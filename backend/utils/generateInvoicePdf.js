@@ -1,7 +1,8 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
 
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer";
 import chromium from "@sparticuz/chromium";
 
 import generateInvoiceHtml from "./generateInvoiceHtml.js";
@@ -10,10 +11,6 @@ const generateInvoicePdf = async (invoice, totalOutstandingAmount = 0) => {
   let browser;
 
   try {
-    /* =========================
-       CREATE INVOICE DIRECTORY
-    ========================= */
-
     const invoicesDir = path.join(process.cwd(), "uploads", "invoices");
 
     if (!fs.existsSync(invoicesDir)) {
@@ -21,10 +18,6 @@ const generateInvoicePdf = async (invoice, totalOutstandingAmount = 0) => {
         recursive: true,
       });
     }
-
-    /* =========================
-       FILE NAME
-    ========================= */
 
     const safeInvoiceNo = String(
       invoice.invoiceNo || `INV-${Date.now()}`,
@@ -39,18 +32,29 @@ const generateInvoicePdf = async (invoice, totalOutstandingAmount = 0) => {
     }
 
     /* =========================
-       LAUNCH CHROMIUM
+       LOCALHOST vs RENDER
     ========================= */
 
-    browser = await puppeteer.launch({
-      args: chromium.args,
+    const isRender =
+      process.env.RENDER || process.env.NODE_ENV === "production";
 
-      defaultViewport: chromium.defaultViewport,
+    if (isRender) {
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: true,
+      });
+    } else {
+      browser = await puppeteer.launch({
+        executablePath:
+          "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
 
-      executablePath: await chromium.executablePath(),
+        headless: true,
 
-      headless: chromium.headless,
-    });
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      });
+    }
 
     const page = await browser.newPage();
 
@@ -60,10 +64,6 @@ const generateInvoicePdf = async (invoice, totalOutstandingAmount = 0) => {
       deviceScaleFactor: 2,
     });
 
-    /* =========================
-       GENERATE HTML
-    ========================= */
-
     const html = generateInvoiceHtml(invoice, totalOutstandingAmount);
 
     await page.setContent(html, {
@@ -71,10 +71,6 @@ const generateInvoicePdf = async (invoice, totalOutstandingAmount = 0) => {
     });
 
     await page.emulateMediaType("screen");
-
-    /* =========================
-       GENERATE PDF
-    ========================= */
 
     await page.pdf({
       path: filePath,
