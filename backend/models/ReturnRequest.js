@@ -9,8 +9,9 @@ const returnItemSchema = new mongoose.Schema(
     orderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Order",
-      required: false,
+      required: true,
     },
+
     productId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -46,10 +47,6 @@ const returnItemSchema = new mongoose.Schema(
       min: 1,
     },
 
-    /* =================================
-       ORIGINAL PRICE
-    ================================= */
-
     mrp: {
       type: Number,
       required: true,
@@ -62,10 +59,6 @@ const returnItemSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
-
-    /* =================================
-       DISCOUNTED PRICE PER BOTTLE
-    ================================= */
 
     pricePerBottle: {
       type: Number,
@@ -239,6 +232,10 @@ const returnRequestSchema = new mongoose.Schema(
 /* =================================
    INDEXES
 ================================= */
+
+returnRequestSchema.index({
+  "items.orderId": 1,
+});
 
 returnRequestSchema.index({
   createdAt: -1,

@@ -15,20 +15,29 @@ const router = express.Router();
 const getReturnDetails = (orderDate) => {
   const returnStartDate = new Date(orderDate);
 
-  // Start from next day
+  // Start from tomorrow
   returnStartDate.setDate(returnStartDate.getDate() + 1);
+  returnStartDate.setHours(0, 0, 0, 0);
 
   const returnExpiryDate = new Date(returnStartDate);
 
-  // 75 days from next day
-  returnExpiryDate.setDate(returnExpiryDate.getDate() + 75);
+  // 75 days from tomorrow
+  returnExpiryDate.setDate(returnExpiryDate.getDate() + 74);
+  returnExpiryDate.setHours(23, 59, 59, 999);
 
   const now = new Date();
 
+  const eligible = now >= returnStartDate && now <= returnExpiryDate;
+
+  const daysRemaining = eligible
+    ? Math.ceil((returnExpiryDate - now) / (1000 * 60 * 60 * 24))
+    : 0;
+
   return {
-    eligible: now >= returnStartDate && now <= returnExpiryDate,
+    eligible,
     returnStartDate,
     returnExpiryDate,
+    daysRemaining,
   };
 };
 
@@ -79,15 +88,15 @@ router.get("/orders", protect, dealerOnly, async (req, res) => {
       approvalStatus: "PENDING",
     }).lean();
 
-    const approvedKeys = new Set();
-    const pendingKeys = new Set();
+    const approvedOrderIds = new Set();
 
     approvedReturns.forEach((request) => {
-      (request.items || []).forEach((item) => {
-        approvedKeys.add(item.productKey);
-      });
+      if (request.orderId) {
+        approvedOrderIds.add(request.orderId.toString());
+      }
     });
 
+    const pendingKeys = new Set();
     pendingReturns.forEach((request) => {
       (request.items || []).forEach((item) => {
         pendingKeys.add(item.productKey);
@@ -97,9 +106,11 @@ router.get("/orders", protect, dealerOnly, async (req, res) => {
     const productsMap = new Map();
 
     orders.forEach((order) => {
-      const { eligible, returnStartDate, returnExpiryDate } = getReturnDetails(
-        order.createdAt,
-      );
+      if (approvedOrderIds.has(order._id.toString())) {
+        return;
+      }
+      const { eligible, returnStartDate, returnExpiryDate, daysRemaining } =
+        getReturnDetails(order.createdAt);
 
       if (!eligible) {
         return;
@@ -109,9 +120,7 @@ router.get("/orders", protect, dealerOnly, async (req, res) => {
 
         const productId = item.productId.toString();
 
-        const productKey = `${productId}_${item.size || ""}`;
-
-        if (approvedKeys.has(productKey)) return;
+        const productKey = `${order._id}_${productId}_${item.size || ""}`;
 
         const totalBottles =
           Number(item.cases || 0) * Number(item.bottlesPerCase || 1);
@@ -158,12 +167,7 @@ router.get("/orders", protect, dealerOnly, async (req, res) => {
 
             returnExpiryDate,
 
-            daysRemaining: Math.max(
-              0,
-              Math.ceil(
-                (returnExpiryDate - new Date()) / (1000 * 60 * 60 * 24),
-              ),
-            ),
+            daysRemaining,
           });
         } else {
           const existing = productsMap.get(productKey);
@@ -284,20 +288,20 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       }
       const productId = requestItem.productId.toString();
 
-      const productKey = `${productId}_${requestItem.size || ""}`;
+      const productKey = `${requestItem.orderId}_${productId}_${requestItem.size || ""}`;
 
       const existingRequest = await ReturnRequest.findOne({
         dealerId: req.user.id,
         approvalStatus: {
           $in: ["PENDING", "APPROVED"],
         },
-        "items.productKey": productKey,
+        orderId: requestItem.orderId,
       });
 
       if (existingRequest) {
         return res.status(400).json({
           success: false,
-          message: `${requestItem.productName} already has a return request`,
+          message: "Return request already submitted for this order",
         });
       }
 
@@ -358,13 +362,7 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       });
     }
 
-    console.log("================================");
-    console.log("CREATING RETURN REQUEST");
-    console.log("Dealer ID:", req.user.id);
-    console.log("Dealer Name:", dealer.dealerName);
-    console.log("Items:", returnItems.length);
-    console.log("Total Amount:", totalAmount);
-    console.log("================================");
+    const originalOrder = await Order.findById(returnItems[0]?.orderId).lean();
 
     const returnRequest = await ReturnRequest.create({
       dealerId: req.user.id,
@@ -376,7 +374,8 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       dealerPhoneNumber: dealer.phone || "",
 
       orderId: returnItems[0]?.orderId || null,
-      orderNo: "MULTIPLE",
+
+      orderNo: originalOrder?.orderNo || "",
 
       items: returnItems,
 

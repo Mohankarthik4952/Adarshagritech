@@ -111,116 +111,89 @@ router.put("/:id/approve", protect, adminOnly, async (req, res) => {
     ========================= */
 
     for (const returnItem of request.items) {
-      let remainingQty = Number(returnItem.returnQuantity || 0);
+      const order = await Order.findById(returnItem.orderId);
 
-      const orders = await Order.find({
-        userId: request.dealerId,
-        role: "DEALER",
-        deliveryStatus: "Delivered",
-        status: { $ne: "REJECTED" },
-      }).sort({ createdAt: 1 });
-
-      for (const order of orders) {
-        if (remainingQty <= 0) break;
-
-        const item = order.items.find(
-          (orderItem) =>
-            orderItem.productId.toString() ===
-              returnItem.productId.toString() &&
-            orderItem.size === returnItem.size,
-        );
-
-        if (!item) continue;
-
-        const totalBottles =
-          Number(item.cases || 0) * Number(item.bottlesPerCase || 1);
-
-        const alreadyReturned = Number(item.returnedBottles || 0);
-
-        const available = totalBottles - alreadyReturned;
-
-        if (available <= 0) continue;
-
-        const deductQty = Math.min(available, remainingQty);
-
-        item.returnedBottles = alreadyReturned + deductQty;
-
-        const bottlePriceWithGst =
-          Number(returnItem.pricePerBottle || 0) +
-          (Number(returnItem.pricePerBottle || 0) *
-            Number(returnItem.gstPercent || 0)) /
-            100;
-
-        const adjustedAmount = deductQty * bottlePriceWithGst;
-
-        order.totalReturnedAmount =
-          Number(order.totalReturnedAmount || 0) + adjustedAmount;
-
-        order.returnAdjustedAmount =
-          Number(order.returnAdjustedAmount || 0) + adjustedAmount;
-
-        order.balanceAmount = Math.max(
-          Number(order.totalAmount || 0) -
-            Number(order.paidAmount || 0) -
-            Number(order.returnAdjustedAmount || 0),
-          0,
-        );
-
-        if (order.balanceAmount <= 0) {
-          order.paymentStatus = "RECEIVED";
-        } else if (order.paidAmount > 0) {
-          order.paymentStatus = "PARTIAL";
-        } else {
-          order.paymentStatus = "PENDING";
-        }
-
-        await order.save();
-
-        /* =========================
-           UPDATE FINAL INVOICE
-        ========================= */
-
-        const invoice = await Invoice.findOne({
-          orderId: order._id,
-          invoiceType: "FINAL",
+      if (!order) {
+        return res.status(400).json({
+          success: false,
+          message: `Original order not found for ${returnItem.productName}`,
         });
-
-        if (invoice) {
-          invoice.totalReturnedAmount =
-            Number(invoice.totalReturnedAmount || 0) + adjustedAmount;
-
-          invoice.returnAdjustedAmount =
-            Number(invoice.returnAdjustedAmount || 0) + adjustedAmount;
-
-          invoice.balanceAmount = Math.max(
-            Number(invoice.grandTotal || 0) -
-              Number(invoice.paidAmount || 0) -
-              Number(invoice.returnAdjustedAmount || 0),
-            0,
-          );
-
-          if (invoice.balanceAmount <= 0) {
-            invoice.invoiceStatus = "PAID";
-            invoice.paymentStatus = "RECEIVED";
-          } else if (invoice.paidAmount > 0) {
-            invoice.invoiceStatus = "PARTIALLY_PAID";
-            invoice.paymentStatus = "PARTIAL";
-          } else {
-            invoice.invoiceStatus = "UNPAID";
-            invoice.paymentStatus = "PENDING";
-          }
-
-          await invoice.save();
-        }
-
-        remainingQty -= deductQty;
       }
 
-      if (remainingQty > 0) {
+      const item = order.items.find(
+        (orderItem) =>
+          orderItem.productId.toString() === returnItem.productId.toString() &&
+          orderItem.size === returnItem.size,
+      );
+
+      if (!item) {
+        return res.status(400).json({
+          success: false,
+          message: `Product not found in original order`,
+        });
+      }
+
+      const totalBottles =
+        Number(item.cases || 0) * Number(item.bottlesPerCase || 1);
+
+      const alreadyReturned = Number(item.returnedBottles || 0);
+
+      const available = totalBottles - alreadyReturned;
+
+      if (available < returnItem.returnQuantity) {
         return res.status(400).json({
           success: false,
           message: `Insufficient quantity available for ${returnItem.productName}`,
         });
+      }
+
+      item.returnedBottles =
+        alreadyReturned + Number(returnItem.returnQuantity);
+
+      const bottlePriceWithGst =
+        Number(returnItem.pricePerBottle || 0) +
+        (Number(returnItem.pricePerBottle || 0) *
+          Number(returnItem.gstPercent || 0)) /
+          100;
+
+      const adjustedAmount =
+        Number(returnItem.returnQuantity) * bottlePriceWithGst;
+
+      order.totalReturnedAmount =
+        Number(order.totalReturnedAmount || 0) + adjustedAmount;
+
+      order.returnAdjustedAmount =
+        Number(order.returnAdjustedAmount || 0) + adjustedAmount;
+
+      order.balanceAmount = Math.max(
+        Number(order.totalAmount || 0) -
+          Number(order.paidAmount || 0) -
+          Number(order.returnAdjustedAmount || 0),
+        0,
+      );
+
+      await order.save();
+
+      const invoice = await Invoice.findOne({
+        orderId: order._id,
+        role: "DEALER",
+      });
+
+      if (invoice) {
+        invoice.totalReturnedAmount =
+          Number(invoice.totalReturnedAmount || 0) + adjustedAmount;
+
+        invoice.returnAdjustedAmount =
+          Number(invoice.returnAdjustedAmount || 0) + adjustedAmount;
+
+        invoice.balanceAmount = Math.max(
+          Number(invoice.grandTotal || 0) -
+            Number(invoice.paidAmount || 0) -
+            Number(invoice.returnAdjustedAmount || 0),
+          0,
+        );
+
+        await invoice.save();
       }
     }
 
@@ -231,8 +204,8 @@ router.put("/:id/approve", protect, adminOnly, async (req, res) => {
     const pendingInvoices = await Invoice.find({
       userId: request.dealerId,
       role: "DEALER",
-      invoiceType: "FINAL",
       balanceAmount: { $gt: 0 },
+      invoiceType: { $ne: "RETURN" },
     }).lean();
 
     const totalOutstandingAmount = pendingInvoices.reduce(
@@ -251,7 +224,7 @@ router.put("/:id/approve", protect, adminOnly, async (req, res) => {
 
       orderId: null,
 
-      orderNo: "MULTIPLE",
+      orderNo: request.orderNo || "",
 
       userId: request.dealerId,
 
@@ -328,6 +301,10 @@ router.put("/:id/approve", protect, adminOnly, async (req, res) => {
     request.returnInvoiceId = returnInvoice._id;
 
     request.returnInvoiceNo = returnInvoice.invoiceNo;
+
+    if (!request.orderId && request.items?.length > 0) {
+      request.orderId = request.items[0].orderId || null;
+    }
 
     await request.save();
 

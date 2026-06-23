@@ -258,7 +258,9 @@ export default function DealerReturnProducts() {
                   <th>Product</th>
                   <th>Size</th>
                   <th>Ordered Bottles</th>
+                  <th>Available Bottles</th>
                   <th>Days Left</th>
+                  <th>Return Starts</th>
                   <th>Expiry Date</th>
                   <th>Price + GST</th>
                   <th>Return Bottles</th>
@@ -275,14 +277,24 @@ export default function DealerReturnProducts() {
                   );
 
                   return (
-                    <tr key={`${item.productId}-${item.size}`}>
+                    <tr key={`${item.orderId}-${item.productId}-${item.size}`}>
                       <td>{item.productName}</td>
 
                       <td>{item.size}</td>
 
                       <td>{item.orderedBottles}</td>
 
+                      <td>{item.availableToReturn}</td>
+
                       <td>{item.daysRemaining} Days</td>
+
+                      <td>
+                        {item.returnStartDate
+                          ? new Date(item.returnStartDate).toLocaleDateString(
+                              "en-IN",
+                            )
+                          : "-"}
+                      </td>
 
                       <td>
                         {item.returnExpiryDate
