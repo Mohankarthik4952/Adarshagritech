@@ -246,6 +246,30 @@ const PayOutstanding = () => {
       setSubmitting(false);
     }
   };
+  /* =========================
+   OPEN PAYMENT APP
+========================= */
+
+  const openPaymentApp = () => {
+    const amount = Number(paymentAmount);
+
+    if (!amount || amount <= 0) {
+      alert("Please enter payment amount first");
+      return;
+    }
+
+    const upiId = "8499082784@ybl";
+
+    const merchantName = "Sunrise Agri Products";
+
+    const upiLink =
+      `upi://pay?pa=${upiId}` +
+      `&pn=${encodeURIComponent(merchantName)}` +
+      `&am=${amount}` +
+      `&cu=INR`;
+
+    window.location.href = upiLink;
+  };
 
   /* =========================
      LOADING
@@ -326,6 +350,16 @@ const PayOutstanding = () => {
 
                   <option value="PAYTM">Paytm</option>
                 </select>
+              </div>
+
+              <div className="payment-app-action">
+                <button
+                  type="button"
+                  className="open-payment-app-btn"
+                  onClick={openPaymentApp}
+                >
+                  Open Payment App
+                </button>
               </div>
 
               <div>

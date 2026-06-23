@@ -2830,6 +2830,30 @@ body {
    PAY OUTSTANDING PAGE
 ========================================== */
 
+.open-payment-app-btn {
+  width: 100%;
+  background: #0ea5e9;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 30px;
+  transition: 0.3s;
+}
+
+.open-payment-app-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.payment-app-action {
+  display: flex;
+  align-items: end;
+}
+
 .dealer-orders-page {
   width: 100%;
   min-height: 100vh;
