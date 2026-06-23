@@ -345,7 +345,7 @@ export const adminLogin = async (req, res) => {
     ========================= */
     const adminPayload = {
       _id: admin._id,
-      name: admin.name || "Administrator",
+      name: admin.name || "GVR",
       email: admin.email,
       role: "admin",
     };

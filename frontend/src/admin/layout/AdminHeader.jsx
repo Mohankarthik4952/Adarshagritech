@@ -25,7 +25,7 @@ const AdminHeader = ({ sidebarOpen, setSidebarOpen }) => {
     console.error("Admin data parse error:", error);
   }
 
-  const adminName = adminData?.name || "Administrator";
+  const adminName = adminData?.name || "GVR";
 
   /* =========================
      LOGOUT
