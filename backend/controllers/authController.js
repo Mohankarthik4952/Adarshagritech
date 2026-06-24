@@ -284,28 +284,20 @@ export const dealerLogin = async (req, res) => {
 ================================ */
 export const adminLogin = async (req, res) => {
   try {
-    let { email, password } = req.body;
+    let { identifier, password } = req.body;
 
-    /* =========================
-       CLEAN INPUT
-    ========================= */
-    email = email?.trim().toLowerCase();
+    identifier = identifier?.trim().toLowerCase();
     password = password?.trim();
 
-    /* =========================
-       VALIDATION
-    ========================= */
-    if (!email || !password) {
+    if (!identifier || !password) {
       return res.status(400).json({
         message: "All fields are required",
       });
     }
 
-    /* =========================
-       FIXED ADMIN EMAIL CHECK
-       (Email must match .env)
-    ========================= */
     const allowedEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+
+    const allowedPhone = process.env.ADMIN_PHONE?.trim();
 
     if (!allowedEmail) {
       return res.status(500).json({
@@ -313,16 +305,21 @@ export const adminLogin = async (req, res) => {
       });
     }
 
-    if (email !== allowedEmail) {
+    const isEmailLogin = identifier === allowedEmail;
+    const isPhoneLogin = identifier === String(allowedPhone);
+
+    if (!isEmailLogin && !isPhoneLogin) {
       return res.status(400).json({
-        message: "Unauthorized admin email",
+        message: "Unauthorized admin",
       });
     }
 
     /* =========================
        FIND ADMIN IN MONGODB
     ========================= */
-    const admin = await Admin.findOne({ email });
+    const admin = await Admin.findOne({
+      email: allowedEmail,
+    });
 
     if (!admin) {
       return res.status(400).json({

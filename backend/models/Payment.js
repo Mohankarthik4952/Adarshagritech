@@ -54,6 +54,30 @@ const paymentSchema = new mongoose.Schema(
       index: true,
     },
 
+    customerName: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    customerPhoneNumber: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    dealerName: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    dealerPhoneNumber: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
     /* =================================
        PAYMENT CATEGORY
     ================================= */

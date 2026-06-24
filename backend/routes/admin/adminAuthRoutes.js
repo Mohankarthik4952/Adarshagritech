@@ -18,7 +18,7 @@ const ADMIN_EMAIL =
   process.env.ADMIN_EMAIL?.trim().toLowerCase() ||
   "sunriseagriproducts@gmail.com";
 
-const ADMIN_PHONE = process.env.ADMIN_PHONE?.trim() || "9999999999";
+const ADMIN_PHONE = process.env.ADMIN_PHONE?.trim() || "";
 
 /* ==================================
    TEMP OTP STORAGE (LOGIN OTP ONLY)
@@ -33,34 +33,68 @@ let adminPasswordHash = null;
 /* ==================================
    ADMIN LOGIN (SEND OTP)
 ================================== */
-router.post("/login", (req, res) => {
-  const { identifier } = req.body;
+router.post("/login", async (req, res) => {
+  console.log("================================");
+  console.log("ADMIN LOGIN BODY:");
+  console.log(req.body);
+  console.log("================================");
 
-  if (!identifier) {
-    return res.status(400).json({
-      message: "Identifier is required",
+  try {
+    const { identifier, password } = req.body;
+
+    if (!identifier || !password) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
+    }
+
+    const normalizedIdentifier = identifier.trim().toLowerCase();
+
+    const validAdmin =
+      normalizedIdentifier === ADMIN_EMAIL || identifier.trim() === ADMIN_PHONE;
+
+    if (!validAdmin) {
+      return res.status(401).json({
+        message: "Unauthorized admin",
+      });
+    }
+
+    if (!adminPasswordHash) {
+      return res.status(400).json({
+        message: "Password not set",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, adminPasswordHash);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Invalid password",
+      });
+    }
+
+    const token = jwt.sign(
+      { role: "admin" },
+      process.env.JWT_SECRET || "SECRET_KEY",
+      { expiresIn: "1d" },
+    );
+
+    return res.json({
+      success: true,
+      token,
+      admin: {
+        role: "admin",
+        email: ADMIN_EMAIL,
+        phone: ADMIN_PHONE,
+      },
+    });
+  } catch (error) {
+    console.error("ADMIN LOGIN ERROR:", error);
+
+    return res.status(500).json({
+      message: "Login failed",
     });
   }
-
-  if (identifier !== ADMIN_EMAIL && identifier !== ADMIN_PHONE) {
-    return res.status(401).json({
-      message: "Unauthorized admin",
-    });
-  }
-
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-  adminOTPStore[identifier] = {
-    otp,
-    expiresAt: Date.now() + 2 * 60 * 1000,
-  };
-
-  console.log("ADMIN LOGIN OTP:", otp);
-
-  res.json({
-    success: true,
-    step: "OTP_SENT",
-  });
 });
 
 /* ==================================
@@ -118,7 +152,12 @@ router.post("/verify-otp", (req, res) => {
 router.post("/resend-otp", (req, res) => {
   const { identifier } = req.body;
 
-  if (identifier !== ADMIN_EMAIL && identifier !== ADMIN_PHONE) {
+  const normalizedIdentifier = String(identifier).trim().toLowerCase();
+
+  if (
+    normalizedIdentifier !== ADMIN_EMAIL &&
+    identifier.trim() !== ADMIN_PHONE
+  ) {
     return res.status(401).json({
       message: "Unauthorized admin",
     });
@@ -202,6 +241,11 @@ router.post("/verify-password", async (req, res) => {
     res.json({
       success: true,
       token,
+      admin: {
+        role: "admin",
+        email: ADMIN_EMAIL,
+        phone: ADMIN_PHONE,
+      },
     });
   } catch (error) {
     console.error("VERIFY PASSWORD ERROR:", error);

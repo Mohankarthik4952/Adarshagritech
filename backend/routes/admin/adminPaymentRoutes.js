@@ -34,22 +34,38 @@ router.get("/", protect, adminOnly, async (req, res) => {
     }
 
     const payments = await Payment.find(filter)
-      .populate("orderId")
+      .populate("orderId", "orderNo")
+      .populate("dealerId", "dealerName shopName phone")
+      .populate("userId", "name shopName dealerName phone")
       .sort({ createdAt: -1 });
 
-    console.log("================================");
-    console.log("ADMIN USER:", req.user.id);
-    console.log("TRANSACTIONS FOUND:", payments.length);
-    console.log("================================");
+    const formattedPayments = payments.map((payment) => {
+      const p = payment.toObject();
+
+      if (p.role === "CUSTOMER") {
+        p.customerName =
+          p.customerName || p.userId?.name || p.orderId?.customerName || "";
+      }
+
+      if (p.role === "DEALER") {
+        p.dealerName =
+          p.dealerName ||
+          p.userId?.shopName ||
+          p.userId?.dealerName ||
+          p.userId?.name ||
+          "";
+      }
+
+      p.orderNo = p.orderNo || p.orderId?.orderNo || "";
+
+      return p;
+    });
 
     return res.status(200).json({
       success: true,
-
-      count: payments.length,
-
-      payments,
-
-      transactions: payments,
+      count: formattedPayments.length,
+      payments: formattedPayments,
+      transactions: formattedPayments,
     });
   } catch (error) {
     console.error("GET TRANSACTIONS ERROR:", error);

@@ -613,11 +613,6 @@ router.post("/pay-outstanding", protect, async (req, res) => {
     const { amount, paymentType, paymentApp, utrNumber, paymentProof } =
       req.body;
 
-    console.log("================================");
-    console.log("PAY OUTSTANDING REQUEST");
-    console.log(req.body);
-    console.log("================================");
-
     const paymentAmount = Number(amount);
 
     if (isNaN(paymentAmount) || paymentAmount <= 0) {
@@ -627,16 +622,12 @@ router.post("/pay-outstanding", protect, async (req, res) => {
       });
     }
 
-    /* ===============================
-       FIND ALL UNPAID INVOICES
-    ============================== */
-
     const invoices = await Invoice.find({
       userId: req.user.id,
       role: "DEALER",
       invoiceType: "FINAL",
       balanceAmount: { $gt: 0 },
-    });
+    }).sort({ createdAt: 1 });
 
     if (!invoices.length) {
       return res.status(404).json({
@@ -645,17 +636,10 @@ router.post("/pay-outstanding", protect, async (req, res) => {
       });
     }
 
-    /* ===============================
-       CALCULATE TOTAL OUTSTANDING
-    ============================== */
-
     const totalOutstanding = invoices.reduce(
       (sum, invoice) => sum + Number(invoice.balanceAmount || 0),
       0,
     );
-
-    console.log("PAYMENT AMOUNT:", paymentAmount);
-    console.log("TOTAL OUTSTANDING:", totalOutstanding);
 
     if (paymentAmount > totalOutstanding) {
       return res.status(400).json({
@@ -664,9 +648,9 @@ router.post("/pay-outstanding", protect, async (req, res) => {
       });
     }
 
-    /* ===============================
-       CREATE PAYMENT RECORD
-    ============================== */
+    const dealer = await Dealer.findById(req.user.id);
+
+    const firstInvoice = invoices[0];
 
     const payment = await Payment.create({
       userId: req.user.id,
@@ -675,21 +659,37 @@ router.post("/pay-outstanding", protect, async (req, res) => {
 
       role: "DEALER",
 
+      orderId: firstInvoice.orderId || null,
+
+      orderNo: firstInvoice.orderNo || "",
+
+      invoiceId: firstInvoice._id,
+
+      invoiceNo: firstInvoice.invoiceNo || "",
+
       paymentCategory: "OUTSTANDING_PAYMENT",
 
       amount: paymentAmount,
 
       paymentType: paymentType || "UPI",
 
-      paymentApp: paymentType === "UPI" ? paymentApp || "" : "",
+      paymentApp: (paymentType || "UPI") === "UPI" ? paymentApp || "" : "",
 
-      utrNumber: paymentType === "UPI" ? utrNumber || "" : "",
+      utrNumber: (paymentType || "UPI") === "UPI" ? utrNumber || "" : "",
 
       paymentProof: paymentProof || "",
 
       status: "VERIFICATION_PENDING",
 
       paymentDate: new Date(),
+    });
+
+    console.log("OUTSTANDING PAYMENT CREATED");
+    console.log({
+      dealer: dealer?.dealerName,
+      orderNo: firstInvoice?.orderNo,
+      invoiceNo: firstInvoice?.invoiceNo,
+      paymentId: payment._id,
     });
 
     return res.status(201).json({

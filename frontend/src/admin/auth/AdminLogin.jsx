@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-import { validateEmail, validatePassword } from "../../utils/validators";
+import { validatePassword } from "../../utils/validators";
 import API_URL from "../../config/api";
 import "../../pages/auth.css";
 
@@ -11,7 +11,7 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    email: "",
+    identifier: "",
     password: "",
   });
 
@@ -26,7 +26,7 @@ const AdminLogin = () => {
 
     let { name, value } = e.target;
 
-    if (name === "email") {
+    if (name === "identifier") {
       value = value.toLowerCase();
     }
 
@@ -42,12 +42,11 @@ const AdminLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const email = form.email.trim().toLowerCase();
+    const identifier = form.identifier.trim().toLowerCase();
     const password = form.password.trim();
 
-    /* VALIDATION */
-    if (!validateEmail(email)) {
-      return setErrorMsg("Enter a valid email address");
+    if (!identifier) {
+      return setErrorMsg("Enter Email or Phone Number");
     }
 
     if (!validatePassword(password)) {
@@ -58,20 +57,23 @@ const AdminLogin = () => {
       setLoading(true);
       setErrorMsg("");
 
-      /* Clear old auth data */
+      console.log("LOGIN REQUEST:", {
+        identifier,
+        password,
+      });
+
       localStorage.removeItem("token");
       localStorage.removeItem("customerAuth");
       localStorage.removeItem("dealerAuth");
       localStorage.removeItem("adminAuth");
 
-      /* API REQUEST */
       const response = await fetch(`${API_URL}/api/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
+          identifier,
           password,
         }),
       });
@@ -91,22 +93,9 @@ const AdminLogin = () => {
         throw new Error("Invalid login response");
       }
 
-      /* Save auth data */
       localStorage.setItem("adminToken", token);
       localStorage.setItem("adminAuth", JSON.stringify(admin));
 
-      /* Verify save */
-      const savedToken = localStorage.getItem("adminToken");
-      const savedAdmin = localStorage.getItem("adminAuth");
-
-      console.log("ADMIN TOKEN:", savedToken);
-      console.log("ADMIN AUTH:", savedAdmin);
-
-      if (!savedToken || !savedAdmin) {
-        throw new Error("Failed to save admin login");
-      }
-
-      /* Redirect to dashboard */
       navigate("/admin/home", {
         replace: true,
       });
@@ -136,10 +125,10 @@ const AdminLogin = () => {
         {errorMsg && <p className="error-text">{errorMsg}</p>}
 
         <input
-          type="email"
-          name="email"
-          placeholder="Admin Email"
-          value={form.email}
+          type="text"
+          name="identifier"
+          placeholder="Admin Email or Phone Number"
+          value={form.identifier}
           onChange={handleChange}
         />
 

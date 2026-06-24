@@ -116,13 +116,15 @@ router.post("/", protect, customerOnly, async (req, res) => {
     const payment = await Payment.create({
       orderId: order._id,
 
+      orderNo: order.orderNo || "",
+
       userId: req.user.id,
 
       role: "CUSTOMER",
 
-      customerName: order.customerName || "",
+      customerName: order.customerName || req.user.name || "",
 
-      customerPhoneNumber: order.customerPhoneNumber || "",
+      customerPhoneNumber: order.customerPhoneNumber || req.user.phone || "",
 
       amount: Number(amount),
 
@@ -138,17 +140,13 @@ router.post("/", protect, customerOnly, async (req, res) => {
 
       paymentDate: new Date(),
     });
-
-    console.log("📧 STARTING CUSTOMER EMAIL:", order.orderNo);
-
+    const customer = req.user;
     void sendOrderNotification({
       role: "CUSTOMER",
       customer,
       order,
     })
-      .then((info) => {
-        console.log("✅ CUSTOMER EMAIL SENT:", order.orderNo, info?.messageId);
-      })
+      .then((info) => {})
       .catch((err) => {
         console.error("❌ CUSTOMER EMAIL FAILED:", order.orderNo);
 

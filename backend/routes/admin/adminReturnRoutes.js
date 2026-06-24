@@ -88,9 +88,9 @@ router.get("/:id", protect, adminOnly, async (req, res) => {
 
 router.put("/:id/approve", protect, adminOnly, async (req, res) => {
   try {
-    const request = await ReturnRequest.findById(req.params.id).populate(
-      "dealerId",
-    );
+    const request = await ReturnRequest.findById(req.params.id)
+      .populate("dealerId")
+      .lean();
 
     if (!request) {
       return res.status(404).json({
@@ -279,34 +279,41 @@ router.put("/:id/approve", protect, adminOnly, async (req, res) => {
       isLocked: true,
     });
 
-    const pdfUrl = await generateInvoicePdf(
-      returnInvoice.toObject(),
-      totalOutstandingAmount,
-    );
-
-    returnInvoice.pdfUrl = pdfUrl;
-
-    await returnInvoice.save();
-
     /* =========================
        UPDATE REQUEST
     ========================= */
 
-    request.approvalStatus = "APPROVED";
-
-    request.approvedBy = req.user.id;
-
-    request.approvedAt = new Date();
-
-    request.returnInvoiceId = returnInvoice._id;
-
-    request.returnInvoiceNo = returnInvoice.invoiceNo;
+    const updateData = {
+      approvalStatus: "APPROVED",
+      approvedBy: req.user.id,
+      approvedAt: new Date(),
+      returnInvoiceId: returnInvoice._id,
+      returnInvoiceNo: returnInvoice.invoiceNo,
+    };
 
     if (!request.orderId && request.items?.length > 0) {
-      request.orderId = request.items[0].orderId || null;
+      updateData.orderId = request.items[0].orderId || null;
     }
 
-    await request.save();
+    const updatedRequest = await ReturnRequest.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      {
+        new: true,
+      },
+    );
+
+    setImmediate(() => {
+      generateInvoicePdf(returnInvoice.toObject(), totalOutstandingAmount)
+        .then(async (pdfUrl) => {
+          await Invoice.findByIdAndUpdate(returnInvoice._id, {
+            pdfUrl,
+          });
+        })
+        .catch((err) => {
+          console.error("RETURN PDF ERROR:", err);
+        });
+    });
 
     return res.status(200).json({
       success: true,

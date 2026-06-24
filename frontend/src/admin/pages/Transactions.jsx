@@ -132,11 +132,17 @@ const Transactions = () => {
       if (search.trim()) {
         const searchValue = search.toLowerCase().trim();
 
-        const orderNo = transaction.orderId?.orderNo?.toLowerCase() || "";
+        const orderNo = (
+          transaction.orderNo ||
+          transaction.orderId?.orderNo ||
+          ""
+        ).toLowerCase();
 
         const userName = (
           transaction.customerName ||
           transaction.dealerName ||
+          transaction.dealerId?.dealerName ||
+          transaction.dealerId?.shopName ||
           transaction.userId?.name ||
           transaction.userId?.shopName ||
           ""
@@ -270,6 +276,8 @@ const Transactions = () => {
                 const displayName =
                   transaction.customerName ||
                   transaction.dealerName ||
+                  transaction.dealerId?.dealerName ||
+                  transaction.dealerId?.shopName ||
                   transaction.userId?.shopName ||
                   transaction.userId?.name ||
                   "-";
@@ -286,7 +294,11 @@ const Transactions = () => {
                       </span>
                     </td>
 
-                    <td>{transaction.orderId?.orderNo || "-"}</td>
+                    <td>
+                      {transaction.orderNo ||
+                        transaction.orderId?.orderNo ||
+                        "-"}
+                    </td>
 
                     <td>
                       ₹
