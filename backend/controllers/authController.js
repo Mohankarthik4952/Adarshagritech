@@ -8,8 +8,6 @@ import sendEmail from "../utils/sendEmail.js";
    TOKEN GENERATOR
 ================================ */
 const generateToken = (user, role) => {
-  console.log("SIGN JWT_SECRET =", process.env.JWT_SECRET);
-
   return jwt.sign(
     {
       id: user._id,
@@ -230,8 +228,8 @@ export const dealerLogin = async (req, res) => {
     ========================= */
 
     const dealer = await Dealer.findOne({
-      $or: [{ email: identifier }, { phone: identifier }],
-    });
+      $or: [{ email: identifier.toLowerCase() }, { phone: identifier }],
+    }).lean();
 
     /* =========================
        DEALER NOT FOUND
@@ -393,9 +391,6 @@ export const adminForgotPassword = async (req, res) => {
     ========================= */
     const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
 
-    console.log("REQUEST EMAIL:", email);
-    console.log("ADMIN EMAIL:", adminEmail);
-
     if (!adminEmail) {
       return res.status(500).json({
         message: "ADMIN_EMAIL is not configured in .env",
@@ -423,9 +418,6 @@ export const adminForgotPassword = async (req, res) => {
       verified: false,
     };
 
-    console.log("ADMIN OTP GENERATED:", otp);
-    console.log("ADMIN OTP SAVED:", global.adminOTP);
-
     /* =========================
        SEND EMAIL
     ========================= */
@@ -435,8 +427,6 @@ export const adminForgotPassword = async (req, res) => {
         "Sunrise Agri Products - Admin Password Reset OTP",
         `Your OTP for admin password reset is: ${otp}\n\nThis OTP is valid for 10 minutes.`,
       );
-
-      console.log("ADMIN OTP EMAIL SENT SUCCESSFULLY");
     } catch (emailError) {
       console.error("EMAIL SEND ERROR:", emailError);
 
@@ -521,8 +511,6 @@ export const adminVerifyResetOTP = async (req, res) => {
     ========================= */
     global.adminOTP.verified = true;
 
-    console.log("ADMIN OTP VERIFIED:", global.adminOTP);
-
     /* =========================
        SUCCESS
     ========================= */
@@ -550,11 +538,6 @@ export const resetAdminPassword = async (req, res) => {
     email = email?.trim().toLowerCase();
     password = password?.trim();
 
-    console.log("RESET ADMIN PASSWORD REQUEST:", {
-      email,
-      passwordLength: password?.length,
-    });
-
     /* =========================
        VALIDATION
     ========================= */
@@ -575,8 +558,6 @@ export const resetAdminPassword = async (req, res) => {
     ========================= */
     let admin = await Admin.findOne({ email });
 
-    console.log("ADMIN FOUND:", admin ? "YES" : "NO");
-
     /* =========================
        CREATE ADMIN IF NOT FOUND
     ========================= */
@@ -593,8 +574,6 @@ export const resetAdminPassword = async (req, res) => {
     admin.password = password;
 
     await admin.save();
-
-    console.log("ADMIN PASSWORD RESET SUCCESS");
 
     /* =========================
        CLEAR OTP
@@ -662,8 +641,6 @@ export const forgotPassword = async (req, res) => {
     ============================== */
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    console.log("GENERATED OTP:", otp);
-
     /* ===============================
        SAVE OTP TO DATABASE
     ============================== */
@@ -677,9 +654,6 @@ export const forgotPassword = async (req, res) => {
       role === "customer"
         ? await Customer.findById(user._id)
         : await Dealer.findById(user._id);
-
-    console.log("SAVED OTP:", updatedUser.resetOTP);
-    console.log("SAVED OTP EXPIRY:", updatedUser.resetOTPExpiry);
 
     /* ===============================
        SEND EMAIL
@@ -757,10 +731,6 @@ export const verifyOTP = async (req, res) => {
     const savedOTP = user.resetOTP || user.otp || "";
 
     const savedOTPExpiry = user.resetOTPExpiry || user.otpExpiry || null;
-
-    console.log("ENTERED OTP:", otp);
-    console.log("SAVED OTP:", savedOTP);
-    console.log("OTP EXPIRY:", savedOTPExpiry);
 
     /* ===============================
        CHECK OTP EXISTS
@@ -881,8 +851,6 @@ export const resetPassword = async (req, res) => {
        SAVE USER
     ============================== */
     await user.save();
-
-    console.log(`PASSWORD RESET SUCCESS for ${role}:`, user.email);
 
     /* ===============================
        RESPONSE
