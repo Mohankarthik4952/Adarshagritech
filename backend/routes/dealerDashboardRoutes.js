@@ -6,82 +6,60 @@ import { protect, dealerOnly } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-/* =================================
-   DEALER DASHBOARD SUMMARY
-================================= */
-
 router.get("/summary", protect, dealerOnly, async (req, res) => {
   try {
     const dealerId = req.user.id;
 
-    console.log("================================");
-    console.log("DEALER DASHBOARD");
-    console.log("DEALER ID:", dealerId);
-    console.log("================================");
+    const [orders, transactions, invoices, ordersCount, invoicesCount] =
+      await Promise.all([
+        Order.find({
+          userId: dealerId,
+          role: "DEALER",
+        })
+          .sort({ createdAt: -1 })
+          .limit(5)
+          .lean(),
 
-    /* =========================
-       ORDERS
-    ========================= */
+        Payment.find({
+          userId: dealerId,
+          role: "DEALER",
+          status: "APPROVED",
+        })
+          .sort({ createdAt: -1 })
+          .limit(5)
+          .lean(),
 
-    const orders = await Order.find({
-      userId: dealerId,
-      role: "DEALER",
-    }).sort({ createdAt: -1 });
+        Invoice.find({
+          userId: dealerId,
+          role: "DEALER",
+        }).lean(),
 
-    /* =========================
-       APPROVED PAYMENTS
-    ========================= */
+        Order.countDocuments({
+          userId: dealerId,
+          role: "DEALER",
+        }),
 
-    const transactions = await Payment.find({
-      userId: dealerId,
-      role: "DEALER",
-      status: "APPROVED",
-    }).sort({ createdAt: -1 });
-
-    /* =========================
-       TOTAL PAID AMOUNT
-    ========================= */
+        Invoice.countDocuments({
+          userId: dealerId,
+          role: "DEALER",
+        }),
+      ]);
 
     const totalPaidAmount = transactions.reduce(
       (sum, tx) => sum + Number(tx.amount || 0),
       0,
     );
 
-    /* =========================
-       ALL INVOICES
-    ========================= */
-
-    const invoices = await Invoice.find({
-      userId: dealerId,
-      role: "DEALER",
-    });
-
-    /* =========================
-       PENDING INVOICES
-    ========================= */
-
     const pendingInvoices = invoices.filter(
       (invoice) => Number(invoice.balanceAmount || 0) > 0,
     );
-
-    /* =========================
-       TOTAL PENDING AMOUNT
-    ========================= */
 
     const pendingBills = pendingInvoices.reduce(
       (sum, invoice) => sum + Number(invoice.balanceAmount || 0),
       0,
     );
 
-    /* =========================
-       OUTSTANDING AMOUNT
-    ========================= */
-
     const outstandingAmount = pendingBills;
-
-    /* =========================
-       PARTIALLY PAID INVOICES
-    ========================= */
 
     const partiallyPaidOrders = pendingInvoices.filter(
       (invoice) =>
@@ -89,12 +67,12 @@ router.get("/summary", protect, dealerOnly, async (req, res) => {
         Number(invoice.balanceAmount || 0) > 0,
     ).length;
 
-    /* =========================
+    /* =================================
        RECENT ORDERS
-    ========================= */
+    ================================= */
 
-    const updatedOrders = orders.map((order) => ({
-      ...order.toObject(),
+    const recentOrders = orders.map((order) => ({
+      ...order,
 
       totalAmount: Number(order.totalAmount || 0),
 
@@ -109,10 +87,6 @@ router.get("/summary", protect, dealerOnly, async (req, res) => {
             ),
     }));
 
-    console.log("PENDING BILLS AMOUNT:", pendingBills);
-    console.log("OUTSTANDING AMOUNT:", outstandingAmount);
-    console.log("TOTAL PAID:", totalPaidAmount);
-
     return res.status(200).json({
       success: true,
 
@@ -122,15 +96,15 @@ router.get("/summary", protect, dealerOnly, async (req, res) => {
 
       partiallyPaidOrders,
 
-      orders: orders.length,
+      orders: ordersCount,
+
+      invoices: invoicesCount,
 
       totalPaidAmount,
 
-      invoices: invoices.length,
+      recentOrders,
 
-      recentOrders: updatedOrders.slice(0, 5),
-
-      recentTransactions: transactions.slice(0, 5),
+      recentTransactions: transactions,
     });
   } catch (error) {
     console.error("DASHBOARD SUMMARY ERROR:", error);
