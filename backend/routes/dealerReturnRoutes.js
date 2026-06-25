@@ -9,7 +9,7 @@ import { protect, dealerOnly } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 /* =================================
-   RETURN ELIGIBILITY (75 DAYS)
+   RETURN ELIGIBILITY (45 DAYS)
 ================================= */
 
 const getReturnDetails = (orderDate) => {
@@ -21,8 +21,8 @@ const getReturnDetails = (orderDate) => {
 
   const returnExpiryDate = new Date(returnStartDate);
 
-  // 75 days from tomorrow
-  returnExpiryDate.setDate(returnExpiryDate.getDate() + 74);
+  // 45 days from tomorrow
+  returnExpiryDate.setDate(returnExpiryDate.getDate() + 44);
   returnExpiryDate.setHours(23, 59, 59, 999);
 
   const now = new Date();
@@ -45,7 +45,7 @@ router.get("/status", protect, dealerOnly, async (req, res) => {
   try {
     return res.status(200).json({
       success: true,
-      returnPolicy: "75 Days From Next Day Of Order",
+      returnPolicy: "45 Days From Next Day Of Order",
     });
   } catch (error) {
     console.error("RETURN STATUS ERROR:", error);
@@ -197,7 +197,7 @@ router.get("/orders", protect, dealerOnly, async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      returnPolicy: "75 Days From Next Day Of Order",
+      returnPolicy: "45 Days From Next Day Of Order",
       products,
     });
   } catch (error) {

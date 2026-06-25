@@ -58,18 +58,6 @@ export default function DealerInvoices() {
   }, []);
 
   /* =================================
-     TOTAL OUTSTANDING
-  ================================= */
-
-  const totalOutstandingAmount = invoices.reduce((sum, invoice) => {
-    if (invoice.invoiceStatus === "PAID") {
-      return sum;
-    }
-
-    return sum + Number(invoice.balanceAmount ?? invoice.grandTotal ?? 0);
-  }, 0);
-
-  /* =================================
      VIEW INVOICE
   ================================= */
 
@@ -420,11 +408,6 @@ export default function DealerInvoices() {
                   {Number(selectedInvoice.balanceAmount || 0).toLocaleString(
                     "en-IN",
                   )}
-                </h3>
-
-                <h3>
-                  Total Pending Bills : ₹
-                  {totalOutstandingAmount.toLocaleString("en-IN")}
                 </h3>
 
                 <h3>

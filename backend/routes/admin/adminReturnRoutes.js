@@ -304,7 +304,7 @@ router.put("/:id/approve", protect, adminOnly, async (req, res) => {
     );
 
     setImmediate(() => {
-      generateInvoicePdf(returnInvoice.toObject(), totalOutstandingAmount)
+      generateInvoicePdf(returnInvoice.toObject())
         .then(async (pdfUrl) => {
           await Invoice.findByIdAndUpdate(returnInvoice._id, {
             pdfUrl,

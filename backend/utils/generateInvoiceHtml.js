@@ -438,19 +438,6 @@ const generateInvoiceHtml = (invoice, totalOutstandingAmount = 0) => {
             <h4>Invoice Status</h4>
             <p>${invoice.invoiceStatus || "UNPAID"}</p>
           </div>
-
-          ${
-            invoice.role === "DEALER"
-              ? `
-                <div class="total-card wide-card">
-                  <h4>Total Pending Bills</h4>
-
-                  <p>₹${formatCurrency(totalOutstandingAmount)}</p>
-                </div>
-              `
-              : ""
-          }
-
         </div>
 
         <div class="footer">

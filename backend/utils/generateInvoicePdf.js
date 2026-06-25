@@ -7,7 +7,7 @@ import chromium from "@sparticuz/chromium";
 
 import generateInvoiceHtml from "./generateInvoiceHtml.js";
 
-const generateInvoicePdf = async (invoice, totalOutstandingAmount = 0) => {
+const generateInvoicePdf = async (invoice) => {
   let browser;
 
   try {
@@ -64,7 +64,7 @@ const generateInvoicePdf = async (invoice, totalOutstandingAmount = 0) => {
       deviceScaleFactor: 2,
     });
 
-    const html = generateInvoiceHtml(invoice, totalOutstandingAmount);
+    const html = generateInvoiceHtml(invoice);
 
     await page.setContent(html, {
       waitUntil: "networkidle0",

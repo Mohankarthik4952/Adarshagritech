@@ -207,3 +207,108 @@ export const sendOrderNotification = async ({
     throw error;
   }
 };
+
+/* =================================
+   SEND OUTSTANDING PAYMENT NOTIFICATION
+================================= */
+
+export const sendOutstandingPaymentNotification = async ({
+  date,
+  dealerName,
+  shopName,
+  phoneNumber,
+  paidAmount,
+  pendingBillsAfterPayment,
+}) => {
+  try {
+    const html = `
+      <div
+        style="
+          font-family: Arial, sans-serif;
+          max-width:700px;
+          margin:auto;
+          color:#222;
+        "
+      >
+        <h2 style="color:#2e7d32;">
+          Outstanding Payment Received
+        </h2>
+
+        <table
+          style="
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
+          "
+        >
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;"><strong>Date</strong></td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ${new Date(date).toLocaleString("en-IN")}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;"><strong>Dealer Name</strong></td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ${dealerName}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;"><strong>Shop Name</strong></td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ${shopName}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;"><strong>Phone Number</strong></td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ${phoneNumber}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;"><strong>Paid Amount</strong></td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ₹${Number(paidAmount).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;"><strong>Pending Bills After Payment</strong></td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ₹${Number(pendingBillsAfterPayment).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </td>
+          </tr>
+        </table>
+      </div>
+    `;
+
+    const { data, error } = await resend.emails.send({
+      from: "Sunrise Agri <onboarding@resend.dev>",
+      to: process.env.ADMIN_NOTIFICATION_EMAIL,
+      subject: "Dealer Outstanding Payment Received",
+      html,
+    });
+
+    if (error) {
+      console.error("❌ OUTSTANDING PAYMENT EMAIL ERROR:", error);
+      throw new Error(error.message);
+    }
+
+    console.log("✅ OUTSTANDING PAYMENT EMAIL SENT:", data?.id);
+
+    return data;
+  } catch (error) {
+    console.error("❌ OUTSTANDING PAYMENT EMAIL FAILED:", error);
+    throw error;
+  }
+};

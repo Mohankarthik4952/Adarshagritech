@@ -16,7 +16,10 @@ import Dealer from "../models/Dealer.js";
 
 import { protect } from "../middleware/authMiddleware.js";
 import generateInvoicePdf from "../utils/generateInvoicePdf.js";
-import { sendOrderNotification } from "../utils/sendOrderNotification.js";
+import {
+  sendOrderNotification,
+  sendOutstandingPaymentNotification,
+} from "../utils/sendOrderNotification.js";
 
 /* ===============================
    PAY NOW
@@ -650,6 +653,13 @@ router.post("/pay-outstanding", protect, async (req, res) => {
 
     const dealer = await Dealer.findById(req.user.id);
 
+    if (!dealer) {
+      return res.status(404).json({
+        success: false,
+        message: "Dealer not found",
+      });
+    }
+
     const firstInvoice = invoices[0];
 
     const payment = await Payment.create({
@@ -683,14 +693,30 @@ router.post("/pay-outstanding", protect, async (req, res) => {
 
       paymentDate: new Date(),
     });
+    const pendingBillsAfterPayment = Math.max(
+      totalOutstanding - paymentAmount,
+      0,
+    );
 
-    console.log("OUTSTANDING PAYMENT CREATED");
-    console.log({
-      dealer: dealer?.dealerName,
-      orderNo: firstInvoice?.orderNo,
-      invoiceNo: firstInvoice?.invoiceNo,
-      paymentId: payment._id,
-    });
+    void sendOutstandingPaymentNotification({
+      date: new Date(),
+
+      dealerName: dealer?.dealerName || "",
+
+      shopName: dealer?.shopName || "",
+
+      phoneNumber: dealer?.phone || "",
+
+      paidAmount: paymentAmount,
+
+      pendingBillsAfterPayment,
+    })
+      .then((info) => {
+        console.log("✅ OUTSTANDING PAYMENT EMAIL SENT:", info?.messageId);
+      })
+      .catch((err) => {
+        console.error("❌ OUTSTANDING PAYMENT EMAIL FAILED:", err);
+      });
 
     return res.status(201).json({
       success: true,
