@@ -98,14 +98,14 @@ const CustomerSignup = () => {
       setLoading(true);
 
       await registerCustomer({
-        name,
-        phone,
-        email,
-        village,
-        pincode,
-        nearBusStand,
-        cropName,
-        password,
+        name: name.trim(),
+        phone: phone.trim(),
+        email: email.trim().toLowerCase(),
+        village: village.trim(),
+        pincode: pincode.trim(),
+        nearBusStand: nearBusStand.trim(),
+        cropName: cropName.trim(),
+        password: password.trim(),
       });
 
       alert("Customer account created successfully 🎉");
@@ -115,7 +115,7 @@ const CustomerSignup = () => {
       console.error(error);
 
       alert(
-        error?.response?.data?.message || "Signup failed. Please try again.",
+        error?.response?.data?.message || "Email or Phone is already exists",
       );
     } finally {
       setLoading(false);

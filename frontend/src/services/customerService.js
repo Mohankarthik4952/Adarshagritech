@@ -14,14 +14,14 @@ export const loginCustomer = async (data) => {
   return await apiService.post("/customer/login", data);
 };
 
-// OTP Verify
-export const verifyOTP = async (data) => {
-  return await apiService.post("/customer/verify-otp", data);
-};
-
 // Forgot Password
 export const forgotPassword = async (data) => {
   return await apiService.post("/customer/forgot-password", data);
+};
+
+// Verify OTP
+export const verifyOTP = async (data) => {
+  return await apiService.post("/customer/verify-otp", data);
 };
 
 // Reset Password

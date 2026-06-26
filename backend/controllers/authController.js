@@ -56,18 +56,37 @@ export const customerSignup = async (req, res) => {
       });
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPhone = phone.trim();
+
     /* ===============================
        CHECK EXISTING CUSTOMER
     ============================== */
 
-    const existing = await Customer.findOne({
-      $or: [{ email: email.trim().toLowerCase() }, { phone: phone.trim() }],
+    const existingCustomer = await Customer.findOne({
+      $or: [{ email: normalizedEmail }, { phone: normalizedPhone }],
     });
 
-    if (existing) {
+    if (existingCustomer) {
       return res.status(400).json({
         success: false,
-        message: "User already exists",
+        message: "Customer already exists",
+      });
+    }
+
+    /* ===============================
+       CHECK EXISTING DEALER
+    ============================== */
+
+    const existingDealer = await Dealer.findOne({
+      $or: [{ email: normalizedEmail }, { phone: normalizedPhone }],
+    });
+
+    if (existingDealer) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "This Email or Phone Number is already registered as a Dealer.",
       });
     }
 
@@ -77,8 +96,8 @@ export const customerSignup = async (req, res) => {
 
     const customer = await Customer.create({
       name: name.trim(),
-      email: email.trim().toLowerCase(),
-      phone: phone.trim(),
+      email: normalizedEmail,
+      phone: normalizedPhone,
       village: village.trim(),
       pincode: pincode.trim(),
       nearBusStand: nearBusStand.trim(),
@@ -93,7 +112,7 @@ export const customerSignup = async (req, res) => {
     const token = generateToken(customer, "customer");
 
     /* ===============================
-       REMOVE PASSWORD FROM RESPONSE
+       REMOVE PASSWORD
     ============================== */
 
     const customerData = customer.toObject();
@@ -166,24 +185,57 @@ export const dealerSignup = async (req, res) => {
   try {
     const { name, shopName, gst, village, email, phone, password } = req.body;
 
-    const existing = await Dealer.findOne({
-      $or: [{ email }, { phone }, { gstNumber: gst }],
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPhone = phone.trim();
+    const normalizedGST = gst.trim().toUpperCase();
+
+    /* ===============================
+       CHECK EXISTING DEALER
+    ============================== */
+
+    const existingDealer = await Dealer.findOne({
+      $or: [
+        { email: normalizedEmail },
+        { phone: normalizedPhone },
+        { gstNumber: normalizedGST },
+      ],
     });
 
-    if (existing) {
+    if (existingDealer) {
       return res.status(400).json({
+        success: false,
         message: "Dealer already exists",
       });
     }
 
+    /* ===============================
+       CHECK EXISTING CUSTOMER
+    ============================== */
+
+    const existingCustomer = await Customer.findOne({
+      $or: [{ email: normalizedEmail }, { phone: normalizedPhone }],
+    });
+
+    if (existingCustomer) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "This Email or Phone Number is already registered as a Customer.",
+      });
+    }
+
+    /* ===============================
+       CREATE DEALER
+    ============================== */
+
     const dealer = await Dealer.create({
-      dealerName: name,
-      shopName,
-      gstNumber: gst,
-      village,
-      email,
-      phone,
-      password,
+      dealerName: name.trim(),
+      shopName: shopName.trim(),
+      gstNumber: normalizedGST,
+      village: village.trim(),
+      email: normalizedEmail,
+      phone: normalizedPhone,
+      password: password.trim(),
     });
 
     return res.status(201).json({

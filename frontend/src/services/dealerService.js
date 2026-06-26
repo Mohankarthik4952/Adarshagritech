@@ -55,3 +55,15 @@ export const loginDealer = async (data) => {
 export const payOutstanding = async (data) => {
   return await apiService.post("/dealer/payment/pay-outstanding", data);
 };
+
+export const forgotPassword = async (data) => {
+  return await apiService.post("/dealer/forgot-password", data);
+};
+
+export const verifyOTP = async (data) => {
+  return await apiService.post("/dealer/verify-otp", data);
+};
+
+export const resetPassword = async (data) => {
+  return await apiService.post("/dealer/reset-password", data);
+};

@@ -1,13 +1,21 @@
 // src/pages/ResetPassword.jsx
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { resetPassword } from "../services/customerService";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
+
+import { resetPassword as customerResetPassword } from "../services/customerService";
+
+import { resetPassword as dealerResetPassword } from "../services/dealerService";
+
 import "../pages/auth.css";
 
-const ResetPassword = () => {
+const ResetPassword = ({ role = "customer" }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const email = location.state?.email;
+  const userRole = location.state?.role || role;
 
   const [form, setForm] = useState({
     password: "",
@@ -19,6 +27,7 @@ const ResetPassword = () => {
 
   const handleChange = (e) => {
     setErrorMsg("");
+
     setForm({
       ...form,
       [e.target.name]: e.target.value,
@@ -27,9 +36,6 @@ const ResetPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const email = localStorage.getItem("resetEmail");
-    const role = localStorage.getItem("resetRole") || "customer";
 
     if (!email) {
       return setErrorMsg("Reset session expired. Please try again.");
@@ -47,31 +53,32 @@ const ResetPassword = () => {
       setLoading(true);
       setErrorMsg("");
 
-      await resetPassword({
-        email,
-        password: form.password,
-      });
-
-      alert("Password reset successful");
-
-      /* =========================
-         CLEAR RESET DATA
-      ========================= */
-      localStorage.removeItem("resetEmail");
-      localStorage.removeItem("resetRole");
-
-      /* =========================
-         REDIRECT BASED ON ROLE
-      ========================= */
-      if (role === "dealer") {
-        navigate("/dealer/login", { replace: true });
-      } else if (role === "admin") {
-        navigate("/admin/login", { replace: true });
+      if (userRole === "dealer") {
+        await dealerResetPassword({
+          email,
+          password: form.password,
+        });
       } else {
-        navigate("/customer/login", { replace: true });
+        await customerResetPassword({
+          email,
+          password: form.password,
+        });
+      }
+
+      alert("Password reset successful ✅");
+
+      if (userRole === "dealer") {
+        navigate("/dealer/login", {
+          replace: true,
+        });
+      } else {
+        navigate("/customer/login", {
+          replace: true,
+        });
       }
     } catch (error) {
       console.error("RESET ERROR:", error);
+
       setErrorMsg(error.message || "Password reset failed");
     } finally {
       setLoading(false);
@@ -84,6 +91,7 @@ const ResetPassword = () => {
         <FaArrowLeft />
         <span>Back</span>
       </button>
+
       <form className="auth-form" onSubmit={handleSubmit}>
         <h2>Reset Password</h2>
 

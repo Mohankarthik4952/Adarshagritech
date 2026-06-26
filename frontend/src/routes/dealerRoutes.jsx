@@ -10,6 +10,10 @@ import DealerLogin from "../dealer/layout/DealerLogin";
 
 import DealerSignup from "../dealer/layout/DealerSignup";
 
+import ForgotPassword from "../pages/ForgotPassword";
+import VerifyOTP from "../pages/VerifyOTP";
+import ResetPassword from "../pages/ResetPassword";
+
 /* PAGES */
 
 import Home from "../dealer/pages/Home";
@@ -46,6 +50,13 @@ const DealerRoutes = () => {
       <Route path="login" element={<DealerLogin />} />
 
       <Route path="signup" element={<DealerSignup />} />
+
+      <Route
+        path="forgot-password"
+        element={<ForgotPassword role="dealer" />}
+      />
+      <Route path="verify-otp" element={<VerifyOTP role="dealer" />} />
+      <Route path="reset-password" element={<ResetPassword role="dealer" />} />
 
       {/* PROTECTED */}
 

@@ -84,7 +84,16 @@ const DealerSignup = () => {
     try {
       setLoading(true);
 
-      await registerDealer(form);
+      await registerDealer({
+        ...form,
+        name: form.name.trim(),
+        shopName: form.shopName.trim(),
+        gst: form.gst.trim().toUpperCase(),
+        village: form.village.trim(),
+        email: form.email.trim().toLowerCase(),
+        phone: form.phone.trim(),
+        password: form.password.trim(),
+      });
 
       alert("Dealer account created successfully 🎉");
 
@@ -92,7 +101,7 @@ const DealerSignup = () => {
     } catch (error) {
       console.error(error);
 
-      alert(error.message || "Signup failed");
+      alert(error.message || "Email or Phone is already exists");
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,6 @@
-/* =================================
+/* ==========================================
    GLOBAL
-================================= */
+========================================== */
 
 * {
   margin: 0;
@@ -9,129 +9,125 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
-  overflow-x: hidden;
+  font-family: "Segoe UI", sans-serif;
 }
 
-/* =================================
-   AUTH PAGE
-================================= */
+/* ==========================================
+   CONTAINER
+========================================== */
 
 .auth-container {
   min-height: 100vh;
-
+  width: 100%;
+  background: linear-gradient(135deg, #00b894, #00897b);
   display: flex;
   justify-content: center;
   align-items: center;
-
+  position: relative;
   padding: 20px;
-
-  background: linear-gradient(135deg, #20b486, #1f2d3d);
 }
 
-/* =================================
-   AUTH FORM
-================================= */
+/* ==========================================
+   BACK BUTTON
+========================================== */
+
+.back-btn {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  border: none;
+  background: transparent;
+
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  opacity: 0.8;
+}
+
+/* ==========================================
+   FORM
+========================================== */
 
 .auth-form {
   width: 100%;
-  max-width: 430px;
+  max-width: 450px;
 
-  background: rgba(255, 255, 255, 0.96);
+  background: #fff;
 
-  backdrop-filter: blur(10px);
+  border-radius: 22px;
 
-  padding: 35px;
+  padding: 40px 35px;
 
-  border-radius: 18px;
-
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 16px;
-
-  animation: fadeIn 0.4s ease;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
-
-/* =================================
-   ANIMATION
-================================= */
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* =================================
-   TITLE
-================================= */
 
 .auth-form h2 {
   text-align: center;
+  margin-bottom: 35px;
 
-  color: #1f2d3d;
+  color: #1f2937;
 
-  font-size: 30px;
-
-  margin-bottom: 10px;
+  font-size: 42px;
+  font-weight: 700;
 }
 
-/* =================================
+/* ==========================================
    INPUTS
-================================= */
+========================================== */
 
 .auth-form input {
   width: 100%;
 
-  padding: 14px;
+  padding: 16px 18px;
 
-  border: 1px solid #d5d5d5;
+  margin-bottom: 18px;
 
-  border-radius: 10px;
+  border: 1px solid #d1d5db;
 
-  font-size: 15px;
+  border-radius: 12px;
 
-  transition: 0.3s;
+  font-size: 17px;
 
-  background: #fff;
-}
-
-/* FOCUS */
-
-.auth-form input:focus {
   outline: none;
 
-  border-color: #20b486;
-
-  box-shadow: 0 0 0 4px rgba(32, 180, 134, 0.15);
+  transition: 0.3s;
 }
 
-/* =================================
+.auth-form input:focus {
+  border-color: #00b894;
+
+  box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.15);
+}
+
+/* ==========================================
    BUTTON
-================================= */
+========================================== */
 
 .auth-form button {
   width: 100%;
 
-  padding: 14px;
+  padding: 15px;
 
   border: none;
-  border-radius: 10px;
 
-  background: #20b486;
+  border-radius: 12px;
 
-  color: white;
+  background: #00b894;
 
-  font-size: 16px;
+  color: #fff;
+
+  font-size: 18px;
+
   font-weight: 600;
 
   cursor: pointer;
@@ -139,198 +135,138 @@ body {
   transition: 0.3s;
 }
 
-/* HOVER */
-
-.auth-form button:hover {
-  background: #169b72;
-  transform: translateY(-2px);
+.auth-form button:hover:not(:disabled) {
+  background: #00997d;
 }
-
-/* DISABLED */
 
 .auth-form button:disabled {
-  background: gray;
+  background: #bdbdbd;
   cursor: not-allowed;
-  transform: none;
 }
 
-/* =================================
-   TEXTS
-================================= */
+/* ==========================================
+   ERROR
+========================================== */
 
-.auth-form p {
+.error-text {
+  color: #d32f2f;
   text-align: center;
-
-  font-size: 14px;
-
-  color: #555;
-}
-
-/* LINKS */
-
-.auth-form p span,
-.link-text {
-  color: #20b486;
-
-  cursor: pointer;
-
+  margin-bottom: 18px;
   font-weight: 600;
-
-  transition: 0.3s;
 }
 
-.auth-form p span:hover,
+/* ==========================================
+   LINK
+========================================== */
+
+.link-text {
+  text-align: center;
+  margin-top: 20px;
+  color: #00b894;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .link-text:hover {
   text-decoration: underline;
 }
 
-/* =================================
-   ERROR
-================================= */
-
-.error-text,
-.auth-error {
-  color: red;
-
-  text-align: center;
-
-  font-size: 14px;
-}
-
-/* =================================
-   SUCCESS
-================================= */
-
-.auth-success {
-  color: green;
-
-  text-align: center;
-
-  font-size: 14px;
-}
-
-/* =================================
-   OTP CONTAINER
-================================= */
+/* ==========================================
+   OTP BOXES
+========================================== */
 
 .otp-box-container {
   display: flex;
-
   justify-content: center;
-
   gap: 12px;
 
-  margin: 10px 0;
+  margin-bottom: 25px;
 }
 
-/* OTP BOX */
-
 .otp-box {
-  width: 48px;
-  height: 48px;
-
-  border: 1px solid #ccc;
-
-  border-radius: 10px;
+  width: 52px !important;
+  height: 58px;
 
   text-align: center;
 
-  font-size: 20px;
+  font-size: 24px;
+
   font-weight: bold;
+
+  border: 2px solid #ddd !important;
+
+  border-radius: 12px;
+
+  outline: none;
 
   transition: 0.3s;
 }
 
-/* OTP FOCUS */
-
 .otp-box:focus {
-  outline: none;
+  border-color: #00b894 !important;
 
-  border-color: #20b486;
-
-  box-shadow: 0 0 0 4px rgba(32, 180, 134, 0.15);
+  box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.15);
 }
 
-/* =================================
-   TIMER
-================================= */
+/* ==========================================
+   OTP TIMER
+========================================== */
 
 .otp-timer {
   text-align: center;
 
-  font-size: 14px;
+  margin-bottom: 20px;
 
   color: #666;
+
+  font-size: 15px;
+
+  font-weight: 600;
 }
 
-/* =================================
+/* ==========================================
    RESEND
-================================= */
+========================================== */
 
 .resend-section {
+  margin-top: 20px;
+
   text-align: center;
 }
 
 .resend-btn {
-  background: none;
-  border: none;
+  background: transparent !important;
 
-  color: #20b486;
+  color: #00b894 !important;
 
-  font-size: 14px;
+  border: none !important;
+
+  box-shadow: none !important;
+
+  padding: 0 !important;
+
+  font-size: 16px;
+
   font-weight: 600;
 
   cursor: pointer;
 }
 
-/* =================================
-   MOBILE
-================================= */
-
-@media (max-width: 768px) {
-  .auth-form {
-    padding: 28px 22px;
-  }
-
-  .auth-form h2 {
-    font-size: 26px;
-  }
-
-  .auth-form input {
-    padding: 12px;
-    font-size: 14px;
-  }
-
-  .auth-form button {
-    padding: 12px;
-    font-size: 15px;
-  }
-
-  .otp-box {
-    width: 42px;
-    height: 42px;
-
-    font-size: 18px;
-  }
+.resend-btn:hover {
+  text-decoration: underline;
 }
 
-/* =================================
-   SMALL MOBILE
-================================= */
+/* ==========================================
+   MOBILE
+========================================== */
 
-@media (max-width: 480px) {
-  .auth-container {
-    padding: 15px;
-  }
-
+@media (max-width: 600px) {
   .auth-form {
-    padding: 24px 18px;
-
-    border-radius: 14px;
+    padding: 30px 22px;
   }
 
   .auth-form h2 {
-    font-size: 24px;
+    font-size: 34px;
   }
 
   .otp-box-container {
@@ -338,15 +274,14 @@ body {
   }
 
   .otp-box {
-    width: 38px;
-    height: 38px;
+    width: 46px !important;
+    height: 52px;
+    font-size: 22px;
   }
+
   .back-btn {
-    top: 15px;
-    left: 15px;
-
-    padding: 8px 14px;
-
-    font-size: 14px;
+    top: 18px;
+    left: 18px;
+    font-size: 16px;
   }
 }

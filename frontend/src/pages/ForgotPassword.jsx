@@ -1,13 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { validateEmail } from "../utils/validators";
-import { forgotPassword } from "../services/customerService";
 import { FaArrowLeft } from "react-icons/fa";
+
+import { validateEmail } from "../utils/validators";
+
+import { forgotPassword as customerForgotPassword } from "../services/customerService";
+import { forgotPassword as dealerForgotPassword } from "../services/dealerService";
+
 import "./auth.css";
 
-const ForgotPassword = () => {
+const ForgotPassword = ({ role = "customer" }) => {
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -20,19 +26,31 @@ const ForgotPassword = () => {
     try {
       setLoading(true);
 
-      const res = await forgotPassword({ email });
+      if (role === "dealer") {
+        await dealerForgotPassword({ email });
 
-      console.log("FORGOT RESPONSE:", res);
+        navigate("/dealer/verify-otp", {
+          state: {
+            email,
+            role,
+          },
+        });
+      } else {
+        await customerForgotPassword({ email });
+
+        navigate("/customer/verify-otp", {
+          state: {
+            email,
+            role,
+          },
+        });
+      }
 
       alert("OTP sent successfully ✅");
-
-      // ✅ FIX: correct route
-      navigate("/customer/verify-otp", {
-        state: { email },
-      });
     } catch (error) {
-      console.error("FORGOT ERROR:", error);
-      alert(error.message || "Failed to send OTP ❌");
+      console.error(error);
+
+      alert(error.message || "Failed to send OTP");
     } finally {
       setLoading(false);
     }
@@ -44,6 +62,7 @@ const ForgotPassword = () => {
         <FaArrowLeft />
         <span>Back</span>
       </button>
+
       <form className="auth-form" onSubmit={handleSubmit}>
         <h2>Forgot Password</h2>
 

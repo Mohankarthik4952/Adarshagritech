@@ -29,4 +29,10 @@ router.post("/dealer/login", dealerLogin);
 
 router.post("/admin/login", adminLogin);
 
+router.post("/dealer/forgot-password", forgotPassword);
+
+router.post("/dealer/verify-otp", verifyOTP);
+
+router.post("/dealer/reset-password", resetPassword);
+
 export default router;
