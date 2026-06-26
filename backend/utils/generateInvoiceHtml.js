@@ -315,7 +315,7 @@ const generateInvoiceHtml = (invoice, totalOutstandingAmount = 0) => {
             </p>
 
             <p>
-              Address : ${invoice.companyAddress || "Door No. 15-146, Gayathri Towers, Ground Floor, Shop No. 5, Side of Sub-Register office road, Nandigama, Krishna Dist, A.P. 522185"}
+              Address : ${invoice.companyAddress || "Door No. 15-146, Gayathri Towers, Ground Floor, Shop No. 5, Side of Sub-Register office road, Nandigama, Krishna Dist, A.P. 521185"}
             </p>
 
             ${

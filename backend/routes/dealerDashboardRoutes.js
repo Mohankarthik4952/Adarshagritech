@@ -10,79 +10,105 @@ router.get("/summary", protect, dealerOnly, async (req, res) => {
   try {
     const dealerId = req.user.id;
 
-    const [orders, transactions, invoices, ordersCount, invoicesCount] =
-      await Promise.all([
-        Order.find({
-          userId: dealerId,
-          role: "DEALER",
-        })
-          .sort({ createdAt: -1 })
-          .limit(5)
-          .lean(),
+    const [
+      recentOrdersData,
+      transactions,
+      invoices,
+      allOrders,
+      ordersCount,
+      invoicesCount,
+    ] = await Promise.all([
+      Order.find({
+        userId: dealerId,
+        role: "DEALER",
+      })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean(),
 
-        Payment.find({
-          userId: dealerId,
-          role: "DEALER",
-          status: "APPROVED",
-        })
-          .sort({ createdAt: -1 })
-          .limit(5)
-          .lean(),
+      Payment.find({
+        userId: dealerId,
+        role: "DEALER",
+        status: "APPROVED",
+      })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean(),
 
-        Invoice.find({
-          userId: dealerId,
-          role: "DEALER",
-        }).lean(),
+      Invoice.find({
+        userId: dealerId,
+        role: "DEALER",
+      }).lean(),
 
-        Order.countDocuments({
-          userId: dealerId,
-          role: "DEALER",
-        }),
+      Order.find({
+        userId: dealerId,
+        role: "DEALER",
+      }).lean(),
 
-        Invoice.countDocuments({
-          userId: dealerId,
-          role: "DEALER",
-        }),
-      ]);
+      Order.countDocuments({
+        userId: dealerId,
+        role: "DEALER",
+      }),
+
+      Invoice.countDocuments({
+        userId: dealerId,
+        role: "DEALER",
+      }),
+    ]);
+
+    /* ==========================
+       TOTAL PAID
+    ========================== */
 
     const totalPaidAmount = transactions.reduce(
       (sum, tx) => sum + Number(tx.amount || 0),
       0,
     );
 
-    const pendingInvoices = invoices.filter(
-      (invoice) => Number(invoice.balanceAmount || 0) > 0,
+    /* ==========================
+       PENDING BILLS
+       (USE ORDERS)
+    ========================== */
+
+    const pendingOrders = allOrders.filter(
+      (order) => Number(order.balanceAmount || 0) > 0,
     );
 
-    const pendingBills = pendingInvoices.reduce(
-      (sum, invoice) => sum + Number(invoice.balanceAmount || 0),
+    const pendingBills = pendingOrders.reduce(
+      (sum, order) => sum + Number(order.balanceAmount || 0),
       0,
     );
 
     const outstandingAmount = pendingBills;
 
-    const partiallyPaidOrders = pendingInvoices.filter(
-      (invoice) =>
-        Number(invoice.paidAmount || 0) > 0 &&
-        Number(invoice.balanceAmount || 0) > 0,
+    const partiallyPaidOrders = pendingOrders.filter(
+      (order) =>
+        Number(order.paidAmount || 0) > 0 &&
+        Number(order.balanceAmount || 0) > 0,
     ).length;
 
-    /* =================================
+    /* ==========================
        RECENT ORDERS
-    ================================= */
+    ========================== */
 
-    const recentOrders = orders.map((order) => ({
+    const recentOrders = recentOrdersData.map((order) => ({
       ...order,
 
       totalAmount: Number(order.totalAmount || 0),
 
       paidAmount: Number(order.paidAmount || 0),
 
+      returnAdjustedAmount: Number(order.returnAdjustedAmount || 0),
+
+      totalReturnedAmount: Number(order.totalReturnedAmount || 0),
+
       balanceAmount:
         order.balanceAmount !== undefined && order.balanceAmount !== null
           ? Number(order.balanceAmount)
           : Math.max(
-              Number(order.totalAmount || 0) - Number(order.paidAmount || 0),
+              Number(order.totalAmount || 0) -
+                Number(order.paidAmount || 0) -
+                Number(order.returnAdjustedAmount || 0),
               0,
             ),
     }));
