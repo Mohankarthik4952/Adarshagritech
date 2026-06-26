@@ -1,11 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-    <url>
-        <loc>https://sunriseagriproduct.in/</loc>
-        <changefreq>weekly</changefreq>
-        <priority>1.0</priority>
-    </url>
+  <!-- Home -->
+  <url>
+    <loc>https://www.sunriseagriproduct.in/</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Select Role -->
+  <url>
+    <loc>https://www.sunriseagriproduct.in/select-role</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Customer -->
+  <url>
+    <loc>https://www.sunriseagriproduct.in/customer/login</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.sunriseagriproduct.in/customer/signup</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.sunriseagriproduct.in/customer/forgot-password</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Dealer -->
+  <url>
+    <loc>https://www.sunriseagriproduct.in/dealer/login</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.sunriseagriproduct.in/dealer/signup</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.sunriseagriproduct.in/dealer/forgot-password</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
 
 </urlset>
