@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "resend": "^6.14.0"
+  },
+  "devDependencies": {
+    "vite-plugin-sitemap": "^0.8.2"
   }
 }
