@@ -33,7 +33,7 @@ const Transaction = () => {
      COMPANY UPI
   ========================= */
 
-  const upiId = "8499082784@ybl";
+  const upiId = "Q037821057@ybl";
 
   const upiLink =
     `upi://pay?pa=${upiId}` +

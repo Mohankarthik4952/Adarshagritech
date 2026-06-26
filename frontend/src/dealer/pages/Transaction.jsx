@@ -32,7 +32,7 @@ const Transaction = () => {
   const selectedOrderId = localStorage.getItem("selectedOrderId");
   const isExistingOrder = !!selectedOrderId;
 
-  const upiId = "8499082784@ybl"; // replace with your real UPI
+  const upiId = "Q037821057@ybl";
 
   const upiLink =
     `upi://pay?pa=${upiId}` +

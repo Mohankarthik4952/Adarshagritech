@@ -169,7 +169,7 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       normalizedPaymentType === "PAY_LATER" ||
       normalizedPaymentType === "CREDIT"
     ) {
-      const invoiceNo = await generateInvoiceNumber();
+      const invoiceNo = generateInvoiceNumber();
 
       const invoiceItems = items.map((item) => ({
         productId: item.productId,
@@ -246,6 +246,8 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       order.invoiceNumber = invoice.invoiceNo;
 
       order.invoiceId = invoice._id;
+
+      await order.save();
 
       /* =========================
          GENERATE PDF IN BACKGROUND

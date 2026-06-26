@@ -41,7 +41,7 @@ router.get("/products", protect, customerOnly, async (req, res) => {
     const products = await Product.find({
       visibleToCustomers: true,
       isActive: true,
-    });
+    }).lean();
 
     return res.status(200).json(products);
   } catch (error) {
@@ -76,7 +76,7 @@ router.post("/", protect, customerOnly, async (req, res) => {
       });
     }
 
-    const customer = await Customer.findById(req.user.id);
+    const customer = await Customer.findById(req.user.id).lean();
 
     if (!customer) {
       return res.status(404).json({
@@ -87,13 +87,22 @@ router.post("/", protect, customerOnly, async (req, res) => {
 
     const parsedProducts =
       typeof products === "string" ? JSON.parse(products) : products;
-
     const formattedItems = [];
 
     let calculatedTotal = 0;
 
-    for (const item of parsedProducts) {
-      const product = await Product.findById(item.productId);
+    const ids = parsedProducts.map((item) => item.productId);
+
+    const productDocs = await Product.find({
+      _id: { $in: ids },
+    }).lean();
+
+    const productMap = new Map(productDocs.map((p) => [String(p._id), p]));
+
+    for (let i = 0; i < parsedProducts.length; i++) {
+      const item = parsedProducts[i];
+
+      const product = productMap.get(String(item.productId));
 
       if (!product) continue;
 
@@ -165,7 +174,7 @@ router.post("/", protect, customerOnly, async (req, res) => {
        CREATE ORDER
     ================================= */
 
-    const order = await Order.create({
+    const order = new Order({
       orderNo,
 
       userId: customer._id,
@@ -208,8 +217,7 @@ router.post("/", protect, customerOnly, async (req, res) => {
 
       invoiceGenerated: false,
     });
-
-    console.log("📧 STARTING CUSTOMER EMAIL:", order.orderNo);
+    await order.save();
 
     void sendOrderNotification({
       role: "CUSTOMER",
@@ -225,123 +233,84 @@ router.post("/", protect, customerOnly, async (req, res) => {
         console.error(err);
       });
 
-    /* =================================
-       CREATE PAYMENT ENTRY
-    ================================= */
-
-    await Payment.create({
-      orderId: order._id,
-
-      userId: customer._id,
-
-      role: "CUSTOMER",
-
-      amount: calculatedTotal,
-
-      paymentType: "UPI",
-
-      paymentApp: formattedApp,
-
-      utrNumber: utrNumber || "",
-
-      paymentProof,
-
-      status: "VERIFICATION_PENDING",
-
-      paymentDate: new Date(),
-    });
-
-    /* =================================
-       CREATE INVOICE
-    ================================= */
-
     const invoiceNo = await generateInvoiceNumber();
 
     const invoiceItems = formattedItems.map((item) => ({
       productId: item.productId,
-
       productName: item.productName,
-
       size: item.size,
-
       quantity: item.quantity,
-
       mrp: item.mrp,
-
       discount: item.discountPercent,
-
       gstPercent: item.gstPercent || 0,
-
       gstAmount: 0,
-
       finalPrice: item.finalPrice,
     }));
 
-    const invoice = await Invoice.create({
-      invoiceNo,
+    const [, invoice] = await Promise.all([
+      Payment.create({
+        orderId: order._id,
+        userId: customer._id,
+        role: "CUSTOMER",
+        amount: calculatedTotal,
+        paymentType: "UPI",
+        paymentApp: formattedApp,
+        utrNumber: utrNumber || "",
+        paymentProof,
+        status: "VERIFICATION_PENDING",
+        paymentDate: new Date(),
+      }),
 
-      invoiceType: "FINAL",
+      Invoice.create({
+        invoiceNo,
+        invoiceType: "FINAL",
+        orderId: order._id,
+        orderNo: order.orderNo,
+        userId: customer._id,
+        role: "CUSTOMER",
+        paymentType: "PAY_NOW",
+        customerName: customer.name || "",
+        customerPhoneNumber: customer.phone || "",
+        customerVillage: customer.village || "",
+        customerPincode: customer.pincode || "",
+        customerNearBusStand: customer.nearBusStand || "",
+        items: invoiceItems,
+        subTotal: calculatedTotal,
+        grandTotal: calculatedTotal,
+        paidAmount: 0,
+        balanceAmount: calculatedTotal,
+        paymentStatus: "VERIFICATION_PENDING",
+        invoiceStatus: "UNPAID",
+        isLocked: false,
+      }),
+    ]);
 
-      orderId: order._id,
+    setImmediate(async () => {
+      try {
+        const latestInvoice = await Invoice.findById(invoice._id).lean();
 
-      orderNo: order.orderNo,
+        if (!latestInvoice) return;
 
-      userId: customer._id,
+        const pdfUrl = await generateInvoicePdf(latestInvoice);
 
-      role: "CUSTOMER",
-
-      paymentType: "PAY_NOW",
-
-      customerName: customer.name || "",
-
-      customerPhoneNumber: customer.phone || "",
-
-      customerVillage: customer.village || "",
-
-      customerPincode: customer.pincode || "",
-
-      customerNearBusStand: customer.nearBusStand || "",
-
-      items: invoiceItems,
-
-      subTotal: calculatedTotal,
-
-      grandTotal: calculatedTotal,
-
-      paidAmount: 0,
-
-      balanceAmount: calculatedTotal,
-
-      paymentStatus: "VERIFICATION_PENDING",
-
-      invoiceStatus: "UNPAID",
-
-      isLocked: false,
+        await Invoice.findByIdAndUpdate(invoice._id, {
+          pdfUrl,
+        });
+      } catch (pdfError) {
+        console.error("CUSTOMER PDF ERROR:", pdfError);
+      }
     });
-
-    const pdfUrl = await generateInvoicePdf(invoice.toObject());
-
-    invoice.pdfUrl = pdfUrl;
-
-    await invoice.save();
 
     /* =================================
        UPDATE ORDER
     ================================= */
 
     order.invoiceGenerated = true;
-
     order.invoiceNumber = invoice.invoiceNo;
-
     order.invoiceId = invoice._id;
-
-    await order.save();
-
-    console.log("================================");
-    console.log("CUSTOMER ORDER CREATED");
-    console.log("ORDER NO:", order.orderNo);
-    console.log("INVOICE NO:", invoice.invoiceNo);
-    console.log("================================");
+    await order.save({
+      validateBeforeSave: false,
+    });
 
     return res.status(201).json({
       success: true,
@@ -373,7 +342,8 @@ router.get("/my-orders", protect, customerOnly, async (req, res) => {
         "invoiceId",
         "invoiceNo paidAmount balanceAmount invoiceStatus pdfUrl",
       )
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     return res.status(200).json({
       success: true,
