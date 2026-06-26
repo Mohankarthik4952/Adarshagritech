@@ -74,7 +74,7 @@ router.post("/", protect, dealerOnly, async (req, res) => {
        FIND DEALER
     ========================= */
 
-    const dealer = await Dealer.findById(dealerId);
+    const dealer = await Dealer.findById(dealerId).lean();
 
     if (!dealer) {
       return res.status(404).json({
@@ -103,7 +103,7 @@ router.post("/", protect, dealerOnly, async (req, res) => {
 
     const orderNo = generateOrderNumber();
 
-    const order = await Order.create({
+    const order = new Order({
       orderNo,
 
       userId: dealerId,
@@ -144,8 +144,7 @@ router.post("/", protect, dealerOnly, async (req, res) => {
 
       invoiceGenerated: false,
     });
-
-    console.log("📧 STARTING DEALER EMAIL:", order.orderNo);
+    await order.save();
 
     void sendOrderNotification({
       role: "DEALER",
@@ -158,8 +157,6 @@ router.post("/", protect, dealerOnly, async (req, res) => {
 
         console.error(err);
       });
-
-    console.log("ORDER CREATED:", order.orderNo);
 
     let invoice = null;
 
@@ -249,8 +246,6 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       order.invoiceNumber = invoice.invoiceNo;
 
       order.invoiceId = invoice._id;
-
-      await order.save();
 
       /* =========================
          GENERATE PDF IN BACKGROUND
