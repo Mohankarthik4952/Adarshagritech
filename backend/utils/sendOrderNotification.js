@@ -312,3 +312,181 @@ export const sendOutstandingPaymentNotification = async ({
     throw error;
   }
 };
+
+/* =================================
+   DEALER RETURN REQUEST EMAIL
+================================= */
+
+export const sendDealerReturnRequestNotification = async ({
+  dealer,
+  returnRequest,
+  pendingBills,
+  pendingBillsAfterApproval,
+}) => {
+  try {
+    const pendingBillsAfterApproval = Math.max(
+      Number(pendingBills || 0) - Number(returnRequest.totalAmount || 0),
+      0,
+    );
+
+    const productsHtml = (returnRequest.items || [])
+      .map(
+        (item, index) => `
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;">${index + 1}</td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ${item.productName}
+            </td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ${item.size || "-"}
+            </td>
+            <td style="padding:10px;border:1px solid #ddd;text-align:center;">
+              ${item.returnQuantity}
+            </td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ₹${Number(item.returnAmount).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </td>
+          </tr>
+        `,
+      )
+      .join("");
+
+    const html = `
+      <div style="font-family:Arial,sans-serif;max-width:800px;margin:auto;">
+
+        <h2 style="color:#d32f2f;">
+          Dealer Return Request Received
+        </h2>
+
+        <table style="width:100%;border-collapse:collapse;margin-top:20px;">
+
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;">
+              <strong>Dealer Name</strong>
+            </td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ${dealer.dealerName || dealer.name || "-"}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;">
+              <strong>Shop Name</strong>
+            </td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ${dealer.shopName || "-"}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;">
+              <strong>Phone Number</strong>
+            </td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ${dealer.phone || "-"}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;">
+              <strong>Pending Bills Before Return</strong>
+            </td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ₹${Number(pendingBills).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;">
+              <strong>Estimated Return Value</strong>
+            </td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ₹${Number(returnRequest.totalAmount).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;">
+              <strong>Pending Bills After Approval</strong>
+            </td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ₹${Number(pendingBillsAfterApproval).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;">
+              <strong>Remarks</strong>
+            </td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ${returnRequest.remarks || "-"}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:10px;border:1px solid #ddd;">
+              <strong>Date & Time</strong>
+            </td>
+            <td style="padding:10px;border:1px solid #ddd;">
+              ${new Date(returnRequest.createdAt).toLocaleString("en-IN")}
+            </td>
+          </tr>
+
+        </table>
+
+        <h3 style="margin-top:30px;">
+          Return Products
+        </h3>
+
+        <table
+          style="width:100%;border-collapse:collapse;margin-top:10px;"
+        >
+          <thead>
+            <tr style="background:#f5f5f5;">
+              <th style="padding:10px;border:1px solid #ddd;">#</th>
+              <th style="padding:10px;border:1px solid #ddd;">Product</th>
+              <th style="padding:10px;border:1px solid #ddd;">Size</th>
+              <th style="padding:10px;border:1px solid #ddd;">Qty</th>
+              <th style="padding:10px;border:1px solid #ddd;">Amount</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${productsHtml}
+          </tbody>
+        </table>
+
+      </div>
+    `;
+
+    const { data, error } = await resend.emails.send({
+      from: "Sunrise Agri <onboarding@resend.dev>",
+      to: process.env.ADMIN_NOTIFICATION_EMAIL,
+      subject: `Dealer Return Request - ${dealer.shopName || dealer.dealerName}`,
+      html,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    console.log("✅ RETURN REQUEST EMAIL SENT:", data?.id);
+
+    return data;
+  } catch (error) {
+    console.error("❌ RETURN REQUEST EMAIL ERROR:", error);
+    throw error;
+  }
+};

@@ -442,17 +442,17 @@ router.post("/checkout", protect, async (req, res) => {
 
       await order.save();
 
-      generateInvoicePdf(invoice.toObject())
-        .then(async (pdfUrl) => {
+      setImmediate(async () => {
+        try {
+          const pdfUrl = await generateInvoicePdf(invoice.toObject());
+
           await Invoice.findByIdAndUpdate(invoice._id, {
             pdfUrl,
           });
-        })
-        .catch((err) => {
+        } catch (err) {
           console.error("PDF GENERATION ERROR:", err);
-        });
-
-      console.log("FINAL INVOICE CREATED:", invoice.invoiceNo);
+        }
+      });
     }
 
     /* ===============================

@@ -5,6 +5,7 @@ import Dealer from "../models/Dealer.js";
 import ReturnRequest from "../models/ReturnRequest.js";
 
 import { protect, dealerOnly } from "../middleware/authMiddleware.js";
+import { sendDealerReturnRequestNotification } from "../utils/sendOrderNotification.js";
 
 const router = express.Router();
 
@@ -293,7 +294,7 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       const existingRequest = await ReturnRequest.findOne({
         dealerId: req.user.id,
         approvalStatus: {
-          $in: ["PENDING", "APPROVED"],
+          $in: ["PENDING", "PROCESSING", "APPROVED"],
         },
         orderId: requestItem.orderId,
       });
@@ -386,7 +387,50 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       approvalStatus: "PENDING",
     });
 
-    console.log("RETURN REQUEST SAVED:", returnRequest._id);
+    /* ==============================
+   CALCULATE PENDING BILLS
+============================== */
+
+    const dealerOrders = await Order.find({
+      userId: req.user.id,
+      role: "DEALER",
+    }).lean();
+
+    const pendingBills = dealerOrders.reduce((sum, order) => {
+      const balance =
+        order.balanceAmount !== undefined && order.balanceAmount !== null
+          ? Number(order.balanceAmount)
+          : Math.max(
+              Number(order.totalAmount || 0) -
+                Number(order.paidAmount || 0) -
+                Number(order.returnAdjustedAmount || 0),
+              0,
+            );
+
+      return sum + balance;
+    }, 0);
+
+    const pendingBillsAfterApproval = Math.max(
+      pendingBills - Number(returnRequest.totalAmount || 0),
+      0,
+    );
+
+    /* ==============================
+   SEND EMAIL TO ADMIN
+============================== */
+
+    try {
+      void sendDealerReturnRequestNotification({
+        dealer,
+        returnRequest,
+        pendingBills,
+        pendingBillsAfterApproval,
+      });
+
+      console.log("✅ Return request email sent");
+    } catch (err) {
+      console.error("❌ Return email failed:", err);
+    }
 
     return res.status(201).json({
       success: true,

@@ -88,21 +88,25 @@ router.get("/:id", protect, adminOnly, async (req, res) => {
 
 router.put("/:id/approve", protect, adminOnly, async (req, res) => {
   try {
-    const request = await ReturnRequest.findById(req.params.id)
-      .populate("dealerId")
-      .lean();
+    const request = await ReturnRequest.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        approvalStatus: "PENDING",
+      },
+      {
+        $set: {
+          approvalStatus: "PROCESSING",
+        },
+      },
+      {
+        new: true,
+      },
+    ).populate("dealerId");
 
     if (!request) {
       return res.status(404).json({
         success: false,
         message: "Return request not found",
-      });
-    }
-
-    if (request.approvalStatus !== "PENDING") {
-      return res.status(400).json({
-        success: false,
-        message: "Return request already processed",
       });
     }
 
@@ -177,6 +181,7 @@ router.put("/:id/approve", protect, adminOnly, async (req, res) => {
       const invoice = await Invoice.findOne({
         orderId: order._id,
         role: "DEALER",
+        invoiceType: "FINAL",
       });
 
       if (invoice) {
@@ -301,7 +306,10 @@ router.put("/:id/approve", protect, adminOnly, async (req, res) => {
       {
         new: true,
       },
-    );
+    )
+      .populate("dealerId")
+      .populate("returnInvoiceId")
+      .populate("approvedBy");
 
     setImmediate(() => {
       generateInvoicePdf(returnInvoice.toObject())
@@ -319,7 +327,7 @@ router.put("/:id/approve", protect, adminOnly, async (req, res) => {
       success: true,
       message: "Return request approved successfully",
 
-      request,
+      request: updatedRequest,
 
       returnInvoice,
 
@@ -327,6 +335,12 @@ router.put("/:id/approve", protect, adminOnly, async (req, res) => {
     });
   } catch (error) {
     console.error("APPROVE RETURN ERROR:", error);
+
+    try {
+      await ReturnRequest.findByIdAndUpdate(req.params.id, {
+        approvalStatus: "PENDING",
+      });
+    } catch {}
 
     return res.status(500).json({
       success: false,
@@ -343,16 +357,12 @@ router.put("/:id/reject", protect, adminOnly, async (req, res) => {
   try {
     const { rejectionReason } = req.body;
 
-    const request = await ReturnRequest.findById(req.params.id);
+    const request = await ReturnRequest.findOne({
+      _id: req.params.id,
+      approvalStatus: "PENDING",
+    });
 
     if (!request) {
-      return res.status(404).json({
-        success: false,
-        message: "Return request not found",
-      });
-    }
-
-    if (request.approvalStatus !== "PENDING") {
       return res.status(400).json({
         success: false,
         message: "Return request already processed",
