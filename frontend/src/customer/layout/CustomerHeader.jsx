@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 
-import logo from "../../assets/sunrise.png";
+import logo from "../../assets/adarsh.jpeg";
 import defaultProfile from "../../assets/profile.jpg";
 
 import "./customerLayout.css";

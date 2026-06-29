@@ -1,680 +1,461 @@
-/* =========================================
-   ROOT LAYOUT
-========================================= */
+/* ==========================================================================
+   ADARSH AGRI TECH - DEALER LAYOUT STYLESHEET (dealerLayout.css)
+   Aesthetic: Premium Agri-Tech Dark Mode (Deep Slate, Emerald, Mint & Cyan accents)
+   ========================================================================== */
 
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap");
+
+/* Main Layout Structure */
 .dealer-layout {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #eef2f7;
+  height: 100vh;
+  background-color: #090f13;
+  color: #f8fafc;
+  font-family:
+    "Outfit",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  overflow: hidden;
 }
 
-/* =========================================
-   HEADER
-========================================= */
+.dealer-main-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.dealer-page-content {
+  flex: 1;
+  overflow-y: auto;
+  background-color: #090f13;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  height: 100%;
+}
+
+/* Scrollbar styling for page content frame */
+.dealer-page-content::-webkit-scrollbar {
+  width: 6px;
+}
+.dealer-page-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+.dealer-page-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+.dealer-page-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.3);
+}
+
+/* ==========================================================================
+   DEALER HEADER STYLES
+   ========================================================================== */
 
 .dealer-header {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-
-  width: 100%;
-  height: 80px;
-
   display: flex;
-  align-items: center;
   justify-content: space-between;
-
-  padding: 0 24px;
-
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-
+  align-items: center;
+  padding: 0.85rem 2rem;
+  background-color: rgba(16, 25, 32, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  z-index: 100;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
 }
-
-/* =========================================
-   HEADER LEFT
-========================================= */
 
 .dealer-header-left {
   display: flex;
   align-items: center;
-  gap: 14px;
-
-  cursor: pointer;
-  min-width: 0;
+  gap: 1.25rem;
 }
-/* =========================================
-   DESKTOP SIDEBAR TOGGLE
-========================================= */
 
+/* Desktop Sidebar Toggler */
 .dealer-desktop-toggle {
-  width: 44px;
-  height: 44px;
-
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  width: 38px;
+  height: 38px;
+  border-radius: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  border: none;
-  border-radius: 12px;
-
-  background: transparent;
-
-  color: #081c3a;
-
-  font-size: 22px;
-
   cursor: pointer;
-
-  transition: 0.25s;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dealer-desktop-toggle:hover {
-  background: #eef2f7;
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  transform: scale(1.05);
 }
 
+.dealer-desktop-toggle:active {
+  transform: scale(0.95);
+}
+
+/* Logo & branding layout */
 .dealer-logo {
-  width: 52px;
-  height: 52px;
-  object-fit: contain;
-  flex-shrink: 0;
+  height: 38px;
+  width: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #10b981; /* Emerald Green */
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dealer-logo:hover {
+  transform: scale(1.1) rotate(5deg);
+  border-color: #34d399; /* Mint Green */
+  box-shadow: 0 0 15px rgba(52, 211, 153, 0.5);
 }
 
 .dealer-title-wrapper {
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  cursor: pointer;
 }
 
 .dealer-title {
-  margin: 0;
-
-  font-size: 1.45rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  color: #081c3a;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin: 0;
+  background: linear-gradient(120deg, #ffffff 40%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.01em;
 }
 
 .dealer-greeting {
-  margin: 4px 0 0;
-
-  font-size: 0.92rem;
-  color: #667085;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0.15rem 0 0 0;
+  font-weight: 400;
 }
 
-/* =========================================
-   HEADER RIGHT
-========================================= */
-
+/* Header Right Section & Profile Dropdown */
 .dealer-header-right {
   position: relative;
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .profile-wrapper {
   display: flex;
   align-items: center;
-  gap: 10px;
-
+  gap: 0.5rem;
   cursor: pointer;
+  padding: 0.35rem 0.65rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.25s ease;
 }
 
-.profile-pic {
-  width: 48px;
-  height: 48px;
+.profile-wrapper:hover {
+  background: rgba(16, 185, 129, 0.06);
+  border-color: rgba(16, 185, 129, 0.2);
+}
 
+.profile-wrapper .profile-pic {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
-
-  border: 2px solid #10b981;
-  background: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.profile-arrow {
-  display: flex;
-  align-items: center;
-
-  color: #081c3a;
-  font-size: 0.9rem;
+.profile-wrapper .profile-arrow {
+  color: #64748b;
+  font-size: 0.8rem;
+  transition: transform 0.25s ease;
 }
 
-/* =========================================
-   DROPDOWN
-========================================= */
+.profile-wrapper:hover .profile-arrow {
+  color: #10b981;
+}
 
-.profile-dropdown {
+.dealer-header-right .profile-dropdown {
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 0.8rem);
   right: 0;
+  background: #101920;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 0.75rem;
+  width: 190px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 150;
+  animation: dropdownFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-  width: 220px;
-
-  background: #ffffff;
-  border-radius: 16px;
-
-  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.15);
-
-  overflow: hidden;
-  z-index: 1100;
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dropdown-item {
-  width: 100%;
-
   display: flex;
   align-items: center;
-  gap: 12px;
-
-  padding: 14px 18px;
-
-  border: none;
-  background: transparent;
-
-  color: #0f172a;
-  font-size: 0.95rem;
-  font-weight: 500;
-
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e2e8f0;
   cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  text-align: left;
+  width: 100%;
+}
 
-  transition: background 0.2s ease;
+.dropdown-item svg {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  flex-shrink: 0;
 }
 
 .dropdown-item:hover {
-  background: #f3f4f6;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.2);
 }
 
-.logout-btn {
-  color: #dc2626;
+.dropdown-item:hover svg {
+  color: #10b981;
 }
 
-/* =========================================
-   MAIN BODY
-========================================= */
-
-.dealer-body,
-.dealer-main-wrapper {
-  flex: 1;
-  display: flex;
-  min-height: calc(100vh - 80px);
+.dropdown-item.logout-btn {
+  font-family: inherit;
+  background: rgba(244, 63, 94, 0.1);
+  color: #f43f5e;
+  border: 1px solid rgba(244, 63, 94, 0.2);
 }
 
-/* =========================================
-   SIDEBAR
-========================================= */
+.dropdown-item.logout-btn svg {
+  color: #f43f5e;
+}
+
+.dropdown-item.logout-btn:hover {
+  background: #f43f5e;
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 10px rgba(244, 63, 94, 0.2);
+}
+
+.dropdown-item.logout-btn:hover svg {
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   DEALER SIDEBAR STYLES
+   ========================================================================== */
 
 .dealer-sidebar {
-  width: 280px;
-  min-width: 280px;
-
-  background: linear-gradient(180deg, #021024 0%, #172b4d 100%);
-  color: #ffffff;
-
+  width: 260px;
+  background-color: #101920;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
-
-  padding: 28px 14px;
-
+  height: 100%;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 120;
   overflow-y: auto;
-  flex-shrink: 0;
-
-  transition:
-    width 0.3s ease,
-    min-width 0.3s ease,
-    padding 0.3s ease;
-
-  z-index: 1300;
+  box-sizing: border-box;
 }
 
-/* =========================================
-   SIDEBAR HEADER
-========================================= */
+/* Scrollbar styling for sidebar */
+.dealer-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.dealer-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dealer-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
 
 .dealer-sidebar-top {
-  padding: 0 14px 28px;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  display: flex;
+  align-items: center;
 }
 
 .dealer-sidebar-top h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
   margin: 0;
-
-  color: #ffffff;
-  font-size: 2rem;
-  font-weight: 800;
-
-  line-height: 1.3;
+  background: linear-gradient(120deg, #ffffff 40%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
-
-/* =========================================
-   MENU
-========================================= */
 
 .dealer-menu {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.35rem;
+  padding: 1.25rem 1rem;
 }
-
-/* =========================================
-   LINKS
-========================================= */
 
 .dealer-link {
   display: flex;
   align-items: center;
-  gap: 16px;
-
-  padding: 16px 18px;
-
-  border-radius: 16px;
-
-  color: #f1f5f9;
+  gap: 0.85rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 0.75rem;
+  color: #94a3b8;
   text-decoration: none;
-
-  font-size: 1rem;
-  font-weight: 600;
-
-  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border-left: 3px solid transparent;
 }
 
 .dealer-link svg {
-  min-width: 22px;
-  font-size: 1.2rem;
-}
-
-.dealer-link:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.dealer-link.active {
-  background: linear-gradient(135deg, #10b981, #34d399);
-  color: #ffffff;
-
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
-}
-
-/* =========================================
-   PAGE CONTENT
-========================================= */
-
-.dealer-content,
-.dealer-page-content {
-  flex: 1;
-  min-width: 0;
-
-  padding: 28px;
-
-  overflow-x: hidden;
-
-  transition: all 0.3s ease;
-}
-
-.dealer-page-content-full {
-  width: 100%;
-}
-
-/* =========================================
-   HOME PAGE
-========================================= */
-
-.dealer-home-page {
-  width: 100%;
-
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* =========================================
-   WELCOME CARD
-========================================= */
-
-.dealer-welcome-card {
-  background: #ffffff;
-
-  border-radius: 24px;
-  padding: 30px;
-
-  border: 1px solid #dbe3ef;
-
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
-}
-
-.dealer-welcome-card h1 {
-  margin: 0 0 10px;
-
-  font-size: 2.2rem;
-  font-weight: 800;
-
-  color: #081c3a;
-}
-
-.dealer-welcome-card p {
-  margin: 0;
-
-  color: #667085;
-}
-
-/* =========================================
-   STATS GRID
-========================================= */
-
-.dealer-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-
-  gap: 22px;
-}
-
-/* =========================================
-   STAT CARD
-========================================= */
-
-.dealer-stat-card {
-  background: #ffffff;
-
-  border-radius: 24px;
-  padding: 24px;
-
-  display: flex;
-  align-items: center;
-  gap: 18px;
-
-  border: 1px solid #dbe3ef;
-
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
-
-  transition: 0.3s ease;
-}
-
-.dealer-stat-card:hover {
-  transform: translateY(-5px);
-
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
-}
-
-/* =========================================
-   ICONS
-========================================= */
-
-.dealer-stat-icon {
-  width: 72px;
-  height: 72px;
-
-  border-radius: 22px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: #ffffff;
-  font-size: 30px;
-
+  font-size: 1.1rem;
+  transition: transform 0.25s ease;
   flex-shrink: 0;
 }
 
-.dealer-stat-icon.red {
-  background: linear-gradient(135deg, #ff3b30, #ff6b61);
+.dealer-link:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+  color: #f8fafc;
 }
 
-.dealer-stat-icon.blue {
-  background: linear-gradient(135deg, #2563eb, #4f8cff);
+.dealer-link:hover svg {
+  transform: scale(1.1);
 }
 
-.dealer-stat-icon.green {
-  background: linear-gradient(135deg, #10b981, #33d69f);
+.dealer-link.active {
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.12) 0%,
+    rgba(16, 185, 129, 0.02) 100%
+  );
+  color: #10b981;
+  border-left-color: #10b981;
+  font-weight: 600;
 }
 
-.dealer-stat-icon.purple {
-  background: linear-gradient(135deg, #7c3aed, #9f67ff);
+.dealer-link.active svg {
+  color: #10b981;
 }
 
-.dealer-stat-content h3 {
-  margin: 0 0 6px;
-
-  font-size: 1rem;
-  color: #667085;
+/* Sidebar toggles and layouts */
+.dealer-sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 110;
+  animation: sidebarOverlayFadeIn 0.3s ease-out;
 }
 
-.dealer-stat-content h2 {
-  margin: 0;
-
-  font-size: 2rem;
-  font-weight: 800;
-
-  color: #081c3a;
+@keyframes sidebarOverlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
-
-/* =========================================
-   SECTION CARD
-========================================= */
-
-.dealer-section-card {
-  background: #ffffff;
-
-  border-radius: 24px;
-  padding: 28px;
-
-  border: 1px solid #dbe3ef;
-
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
-}
-
-.dealer-section-card h2 {
-  margin: 0 0 18px;
-
-  font-size: 2rem;
-  font-weight: 800;
-
-  color: #081c3a;
-}
-
-/* =========================================
-   MOBILE TOGGLE BUTTON
-========================================= */
 
 .dealer-mobile-toggle {
-  display: none !important;
-
-  position: fixed;
-  top: 92px;
-  left: 16px;
-
-  width: 52px;
-  height: 52px;
-
-  border: none;
-  border-radius: 14px;
-
-  background: #041c43;
-  color: #ffffff;
-
-  font-size: 1.4rem;
-
+  display: none; /* Only visible on mobile screen widths */
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  width: 38px;
+  height: 38px;
+  border-radius: 0.75rem;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-
-  z-index: 1400;
-
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 200;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-/* =========================================
-   OVERLAY
-========================================= */
-
-.dealer-sidebar-overlay {
-  display: none;
-}
-
-/* =========================================
-   TABLET & MOBILE
-========================================= */
-
-@media (max-width: 768px) {
-  .dealer-header {
-    height: 72px;
-    padding: 0 16px;
-  }
-
-  .dealer-logo {
-    width: 42px;
-    height: 42px;
-  }
-
-  .dealer-title {
-    font-size: 1.1rem;
-  }
-
-  .dealer-greeting {
-    display: none;
-  }
-
-  .profile-pic {
-    width: 42px;
-    height: 42px;
-  }
-
-  .dealer-mobile-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    top: 82px;
-  }
-
-  .dealer-sidebar {
-    position: fixed;
-
-    top: 0;
-    left: 0;
-
-    width: 280px;
-    min-width: 280px;
-    height: 100vh;
-
-    transform: translateX(-100%);
-
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
-  }
-  .dealer-sidebar.dealer-sidebar-close {
-    width: 0;
-    min-width: 0;
-
-    padding-left: 0;
-    padding-right: 0;
-
-    overflow: hidden;
-  }
-
-  .dealer-sidebar.dealer-sidebar-open {
-    transform: translateX(0);
-  }
-  .dealer-sidebar.dealer-sidebar-close {
-    transform: translateX(-100%);
-  }
-
-  .dealer-sidebar-overlay {
-    display: block;
-
-    position: fixed;
-    inset: 0;
-
-    background: rgba(0, 0, 0, 0.45);
-
-    z-index: 1200;
-  }
-
-  .dealer-content,
-  .dealer-page-content {
-    padding: 18px;
-  }
-
-  .dealer-stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .dealer-welcome-card h1 {
-    font-size: 1.8rem;
-  }
-
-  .dealer-section-card h2 {
-    font-size: 1.5rem;
-  }
-}
-
-/* =========================================
-   SMALL MOBILE
-========================================= */
-
-@media (max-width: 576px) {
-  .dealer-header {
-    padding: 0 12px;
-  }
-
-  .dealer-sidebar {
-    width: 260px;
-    min-width: 260px;
-  }
-
-  .dealer-content,
-  .dealer-page-content {
-    padding: 14px;
-  }
-
-  .dealer-mobile-toggle {
-    width: 48px;
-    height: 48px;
-
-    top: 80px;
-    left: 12px;
-  }
-
-  .dealer-logo {
-    width: 36px;
-    height: 36px;
-  }
-
-  .dealer-title {
-    font-size: 1rem;
-  }
-
-  .profile-pic {
-    width: 38px;
-    height: 38px;
-  }
-
-  .dealer-sidebar-top h2 {
-    font-size: 1.6rem;
-  }
-
-  .dealer-link {
-    padding: 14px 16px;
-    font-size: 0.95rem;
-  }
+.dealer-mobile-toggle:hover {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  transform: scale(1.05);
 }
 
 @media (min-width: 769px) {
-  .dealer-sidebar {
-    position: relative;
-    transform: none !important;
+  .dealer-sidebar-overlay {
+    display: none !important;
   }
 
-  .dealer-sidebar.dealer-sidebar-close {
-    width: 0;
-    min-width: 0;
-    padding-left: 0;
-    padding-right: 0;
-    overflow: hidden;
+  .dealer-sidebar-close {
+    margin-left: -260px;
+  }
+  .dealer-sidebar-open {
+    margin-left: 0;
   }
 
   .dealer-page-content-full {
     width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .dealer-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    margin-left: 0;
+    box-shadow: none;
+  }
+
+  .dealer-sidebar-close {
+    transform: translateX(-100%);
+  }
+
+  .dealer-sidebar-open {
+    transform: translateX(0);
+    box-shadow: 10px 0 35px rgba(0, 0, 0, 0.6);
+  }
+
+  .dealer-mobile-toggle {
+    display: flex;
   }
 }

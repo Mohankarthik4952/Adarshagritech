@@ -10,7 +10,7 @@ import {
 
 import API_URL from "../../config/api";
 
-import logo from "../../assets/sunrise.png";
+import logo from "../../assets/adarsh.jpeg";
 import defaultProfile from "../../assets/profile.jpg";
 
 import "./dealerLayout.css";

@@ -3,7 +3,7 @@
 import { useNavigate } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 
-import logo from "../../assets/sunrise.png";
+import logo from "../../assets/adarsh.jpeg";
 
 import "./adminLayout.css";
 

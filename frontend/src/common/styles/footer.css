@@ -1,257 +1,344 @@
-/* ===================================
-   FOOTER WRAPPER
-=================================== */
+/* ==========================================================================
+   ADARSH AGRI TECH - FOOTER STYLESHEET (footer.css)
+   Aesthetic: Premium Agri-Tech Dark Mode (Deep Slate, Emerald, Mint & Cyan accents)
+   ========================================================================== */
 
 .dashboard-footer {
+  background-color: rgba(16, 25, 32, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 0.35rem 1rem; /* Ultra-thin vertical padding */
   width: 100%;
-  margin-top: auto;
-  background: #ffffff;
-  border-top: 1px solid #e5e7eb;
-  padding: 20px 24px;
   box-sizing: border-box;
+  margin-top: auto;
+  position: relative;
+  z-index: 50;
 }
-
-/* ===================================
-   CONTAINER
-=================================== */
 
 .dashboard-footer-container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-
-  flex-wrap: wrap;
+  gap: 0.2rem; /* Minimized vertical element spacing */
+  text-align: center;
 }
 
-/* ===================================
-   SOCIAL ICONS
-=================================== */
+/* ==========================================================================
+   SOCIAL ICONS & Pill Links
+   ========================================================================== */
 
 .dashboard-footer-icons {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 18px;
-
+  align-items: center;
+  gap: 0.75rem;
   flex-wrap: wrap;
 }
 
 .dashboard-icon {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-
-  text-decoration: none;
+  gap: 0.3rem;
+  padding: 0.25rem 0.75rem; /* Slimmer button padding */
+  font-size: 0.8rem;
   font-weight: 600;
-  font-size: 0.95rem;
-
-  transition: all 0.3s ease;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid transparent;
+  box-sizing: border-box;
 }
 
 .dashboard-icon svg {
-  font-size: 1.4rem;
+  font-size: 0.95rem;
 }
 
-.dashboard-icon:hover {
-  transform: translateY(-2px);
-}
-
-/* ===================================
-   ICON COLORS
-=================================== */
-
+/* Brand Custom Colors & Hover Glows */
 .dashboard-icon.whatsapp {
+  background: rgba(37, 211, 102, 0.08);
   color: #25d366;
+  border-color: rgba(37, 211, 102, 0.2);
+}
+
+.dashboard-icon.whatsapp:hover {
+  background: #25d366;
+  color: #090f13;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
 }
 
 .dashboard-icon.youtube {
+  background: rgba(255, 0, 0, 0.08);
   color: #ff0000;
+  border-color: rgba(255, 0, 0, 0.2);
+}
+
+.dashboard-icon.youtube:hover {
+  background: #ff0000;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
 }
 
 .dashboard-icon.instagram {
+  background: rgba(225, 48, 108, 0.08);
   color: #e1306c;
+  border-color: rgba(225, 48, 108, 0.2);
 }
 
-/* ===================================
-   TERMS SECTION
-=================================== */
+.dashboard-icon.instagram:hover {
+  background: linear-gradient(
+    45deg,
+    #fec053,
+    #f2a93b,
+    #fd1d1d,
+    #e1306c,
+    #c13584,
+    #962fbf,
+    #4c68d7
+  );
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(225, 48, 108, 0.3);
+}
+
+/* ==========================================================================
+   TERMS & CONDITIONS
+   ========================================================================== */
 
 .dashboard-footer-terms {
   display: flex;
   align-items: center;
-  gap: 16px;
-
-  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.dashboard-footer-terms a,
-.terms-btn {
-  color: #15803d;
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-decoration: none;
-
-  transition: color 0.3s ease;
+.dashboard-footer-terms p {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
 }
-
-.dashboard-footer-terms a:hover,
-.terms-btn:hover {
-  color: #166534;
-}
-
-/* ===================================
-   TERMS BUTTON
-=================================== */
 
 .terms-btn {
+  font-family: inherit;
   background: transparent;
   border: none;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 500;
   cursor: pointer;
   padding: 0;
-  font-family: inherit;
+  transition: color 0.2s ease;
+  position: relative;
 }
 
-/* ===================================
-   COPYRIGHT
-=================================== */
+.terms-btn::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: #10b981;
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+}
+
+.terms-btn:hover {
+  color: #10b981;
+}
+
+.terms-btn:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+.dashboard-footer-terms a {
+  font-size: 0.75rem;
+  color: #06b6d4;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.dashboard-footer-terms a:hover {
+  color: #34d399;
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   COPYRIGHT & DESIGNER CREDITS
+   ========================================================================== */
+
+.dashboard-footer-credits {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  padding-top: 0.35rem; /* Slimmer top margin line */
+  width: 100%;
+}
 
 .dashboard-footer-text {
+  font-size: 0.7rem;
+  color: #eaecef; /* slate-600 */
   margin: 0;
-  color: #6b7280;
-  font-size: 0.9rem;
-  text-align: center;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
-/* ===================================
-   PDF MODAL
-=================================== */
+.dashboard-designer-text {
+  font-size: 0.7rem;
+  color: #64748b; /* slate-400 */
+  margin: 0;
+  font-weight: 300;
+}
+
+.designer-highlight {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.designer-phone {
+  color: #06b6d4;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.designer-phone:hover {
+  color: #34d399;
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   PDF MODAL DIALOGS
+   ========================================================================== */
 
 .dashboard-modal {
   position: fixed;
-  inset: 0;
-  z-index: 9999;
-
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
-  align-items: center;
   justify-content: center;
-
-  background: rgba(0, 0, 0, 0.7);
-  padding: 20px;
+  align-items: center;
+  z-index: 1000;
+  padding: 2rem;
+  box-sizing: border-box;
+  animation: footerFadeIn 0.3s ease-out;
 }
 
 .dashboard-modal-content {
-  position: relative;
-
-  width: 95%;
-  max-width: 1000px;
-  height: 90vh;
-
-  background: #ffffff;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.dashboard-pdf-frame,
-.dashboard-modal-content iframe {
+  background: #101920;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 1.5rem;
   width: 100%;
-  height: 100%;
-  border: none;
+  max-width: 900px;
+  height: 80vh;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(16, 185, 129, 0.15);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  animation: footerZoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
-/* ===================================
-   CLOSE BUTTON
-=================================== */
 
 .dashboard-close-btn {
   position: absolute;
-  top: 12px;
-  right: 12px;
-
-  width: 40px;
-  height: 40px;
-
-  border: none;
-  border-radius: 50%;
-
-  background: rgba(0, 0, 0, 0.7);
-  color: #ffffff;
-
+  top: 1rem;
+  right: 1.5rem;
+  background: rgba(9, 15, 19, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
   font-size: 1.1rem;
   cursor: pointer;
-
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  z-index: 10;
-
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  z-index: 1010;
 }
 
 .dashboard-close-btn:hover {
-  background: #dc2626;
+  background: #f43f5e;
+  color: #ffffff;
+  border-color: transparent;
   transform: scale(1.05);
 }
 
-/* ===================================
-   TABLET
-=================================== */
+.dashboard-modal-content iframe {
+  border: none;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 1.5rem;
+}
 
-@media (max-width: 992px) {
-  .dashboard-footer-container {
-    flex-direction: column;
-    text-align: center;
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+
+@keyframes footerFadeIn {
+  from {
+    opacity: 0;
   }
-
-  .dashboard-footer-icons,
-  .dashboard-footer-terms {
-    justify-content: center;
+  to {
+    opacity: 1;
   }
 }
 
-/* ===================================
-   MOBILE
-=================================== */
+@keyframes footerZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
-@media (max-width: 576px) {
+/* ==========================================================================
+   RESPONSIVE DESIGN (MEDIA QUERIES)
+   ========================================================================== */
+
+@media (max-width: 768px) {
   .dashboard-footer {
-    padding: 18px 16px;
+    padding: 0.35rem 0.75rem;
   }
 
-  .dashboard-footer-icons {
-    gap: 14px;
-  }
-
-  .dashboard-icon {
-    font-size: 0.85rem;
-  }
-
-  .dashboard-icon svg {
-    font-size: 1.2rem;
+  .dashboard-footer-container {
+    gap: 0.15rem;
   }
 
   .dashboard-footer-terms {
     flex-direction: column;
-    gap: 10px;
+    gap: 0.35rem;
   }
 
-  .dashboard-footer-text {
-    font-size: 0.8rem;
+  .dashboard-modal {
+    padding: 1rem;
   }
 
   .dashboard-modal-content {
-    width: 100%;
-    height: 85vh;
-    border-radius: 12px;
+    height: 90vh;
   }
 
   .dashboard-close-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 1rem;
+    top: 0.75rem;
+    right: 0.75rem;
   }
 }

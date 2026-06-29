@@ -244,7 +244,16 @@ export const sendOutstandingPaymentNotification = async ({
           <tr>
             <td style="padding:10px;border:1px solid #ddd;"><strong>Date</strong></td>
             <td style="padding:10px;border:1px solid #ddd;">
-              ${new Date(date).toLocaleString("en-IN")}
+              ${new Date(date).toLocaleString("en-IN", {
+                timeZone: "Asia/Kolkata",
+                day: "numeric",
+                month: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+              })}
             </td>
           </tr>
 
@@ -440,7 +449,16 @@ export const sendDealerReturnRequestNotification = async ({
               <strong>Date & Time</strong>
             </td>
             <td style="padding:10px;border:1px solid #ddd;">
-              ${new Date(returnRequest.createdAt).toLocaleString("en-IN")}
+              ${new Date(returnRequest.createdAt).toLocaleString("en-IN", {
+                timeZone: "Asia/Kolkata",
+                day: "numeric",
+                month: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+              })}
             </td>
           </tr>
 

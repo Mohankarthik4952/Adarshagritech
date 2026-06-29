@@ -1,4604 +1,2015 @@
-/* ==========================================
-   GLOBAL
-========================================== */
+/* ==========================================================================
+   ADARSH AGRI TECH - DEALER PAGES STYLESHEET (dealerpages.css)
+   Aesthetic: Premium Agri-Tech Dark Mode (Deep Slate, Emerald, Mint & Cyan accents)
+   ========================================================================== */
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap");
+
+:root {
+  /* Color Palette */
+  --bg-primary: #090f13;
+  --bg-secondary: #101920;
+  --bg-card: rgba(20, 32, 42, 0.65);
+  --bg-card-hover: rgba(28, 45, 59, 0.85);
+
+  --primary-accent: #10b981; /* Emerald Green */
+  --primary-glow: rgba(16, 185, 129, 0.15);
+  --secondary-accent: #06b6d4; /* Cyan */
+  --secondary-glow: rgba(6, 182, 212, 0.15);
+  --success: #34d399; /* Mint Green */
+  --warning: #f59e0b; /* Amber */
+  --error: #f43f5e; /* Rose */
+
+  --text-main: #f8fafc; /* slate-50 */
+  --text-muted: #94a3b8; /* slate-400 */
+  --text-dim: #64748b; /* slate-500 */
+
+  /* Borders & Shadows */
+  --border-color: rgba(255, 255, 255, 0.05);
+  --border-color-hover: rgba(16, 185, 129, 0.3);
+  --shadow-sm:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md:
+    0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg:
+    0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --glow-emerald: 0 0 20px rgba(16, 185, 129, 0.15);
+
+  /* Transitions */
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Blurs */
+  --glass-blur: blur(16px);
 }
 
-html,
-body {
-  overflow-x: hidden;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #f5f7fb;
-}
-
-/* ==========================================
-   DEALER HOME PAGE
-========================================== */
-
-.dealer-home-page {
-  width: 100%;
+/* Global Reset for Dealer Pages */
+.dealer-home-page,
+.dealer-products-page,
+.dealer-cart-page,
+.dealer-orders-page,
+.dealer-page {
+  font-family:
+    "Outfit",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
   min-height: 100vh;
-  padding: 20px;
+  padding: 2.5rem 2rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  overflow-x: hidden;
+  position: relative;
 }
 
-/* ==========================================
-   LOADING
-========================================== */
+/* Background Accents */
+.dealer-home-page::before,
+.dealer-products-page::before,
+.dealer-cart-page::before,
+.dealer-orders-page::before,
+.dealer-page::before {
+  content: "";
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(120px);
+  opacity: 0.12;
+  z-index: 0;
+  top: -50px;
+  right: -50px;
+  background: var(--primary-accent);
+}
 
-.dealer-loading {
+.dealer-home-page::after,
+.dealer-products-page::after,
+.dealer-cart-page::after,
+.dealer-orders-page::after,
+.dealer-page::after {
+  content: "";
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(120px);
+  opacity: 0.12;
+  z-index: 0;
+  bottom: 10%;
+  left: -100px;
+  background: var(--secondary-accent);
+}
+
+/* Z-Index alignments */
+.dealer-welcome-card,
+.dealer-stats-grid,
+.dealer-section-card,
+.page-header,
+.dealer-products-grid,
+.cart-items-container,
+.cart-summary-card,
+.outstanding-payment-section,
+.orders-table-card,
+.dealer-table-wrapper,
+.dealer-loading,
+.empty-cart,
+.empty-orders,
+.empty-products,
+.dealer-empty-box {
+  position: relative;
+  z-index: 1;
+}
+
+/* Headings */
+h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(120deg, #ffffff 40%, var(--success) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 1.85rem;
+  font-weight: 700;
+  margin: 0 0 1.25rem 0;
+  background: linear-gradient(120deg, #ffffff 40%, var(--success) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* Page Headers */
+.page-header {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 1.5rem;
+}
+
+.page-header p {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin: 0.5rem 0 0 0;
+  font-weight: 300;
+}
+
+/* Inputs & Select Elements */
+input[type="text"],
+input[type="number"],
+select {
+  background-color: rgba(9, 15, 19, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-main) !important;
+  border-radius: 0.75rem !important;
+  padding: 0.8rem 1.2rem !important;
+  font-size: 0.95rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none !important;
+  transition: var(--transition-smooth);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  border-color: var(--primary-accent) !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+}
+
+.product-search {
+  width: 350px !important;
+  max-width: 100%;
+}
+
+/* ==========================================================================
+   LOADING, ERROR & EMPTY STATES
+   ========================================================================== */
+
+.dealer-loading,
+.loading-box,
+.empty-cart,
+.empty-orders,
+.empty-products,
+.dealer-empty-box {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-
-  min-height: 60vh;
-
-  background: #ffffff;
-  border-radius: 20px;
-
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #4b5563;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  min-height: 45vh;
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  padding: 3.5rem 2rem;
+  box-shadow: var(--shadow-lg);
+  max-width: 550px;
+  margin: 3rem auto;
+  gap: 1.25rem;
+  animation: dealerFadeIn 0.5s ease-out;
 }
 
-/* ==========================================
-   WELCOME CARD
-========================================== */
+.dealer-loading::after,
+.loading-box::after {
+  content: "";
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(16, 185, 129, 0.1);
+  border-left-color: var(--primary-accent);
+  border-radius: 50%;
+  animation: dealerSpin 1s linear infinite;
+  margin-top: 1rem;
+}
+
+.empty-cart h2,
+.empty-orders h2,
+.empty-products h2,
+.dealer-empty-box {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.empty-products svg {
+  font-size: 3rem;
+  color: var(--text-dim);
+}
+
+.empty-cart p {
+  color: var(--text-dim);
+  margin: 0;
+}
+
+/* ==========================================================================
+   DEALER WELCOME HERO CARD
+   ========================================================================== */
 
 .dealer-welcome-card {
-  background: linear-gradient(135deg, #166534, #22c55e);
-  color: #ffffff;
-
-  padding: 30px;
-  border-radius: 24px;
-
-  margin-bottom: 30px;
-
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  background: linear-gradient(
+    135deg,
+    rgba(20, 32, 42, 0.8) 0%,
+    rgba(13, 22, 29, 0.9) 100%
+  );
+  border: 1px solid var(--border-color);
+  border-left: 5px solid var(--primary-accent);
+  border-radius: 1.5rem;
+  padding: 2.5rem 3rem;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  animation: dealerSlideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dealer-welcome-card p {
-  margin-top: 10px;
-  font-size: 1rem;
-  opacity: 0.95;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin: 0.5rem 0 0 0;
+  font-weight: 300;
 }
 
-/* ==========================================
-   STATS GRID
-========================================== */
+/* ==========================================================================
+   STATS CARDS & GRIDS
+   ========================================================================== */
 
 .dealer-stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-
-  margin-bottom: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  animation: dealerFadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.1s;
 }
 
-/* ==========================================
-   STAT CARD
-========================================== */
-
 .dealer-stat-card {
-  background: #ffffff;
-
-  border-radius: 20px;
-  padding: 22px;
-
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 1.25rem;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-bounce);
+  position: relative;
+  overflow: hidden;
+}
 
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-
-  transition: all 0.3s ease;
+.dealer-stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  transition: var(--transition-smooth);
 }
 
 .dealer-stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-5px);
+  background: var(--bg-card-hover);
+  border-color: var(--border-color-hover);
+  box-shadow: var(--shadow-lg), var(--glow-emerald);
+}
+
+.dealer-stat-card:hover::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--primary-accent),
+    transparent
+  );
 }
 
 .dealer-stat-icon {
-  width: 65px;
-  height: 65px;
-
-  border-radius: 16px;
-
+  width: 52px;
+  height: 52px;
+  border-radius: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  font-size: 1.8rem;
-  color: #ffffff;
-
+  font-size: 1.4rem;
+  box-shadow: var(--shadow-sm);
   flex-shrink: 0;
 }
 
+/* Stat card icon configurations */
 .dealer-stat-icon.red {
-  background: #ef4444;
+  background: rgba(244, 63, 94, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(244, 63, 94, 0.2);
 }
 
 .dealer-stat-icon.blue {
-  background: #2563eb;
+  background: rgba(6, 182, 212, 0.1);
+  color: var(--secondary-accent);
+  border: 1px solid rgba(6, 182, 212, 0.2);
 }
 
 .dealer-stat-icon.green {
-  background: #16a34a;
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(52, 211, 153, 0.2);
 }
 
 .dealer-stat-icon.purple {
-  background: #9333ea;
-}
-
-.dealer-stat-content {
-  flex: 1;
+  background: rgba(168, 85, 247, 0.1);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.2);
 }
 
 .dealer-stat-content h3 {
-  color: #6b7280;
-  font-size: 0.95rem;
-  margin-bottom: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 0 0 0.35rem 0;
 }
 
 .dealer-stat-content h2 {
-  color: #111827;
-  font-size: 1.5rem;
-  word-break: break-word;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+  letter-spacing: -0.02em;
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
 }
 
-/* ==========================================
-   SECTION CARD
-========================================== */
+/* ==========================================================================
+   RECENT PANELS & DATA TABLES
+   ========================================================================== */
 
 .dealer-section-card {
-  background: #ffffff;
-
-  border-radius: 20px;
-  padding: 24px;
-
-  margin-bottom: 25px;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  animation: dealerFadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.dealer-section-card h2 {
-  color: #1f2937;
-  margin-bottom: 20px;
-  font-size: 1.4rem;
+.dealer-section-card:nth-of-type(1) {
+  animation-delay: 0.2s;
+}
+.dealer-section-card:nth-of-type(2) {
+  animation-delay: 0.3s;
 }
 
 .dealer-section-card p {
-  color: #6b7280;
+  color: var(--text-dim);
+  margin: 0;
 }
 
-/* ==========================================
-   TABLE WRAPPER
-========================================== */
-
-.table-wrapper {
-  width: 100%;
+.table-wrapper,
+.dealer-table-wrapper,
+.orders-table-card {
+  background: rgba(9, 15, 19, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 1rem;
   overflow-x: auto;
+  margin-top: 1rem;
 }
 
-.table-wrapper::-webkit-scrollbar {
-  height: 8px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 10px;
-}
-
-/* ==========================================
-   TABLE
-========================================== */
-
-.dealer-table {
+.dealer-table,
+.orders-table {
   width: 100%;
-  min-width: 650px;
-
   border-collapse: collapse;
-}
-
-.dealer-table thead {
-  background: #166534;
-  color: #ffffff;
+  text-align: left;
+  font-size: 0.95rem;
 }
 
 .dealer-table th,
-.dealer-table td {
-  padding: 16px;
-  text-align: center;
-
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.dealer-table th {
-  font-size: 0.95rem;
+.orders-table th {
+  background: rgba(9, 15, 19, 0.6);
+  padding: 1.1rem 1.25rem;
   font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
 }
 
-.dealer-table td {
-  color: #374151;
-  font-size: 0.95rem;
+.dealer-table td,
+.orders-table td {
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  color: var(--text-main);
+  vertical-align: middle;
+  white-space: nowrap;
 }
 
-.dealer-table tbody tr {
-  transition: background 0.3s ease;
+.dealer-table tbody tr,
+.orders-table tbody tr {
+  transition: var(--transition-smooth);
 }
 
-.dealer-table tbody tr:hover {
-  background: #f9fafb;
+.dealer-table tbody tr:hover,
+.orders-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.015);
 }
 
-/* ==========================================
-   TABLET
-========================================== */
-
-@media (max-width: 992px) {
-  .dealer-home-page {
-    padding: 18px;
-  }
-
-  .dealer-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .dealer-stat-content h2 {
-    font-size: 1.3rem;
-  }
-}
-
-/* ==========================================
-   MOBILE
-========================================== */
-
-@media (max-width: 768px) {
-  .dealer-home-page {
-    padding: 15px;
-  }
-
-  .dealer-welcome-card {
-    padding: 24px;
-  }
-
-  .dealer-stats-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .dealer-stat-card {
-    padding: 18px;
-  }
-
-  .dealer-stat-icon {
-    width: 58px;
-    height: 58px;
-    font-size: 1.5rem;
-  }
-
-  .dealer-stat-content h2 {
-    font-size: 1.2rem;
-  }
-
-  .dealer-section-card {
-    padding: 18px;
-  }
-
-  .dealer-section-card h2 {
-    font-size: 1.2rem;
-  }
-
-  .dealer-table {
-    min-width: 600px;
-  }
-
-  .dealer-table th,
-  .dealer-table td {
-    padding: 14px 12px;
-    font-size: 0.9rem;
-  }
-}
-
-/* ==========================================
-   SMALL MOBILE
-========================================== */
-
-@media (max-width: 480px) {
-  .dealer-home-page {
-    padding: 12px;
-  }
-
-  .dealer-welcome-card {
-    padding: 20px;
-    border-radius: 18px;
-  }
-
-  .dealer-welcome-card p {
-    font-size: 0.9rem;
-  }
-
-  .dealer-stat-card {
-    padding: 16px;
-    gap: 14px;
-  }
-
-  .dealer-stat-icon {
-    width: 52px;
-    height: 52px;
-    font-size: 1.3rem;
-    border-radius: 14px;
-  }
-
-  .dealer-stat-content h3 {
-    font-size: 0.85rem;
-  }
-
-  .dealer-stat-content h2 {
-    font-size: 1.05rem;
-  }
-
-  .dealer-section-card {
-    padding: 16px;
-    border-radius: 18px;
-  }
-
-  .dealer-table {
-    min-width: 550px;
-  }
-
-  .dealer-table th,
-  .dealer-table td {
-    padding: 12px 10px;
-    font-size: 0.85rem;
-  }
-
-  .dealer-loading {
-    font-size: 1rem;
-    padding: 20px;
-  }
-}
-
-/* ==========================================
-   LARGE DESKTOP
-========================================== */
-
-@media (min-width: 1400px) {
-  .dealer-home-page {
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-
-  .dealer-stats-grid {
-    gap: 24px;
-  }
-
-  .dealer-stat-content h2 {
-    font-size: 1.7rem;
-  }
-}
-
-/* ==========================================
-   DEALER PRODUCTS PAGE
-========================================== */
-
-.dealer-products-page {
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-/* ==========================================
-   PRODUCTS GRID
-========================================== */
+/* ==========================================================================
+   PRODUCTS CATALOG STYLES
+   ========================================================================== */
 
 .dealer-products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 2rem;
+  animation: dealerFadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* ==========================================
-   PRODUCT CARD
-========================================== */
-
 .dealer-product-card {
-  background: #ffffff;
-  border-radius: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1.5rem;
   overflow: hidden;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-
-  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition-bounce);
 }
 
 .dealer-product-card:hover {
-  transform: translateY(-5px);
-
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  transform: translateY(-8px);
+  border-color: var(--border-color-hover);
+  box-shadow: var(--shadow-lg), var(--glow-emerald);
 }
-
-/* ==========================================
-   PRODUCT IMAGE
-========================================== */
 
 .product-image-box {
   width: 100%;
-  height: 260px;
-
-  background: #f8fafc;
-
+  aspect-ratio: 4/3;
+  background-color: rgba(9, 15, 19, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .product-image-box img {
-  width: 100%;
-  height: 100%;
-
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
-
-  padding: 20px;
+  transition: var(--transition-smooth);
 }
 
-/* ==========================================
-   PRODUCT DETAILS
-========================================== */
+.dealer-product-card:hover .product-image-box img {
+  transform: scale(1.05);
+}
 
 .product-details {
-  padding: 22px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
 }
 
 .product-details h2 {
-  color: #111827;
   font-size: 1.35rem;
-
-  margin-bottom: 12px;
+  font-weight: 700;
+  margin: 0;
+  color: #fff;
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
 }
 
 .product-details p {
-  color: #6b7280;
-  line-height: 1.6;
-
-  margin-bottom: 20px;
-
-  min-height: 48px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 4.1em;
 }
 
-/* ==========================================
-   INPUT GROUP
-========================================== */
-
 .input-group {
-  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
 .input-group label {
-  display: block;
-
-  margin-bottom: 8px;
-
-  color: #374151;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
 }
-
-.input-group select {
-  width: 100%;
-
-  padding: 13px 14px;
-
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-
-  background: #ffffff;
-
-  font-size: 1rem;
-
-  outline: none;
-
-  transition: border-color 0.3s ease;
-}
-
-.input-group select:focus {
-  border-color: #16a34a;
-}
-
-.input-group select:disabled {
-  background: #f3f4f6;
-  cursor: not-allowed;
-}
-
-/* ==========================================
-   STOCK INFO
-========================================== */
 
 .stock-info {
-  margin-bottom: 18px;
-
-  padding: 12px 16px;
-
-  border-radius: 10px;
-
-  background: #eff6ff;
-  color: #1d4ed8;
-
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  color: var(--warning);
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(245, 158, 11, 0.06);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px dashed rgba(245, 158, 11, 0.2);
+  text-align: center;
 }
-
-/* ==========================================
-   PRICE BOX
-========================================== */
 
 .price-box {
-  background: #f9fafb;
-
-  border-radius: 14px;
-
-  padding: 18px;
-
-  margin-bottom: 22px;
-}
-
-.mrp-price,
-.discount-price,
-.gst-price,
-.discounted-price,
-.gst-amount {
-  display: flex;
+  background: rgba(9, 15, 19, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  border-radius: 1rem;
+  padding: 1.1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 0.5rem;
   align-items: center;
-  justify-content: space-between;
+}
 
-  margin-bottom: 12px;
+.price-box .mrp-price,
+.price-box .discount-price,
+.price-box .gst-price,
+.price-box .discounted-price,
+.price-box .gst-amount {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
 
-  color: #4b5563;
+.price-box span {
+  display: block;
   font-size: 0.95rem;
-}
-
-.mrp-price span,
-.discount-price span,
-.gst-price span,
-.discounted-price span,
-.gst-amount span {
+  color: var(--text-main);
   font-weight: 600;
-  color: #111827;
 }
 
-.final-price {
-  margin-top: 18px;
-  padding-top: 18px;
+.price-box .mrp-price span {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
 
-  border-top: 2px solid #e5e7eb;
+.price-box .discount-price span {
+  color: var(--success);
+}
 
+.price-box .discount-price,
+.price-box .discounted-price,
+.price-box .gst-amount {
+  text-align: right;
+}
+
+.price-box .discounted-price span {
+  color: #fff;
+}
+
+.price-box .final-price {
+  grid-column: span 2;
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #fff;
   text-align: center;
-
-  color: #16a34a;
-  font-size: 1.8rem;
-  font-weight: 700;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+  letter-spacing: -0.01em;
 }
 
-/* ==========================================
-   PRODUCT ACTIONS
-========================================== */
-
+/* Card Button layouts */
 .product-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.product-actions .later-btn {
+  grid-column: span 2;
 }
 
 .cart-btn,
 .pay-btn,
-.later-btn {
-  width: 100%;
-
-  border: none;
-  border-radius: 12px;
-
-  padding: 15px;
-
-  display: flex;
+.later-btn,
+.paynow-btn,
+.paylater-btn,
+.pay-outstanding-btn,
+.view-invoice-btn,
+.dealer-view-btn,
+.dealer-download-btn {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: var(--transition-bounce);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-
-  color: #ffffff;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition: all 0.3s ease;
+  gap: 0.5rem;
+  box-sizing: border-box;
 }
 
 .cart-btn {
-  background: #2563eb;
+  background: rgba(6, 182, 212, 0.1);
+  color: var(--secondary-accent);
+  border-color: rgba(6, 182, 212, 0.25);
 }
 
 .cart-btn:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: var(--secondary-accent);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25);
 }
 
-.pay-btn {
-  background: #16a34a;
+.pay-btn,
+.paynow-btn {
+  background: linear-gradient(135deg, var(--primary-accent), #059669);
+  color: #fff;
 }
 
-.pay-btn:hover:not(:disabled) {
-  background: #15803d;
+.pay-btn:hover:not(:disabled),
+.paynow-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
 }
 
-.later-btn {
-  background: #f59e0b;
+.later-btn,
+.paylater-btn {
+  background: rgba(245, 158, 11, 0.08);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
-.later-btn:hover:not(:disabled) {
-  background: #d97706;
+.later-btn:hover:not(:disabled),
+.paylater-btn:hover {
+  background: var(--warning);
+  color: #000;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
 }
 
 .cart-btn:disabled,
 .pay-btn:disabled,
 .later-btn:disabled {
-  background: #9ca3af;
+  opacity: 0.4;
   cursor: not-allowed;
-  opacity: 0.7;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-/* ==========================================
-   LOADING / EMPTY
-========================================== */
-
-.loading-box,
-.empty-products {
-  background: #ffffff;
-
-  border-radius: 20px;
-
-  padding: 60px 20px;
-
-  text-align: center;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-.empty-products svg {
-  font-size: 4rem;
-
-  color: #9ca3af;
-
-  margin-bottom: 20px;
-}
-
-.loading-box h2,
-.empty-products h2 {
-  color: #374151;
-}
-
-/* ==========================================
-   TABLET
-========================================== */
-
-@media (max-width: 992px) {
-  .dealer-products-page {
-    padding: 18px;
-  }
-
-  .dealer-products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  }
-}
-
-/* ==========================================
-   MOBILE
-========================================== */
-
-@media (max-width: 768px) {
-  .dealer-products-page {
-    padding: 15px;
-  }
-
-  .dealer-products-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .product-image-box {
-    height: 230px;
-  }
-
-  .product-details {
-    padding: 18px;
-  }
-
-  .product-details h2 {
-    font-size: 1.2rem;
-  }
-
-  .final-price {
-    font-size: 1.6rem;
-  }
-}
-
-/* ==========================================
-   SMALL MOBILE
-========================================== */
-
-@media (max-width: 480px) {
-  .dealer-products-page {
-    padding: 12px;
-  }
-
-  .product-image-box {
-    height: 200px;
-  }
-
-  .product-details {
-    padding: 16px;
-  }
-
-  .product-details h2 {
-    font-size: 1.1rem;
-  }
-
-  .product-details p {
-    font-size: 0.9rem;
-    min-height: auto;
-  }
-
-  .input-group select {
-    padding: 12px;
-    font-size: 0.95rem;
-  }
-
-  .stock-info {
-    font-size: 0.9rem;
-  }
-
-  .mrp-price,
-  .discount-price,
-  .gst-price,
-  .discounted-price,
-  .gst-amount {
-    font-size: 0.9rem;
-  }
-
-  .final-price {
-    font-size: 1.4rem;
-  }
-
-  .cart-btn,
-  .pay-btn,
-  .later-btn {
-    padding: 14px;
-    font-size: 0.9rem;
-  }
-
-  .loading-box,
-  .empty-products {
-    padding: 40px 16px;
-  }
-
-  .empty-products svg {
-    font-size: 3rem;
-  }
-}
-
-/* ==========================================
-   LARGE DESKTOP
-========================================== */
-
-@media (min-width: 1400px) {
-  .dealer-products-page {
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-
-  .dealer-products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  }
-}
-
-/* ==========================================
-   DEALER CART PAGE
-========================================== */
-
-.dealer-cart-page {
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-/* ==========================================
-   EMPTY CART
-========================================== */
-
-.empty-cart {
-  background: #ffffff;
-  border-radius: 20px;
-
-  padding: 60px 20px;
-
-  text-align: center;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-
-  margin-bottom: 25px;
-}
-
-.empty-cart h2 {
-  color: #1f2937;
-  margin-bottom: 10px;
-}
-
-.empty-cart p {
-  color: #6b7280;
-}
-
-/* ==========================================
-   CART ITEMS
-========================================== */
+/* ==========================================================================
+   CART SYSTEM STYLES
+   ========================================================================== */
 
 .cart-items-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.25rem;
+  animation: dealerFadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* ==========================================
-   CART ITEM CARD
-========================================== */
-
 .cart-item-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
   display: flex;
-  gap: 20px;
+  gap: 1.5rem;
   align-items: center;
-
-  background: #ffffff;
-
-  border-radius: 20px;
-
-  padding: 20px;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-
-  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-bounce);
 }
 
 .cart-item-card:hover {
-  transform: translateY(-3px);
-
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  border-color: var(--border-color-hover);
+  box-shadow: var(--shadow-md), var(--glow-emerald);
 }
 
-/* ==========================================
-   IMAGE
-========================================== */
-
 .cart-image-box {
-  width: 140px;
-  height: 140px;
-
+  width: 90px;
+  height: 90px;
+  border-radius: 0.75rem;
+  background-color: rgba(9, 15, 19, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
   flex-shrink: 0;
-
-  background: #f8fafc;
-
-  border-radius: 16px;
-
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0.4rem;
+  box-sizing: border-box;
 }
 
 .cart-image-box img {
-  width: 100%;
-  height: 100%;
-
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
-
-  padding: 12px;
 }
 
-/* ==========================================
-   DETAILS
-========================================== */
-
 .cart-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
   flex: 1;
 }
 
 .cart-details h3 {
-  color: #111827;
-  font-size: 1.3rem;
-
-  margin-bottom: 14px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
 }
 
 .cart-details p {
-  color: #4b5563;
-
-  margin-bottom: 8px;
-
-  line-height: 1.5;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
 }
 
-.cart-details strong {
-  color: #111827;
+.cart-details p strong {
+  color: #fff;
 }
 
 .cart-details h2 {
-  margin-top: 16px;
-
-  color: #16a34a;
-  font-size: 1.6rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--success);
+  margin: 0.35rem 0 0 0;
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
 }
 
-/* ==========================================
-   REMOVE BUTTON
-========================================== */
-
-.remove-btn {
-  border: none;
-
-  background: #ef4444;
-  color: #ffffff;
-
-  padding: 12px 20px;
-
-  border-radius: 10px;
-
-  font-size: 0.95rem;
+.cart-item-card .remove-btn {
+  background: rgba(244, 63, 94, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  border-radius: 0.5rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
-
   cursor: pointer;
-
-  transition: all 0.3s ease;
-
-  flex-shrink: 0;
+  transition: var(--transition-smooth);
 }
 
-.remove-btn:hover {
-  background: #dc2626;
+.cart-item-card .remove-btn:hover {
+  background: var(--error);
+  color: #fff;
+  transform: translateY(-2px);
 }
 
-/* ==========================================
-   SUMMARY CARD
-========================================== */
-
+/* Summary Box configuration */
 .cart-summary-card {
-  width: 100%;
-  max-width: 450px;
-
-  margin: 30px 0 0 auto;
-
-  background: #ffffff;
-
-  border-radius: 20px;
-
-  padding: 25px;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  align-self: flex-end;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  width: 380px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: var(--shadow-md);
+  margin-top: 1rem;
+  animation: dealerFadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.15s;
 }
 
 .summary-row {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-
-  margin-bottom: 18px;
-
-  color: #374151;
-}
-
-.summary-row span {
-  font-size: 1rem;
+  font-size: 0.95rem;
+  color: var(--text-muted);
 }
 
 .summary-row strong {
-  font-size: 1.15rem;
-  color: #111827;
+  color: #fff;
+  font-weight: 600;
 }
 
-/* ==========================================
-   ACTION BUTTONS
-========================================== */
+.cart-summary-card .summary-row:last-of-type {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 1rem;
+  font-size: 1.15rem;
+  color: var(--text-main);
+}
+
+.cart-summary-card .summary-row:last-of-type strong {
+  color: var(--success);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
 
 .cart-actions {
-  display: flex;
-  gap: 12px;
-
-  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
 }
 
-.paynow-btn,
-.paylater-btn {
-  flex: 1;
-
-  border: none;
-  border-radius: 12px;
-
-  padding: 15px;
-
-  color: #ffffff;
-
-  font-size: 1rem;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition: all 0.3s ease;
-}
-
-.paynow-btn {
-  background: #16a34a;
-}
-
-.paynow-btn:hover {
-  background: #15803d;
-}
-
-.paylater-btn {
-  background: #f59e0b;
-}
-
-.paylater-btn:hover {
-  background: #d97706;
-}
-
-/* ==========================================
-   TABLET
-========================================== */
-
-@media (max-width: 992px) {
-  .dealer-cart-page {
-    padding: 18px;
-  }
-
-  .cart-item-card {
-    gap: 18px;
-  }
-
-  .cart-image-box {
-    width: 120px;
-    height: 120px;
-  }
-
-  .cart-summary-card {
-    max-width: 100%;
-  }
-}
-
-/* ==========================================
-   MOBILE
-========================================== */
-
-@media (max-width: 768px) {
-  .dealer-cart-page {
-    padding: 15px;
-  }
-
-  .cart-item-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .cart-image-box {
-    width: 100%;
-    height: 220px;
-  }
-
-  .cart-details {
-    width: 100%;
-  }
-
-  .cart-details h3 {
-    font-size: 1.2rem;
-  }
-
-  .remove-btn {
-    width: 100%;
-  }
-
-  .cart-actions {
-    flex-direction: column;
-  }
-
-  .paynow-btn,
-  .paylater-btn {
-    width: 100%;
-  }
-}
-
-/* ==========================================
-   SMALL MOBILE
-========================================== */
-
-@media (max-width: 480px) {
-  .dealer-cart-page {
-    padding: 12px;
-  }
-
-  .cart-item-card {
-    padding: 16px;
-    border-radius: 16px;
-  }
-
-  .cart-image-box {
-    height: 180px;
-    border-radius: 12px;
-  }
-
-  .cart-details h3 {
-    font-size: 1.1rem;
-  }
-
-  .cart-details p {
-    font-size: 0.9rem;
-  }
-
-  .cart-details h2 {
-    font-size: 1.4rem;
-  }
-
-  .cart-summary-card {
-    padding: 18px;
-    border-radius: 16px;
-  }
-
-  .summary-row span,
-  .summary-row strong {
-    font-size: 0.95rem;
-  }
-
-  .paynow-btn,
-  .paylater-btn,
-  .remove-btn {
-    padding: 14px;
-    font-size: 0.95rem;
-  }
-
-  .empty-cart {
-    padding: 40px 15px;
-  }
-
-  .empty-cart h2 {
-    font-size: 1.4rem;
-  }
-}
-
-/* ==========================================
-   LARGE DESKTOP
-========================================== */
-
-@media (min-width: 1400px) {
-  .dealer-cart-page {
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-}
-
-/* ==========================================
-   DEALER ORDERS PAGE
-========================================== */
-
-.dealer-orders-page {
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-/* ==========================================
-   LOADING
-========================================== */
-
-.orders-loading {
-  min-height: 60vh;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: #ffffff;
-  border-radius: 20px;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-.orders-loading h2 {
-  color: #4b5563;
-}
-
-/* ==========================================
-   EMPTY STATE
-========================================== */
-
-.empty-orders {
-  background: #ffffff;
-
-  padding: 60px 20px;
-
-  border-radius: 20px;
-
-  text-align: center;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-.empty-orders h2 {
-  color: #374151;
-}
-
-/* ==========================================
-   OUTSTANDING PAYMENT
-========================================== */
+/* ==========================================================================
+   DEALER ORDERS PAGE STYLES
+   ========================================================================== */
 
 .outstanding-payment-section {
   display: flex;
   justify-content: flex-end;
-
-  margin-bottom: 20px;
+  margin-bottom: 0.5rem;
 }
 
 .pay-outstanding-btn {
-  border: none;
-
-  background: #dc2626;
-  color: #ffffff;
-
-  padding: 14px 24px;
-
-  border-radius: 12px;
-
+  background: linear-gradient(135deg, var(--primary-accent), #059669);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
   font-size: 0.95rem;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition: all 0.3s ease;
+  padding: 0.8rem 1.8rem;
 }
 
 .pay-outstanding-btn:hover {
-  background: #b91c1c;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
 }
 
-/* ==========================================
-   TABLE CARD
-========================================== */
-
-.orders-table-card {
-  background: #ffffff;
-
-  border-radius: 20px;
-
-  padding: 20px;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-/* ==========================================
-   TABLE WRAPPER
-========================================== */
-
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.table-wrapper::-webkit-scrollbar {
-  height: 8px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 10px;
-}
-
-/* ==========================================
-   TABLE
-========================================== */
-
-.orders-table {
-  width: 100%;
-  min-width: 1200px;
-
-  border-collapse: collapse;
-}
-
-.orders-table thead {
-  background: #166534;
-  color: #ffffff;
-}
-
-.orders-table th,
-.orders-table td {
-  padding: 16px 14px;
-
-  text-align: center;
-
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.orders-table th {
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  white-space: nowrap;
-}
-
-.orders-table td {
-  color: #374151;
-  font-size: 0.95rem;
-
-  vertical-align: middle;
-}
-
-.orders-table tbody tr {
-  transition: background 0.3s ease;
-}
-
-.orders-table tbody tr:hover {
-  background: #f9fafb;
-}
-
-.orders-table td:nth-child(2) {
-  min-width: 220px;
-  text-align: left;
-  line-height: 1.5;
-}
-
-/* ==========================================
-   STATUS BADGES
-========================================== */
-
-.paid-badge,
-.pending-badge,
-.partial-badge,
+/* Orders Status badges mappings */
 .processing-badge,
-.rejected-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-width: 130px;
-
-  padding: 10px 14px;
-
-  border-radius: 999px;
-
-  font-size: 0.8rem;
-  font-weight: 700;
-
-  white-space: nowrap;
-}
-
-.paid-badge {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.pending-badge {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.partial-badge {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.processing-badge {
-  background: #ede9fe;
-  color: #7c3aed;
-}
-
-.rejected-badge {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-/* =========================================
-   INVOICE SUMMARY
-========================================= */
-
-.invoice-summary {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  margin-top: 25px;
-  margin-bottom: 30px;
-}
-
-.summary-card {
-  background: #f5f8ff;
-  border: 1px solid #d9e6ff;
-  border-radius: 10px;
-  padding: 18px;
-  min-height: 95px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.summary-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 8px;
-}
-
-.summary-value {
-  font-size: 26px;
-  font-weight: 700;
-  color: #1f4ed8;
-}
-
-.summary-value.black {
-  color: #222;
-}
-
-.summary-value.green {
-  color: #0f8a28;
-}
-
-.summary-value.red {
-  color: #d62828;
-}
-
-/* ==========================================
-   INVOICE BUTTON
-========================================== */
-
-.view-invoice-btn {
-  border: none;
-
-  background: #2563eb;
-  color: #ffffff;
-
-  padding: 10px 16px;
-
-  border-radius: 10px;
-
-  font-size: 0.9rem;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition: all 0.3s ease;
-}
-
-.view-invoice-btn:hover {
-  background: #1d4ed8;
-  transform: translateY(-2px);
-}
-
-/* ==========================================
-   TABLET
-========================================== */
-
-@media (max-width: 992px) {
-  .dealer-orders-page {
-    padding: 18px;
-  }
-
-  .orders-table {
-    min-width: 1100px;
-  }
-
-  .orders-table-card {
-    padding: 18px;
-  }
-}
-
-/* ==========================================
-   MOBILE
-========================================== */
-
-@media (max-width: 768px) {
-  .dealer-orders-page {
-    padding: 15px;
-  }
-
-  .outstanding-payment-section {
-    justify-content: stretch;
-  }
-
-  .pay-outstanding-btn {
-    width: 100%;
-  }
-
-  .orders-table-card {
-    padding: 16px;
-  }
-
-  .orders-table {
-    min-width: 1000px;
-  }
-
-  .orders-table th,
-  .orders-table td {
-    padding: 14px 12px;
-    font-size: 0.9rem;
-  }
-
-  .paid-badge,
-  .pending-badge,
-  .partial-badge,
-  .processing-badge,
-  .rejected-badge {
-    min-width: 110px;
-    padding: 8px 12px;
-    font-size: 0.75rem;
-  }
-
-  .view-invoice-btn {
-    padding: 8px 14px;
-    font-size: 0.85rem;
-  }
-}
-
-/* ==========================================
-   SMALL MOBILE
-========================================== */
-
-@media (max-width: 480px) {
-  .dealer-orders-page {
-    padding: 12px;
-  }
-
-  .empty-orders {
-    padding: 40px 15px;
-  }
-
-  .empty-orders h2 {
-    font-size: 1.4rem;
-  }
-
-  .orders-table-card {
-    padding: 14px;
-    border-radius: 16px;
-  }
-
-  .orders-table {
-    min-width: 950px;
-  }
-
-  .orders-table th,
-  .orders-table td {
-    padding: 12px 10px;
-    font-size: 0.85rem;
-  }
-
-  .paid-badge,
-  .pending-badge,
-  .partial-badge,
-  .processing-badge,
-  .rejected-badge {
-    min-width: 100px;
-    padding: 7px 10px;
-    font-size: 0.7rem;
-  }
-
-  .view-invoice-btn,
-  .pay-outstanding-btn {
-    font-size: 0.85rem;
-  }
-}
-
-/* ==========================================
-   LARGE DESKTOP
-========================================== */
-
-@media (min-width: 1400px) {
-  .dealer-orders-page {
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-}
-
-/* ==========================================
-   DEALER PAGE
-========================================== */
-
-.dealer-page {
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-/* ==========================================
-   EMPTY STATE
-========================================== */
-
-.dealer-empty-box {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 60px 20px;
-
-  text-align: center;
-
-  color: #6b7280;
-  font-size: 1.1rem;
-  font-weight: 600;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-/* ==========================================
-   TABLE WRAPPER
-========================================== */
-
-.dealer-table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-
-  background: #ffffff;
-  border-radius: 20px;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-.dealer-table-wrapper::-webkit-scrollbar {
-  height: 8px;
-}
-
-.dealer-table-wrapper::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 10px;
-}
-
-/* ==========================================
-   DEALER TABLE
-========================================== */
-
-.dealer-table {
-  width: 100%;
-  min-width: 1200px;
-  border-collapse: collapse;
-}
-
-.dealer-table thead {
-  background: #166534;
-  color: #ffffff;
-}
-
-.dealer-table th,
-.dealer-table td {
-  padding: 16px;
-  text-align: center;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.dealer-table th {
-  white-space: nowrap;
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-.dealer-table td {
-  color: #374151;
-  font-size: 0.95rem;
-  vertical-align: middle;
-}
-
-.dealer-table tbody tr {
-  transition: background 0.3s ease;
-}
-
-.dealer-table tbody tr:hover {
-  background: #f9fafb;
-}
-
-/* ==========================================
-   STATUS BADGES
-========================================== */
-
+.paid-badge,
+.partial-badge,
+.rejected-badge,
+.pending-badge,
 .dealer-approved-badge,
 .dealer-processing-badge,
 .dealer-pending-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  padding: 8px 14px;
-
-  border-radius: 999px;
-
-  font-size: 0.8rem;
-  font-weight: 700;
-
-  white-space: nowrap;
-}
-
-.dealer-approved-badge {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.dealer-processing-badge {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.dealer-pending-badge {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-/* ==========================================
-   ACTION BUTTONS
-========================================== */
-
-.dealer-view-btn,
-.dealer-download-btn {
-  border: none;
-
-  padding: 10px 16px;
-  border-radius: 10px;
-
-  color: #ffffff;
-
-  font-size: 0.9rem;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.75rem;
   font-weight: 600;
-
-  cursor: pointer;
-
-  transition: all 0.3s ease;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
 }
 
+.paid-badge,
+.dealer-approved-badge {
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--success);
+  border-color: rgba(52, 211, 153, 0.2);
+}
+
+.rejected-badge {
+  background: rgba(244, 63, 94, 0.1);
+  color: var(--error);
+  border-color: rgba(244, 63, 94, 0.2);
+}
+
+.processing-badge,
+.partial-badge,
+.dealer-processing-badge {
+  background: rgba(6, 182, 212, 0.1);
+  color: var(--secondary-accent);
+  border-color: rgba(6, 182, 212, 0.2);
+}
+
+.pending-badge,
+.dealer-pending-badge {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.view-invoice-btn,
 .dealer-view-btn {
-  background: #2563eb;
-  margin-right: 8px;
+  background: rgba(6, 182, 212, 0.1);
+  color: var(--secondary-accent);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
 }
 
+.view-invoice-btn:hover,
 .dealer-view-btn:hover {
-  background: #1d4ed8;
+  background: var(--secondary-accent);
+  color: #fff;
+  transform: translateY(-1px);
 }
 
 .dealer-download-btn {
-  background: #16a34a;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--primary-accent);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
 }
 
 .dealer-download-btn:hover:not(:disabled) {
-  background: #15803d;
+  background: var(--primary-accent);
+  color: #fff;
+  transform: translateY(-1px);
 }
 
 .dealer-download-btn:disabled {
-  background: #9ca3af;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* ==========================================
-   MODAL OVERLAY
-========================================== */
+/* ==========================================================================
+   INVOICE TAX MODAL VIEW OVERLAYS
+   ========================================================================== */
 
 .invoice-modal-overlay {
   position: fixed;
-  inset: 0;
-
-  background: rgba(0, 0, 0, 0.65);
-
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
-  align-items: center;
   justify-content: center;
-
-  padding: 20px;
-
-  z-index: 9999;
+  align-items: center;
+  z-index: 1000;
+  padding: 2rem;
+  box-sizing: border-box;
+  animation: dealerFadeIn 0.3s ease-out;
 }
 
-/* ==========================================
-   MODAL
-========================================== */
-
 .invoice-modal {
+  background: #101920;
+  border: 1px solid var(--border-color-hover);
+  border-radius: 1.5rem;
   width: 100%;
-  max-width: 1200px;
-  max-height: 92vh;
-
-  background: #ffffff;
-  border-radius: 24px;
-
-  overflow: hidden;
-
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow:
+    var(--shadow-lg),
+    0 0 30px rgba(16, 185, 129, 0.2);
+  animation: dealerZoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: flex;
   flex-direction: column;
+  position: relative;
+}
 
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+/* Scrollbars for modal body */
+.invoice-modal::-webkit-scrollbar {
+  width: 6px;
+}
+.invoice-modal::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 0 1.5rem 1.5rem 0;
+}
+.invoice-modal::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+.invoice-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.4);
 }
 
 .invoice-modal-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-
-  padding: 20px 24px;
-
-  border-bottom: 1px solid #e5e7eb;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(9, 15, 19, 0.6);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 
-.invoice-title {
-  color: #111827;
-  font-size: 2rem;
+.invoice-modal-header h1.invoice-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--success);
+  letter-spacing: 0.05em;
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
 }
 
 .invoice-modal-header button {
-  width: 42px;
-  height: 42px;
-
+  background: transparent;
   border: none;
-  border-radius: 50%;
-
-  background: #ef4444;
-  color: #ffffff;
-
+  color: var(--text-muted);
+  font-size: 1.25rem;
   cursor: pointer;
-  font-size: 1.2rem;
-
-  transition: all 0.3s ease;
+  transition: var(--transition-smooth);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
 }
 
 .invoice-modal-header button:hover {
-  background: #dc2626;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
 }
 
 .invoice-modal-body {
-  padding: 24px;
-  overflow-y: auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-/* ==========================================
-   INFO SECTION
-========================================== */
+.invoice-modal-body hr {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), transparent);
+  margin: 0;
+}
 
 .invoice-info-section {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .invoice-info-section p {
-  margin-bottom: 12px;
-  color: #4b5563;
+  margin: 0.4rem 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
 }
 
-/* ==========================================
-   ADDRESS SECTION
-========================================== */
+.invoice-info-section strong {
+  color: var(--text-main);
+  font-weight: 500;
+}
 
 .invoice-address-section {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-
-  margin: 24px 0;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
 }
 
 .invoice-address-card {
-  background: #f9fafb;
-
-  padding: 20px;
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.invoice-address-card h3,
+.invoice-address-card h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .invoice-address-card h4 {
-  color: #111827;
-  margin-bottom: 16px;
+  margin: 1.25rem 0 0.5rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--secondary-accent);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  padding-bottom: 0.25rem;
 }
 
 .invoice-address-card p {
-  margin-bottom: 10px;
-  color: #4b5563;
-  line-height: 1.6;
+  margin: 0.4rem 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
 }
 
-/* ==========================================
-   PRODUCTS TABLE
-========================================== */
+.invoice-address-card strong {
+  color: var(--text-main);
+  font-weight: 500;
+}
 
 .invoice-products-wrapper {
-  width: 100%;
-  overflow-x: auto;
-
-  margin-top: 20px;
+  margin-top: 0.5rem;
 }
-
-.invoice-products-table {
-  min-width: 700px;
-}
-
-/* ==========================================
-   TOTAL BOX
-========================================== */
 
 .invoice-total-box {
-  margin-top: 30px;
-
-  background: #f9fafb;
-
-  padding: 24px;
-  border-radius: 16px;
+  align-self: flex-end;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 1.25rem 2rem;
+  border-radius: 1rem;
+  margin-top: 1rem;
+  text-align: right;
+  box-shadow: var(--shadow-sm);
 }
 
 .invoice-total-box h2 {
-  color: #16a34a;
-  margin-bottom: 16px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(120deg, #ffffff, var(--success));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
-
-.invoice-total-box h3 {
-  color: #374151;
-  margin-bottom: 12px;
-}
-
-/* ==========================================
-   FOOTER
-========================================== */
 
 .invoice-footer {
-  margin-top: 30px;
-
   text-align: center;
-
-  border-top: 1px solid #e5e7eb;
-  padding-top: 20px;
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .invoice-footer p {
-  color: #6b7280;
-  margin-bottom: 8px;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-dim);
 }
 
-/* ==========================================
-   TABLET
-========================================== */
+.invoice-footer strong {
+  color: var(--text-muted);
+  margin-right: 0.25rem;
+}
 
-@media (max-width: 992px) {
+/* ==========================================================================
+   KEYFRAMES & ANIMATIONS
+   ========================================================================== */
+
+@keyframes dealerFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dealerFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dealerSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dealerSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dealerZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (MEDIA QUERIES)
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .dealer-home-page,
+  .dealer-products-page,
+  .dealer-cart-page,
+  .dealer-orders-page,
   .dealer-page {
-    padding: 18px;
-  }
-
-  .dealer-table {
-    min-width: 1100px;
-  }
-
-  .invoice-modal {
-    max-width: 95%;
+    padding: 2rem 1.5rem;
+    gap: 2rem;
   }
 }
-
-/* ==========================================
-   MOBILE
-========================================== */
 
 @media (max-width: 768px) {
+  .dealer-home-page,
+  .dealer-products-page,
+  .dealer-cart-page,
+  .dealer-orders-page,
   .dealer-page {
-    padding: 15px;
+    padding: 1.5rem 1rem;
+    gap: 1.75rem;
   }
 
-  .dealer-table {
-    min-width: 1000px;
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .product-search {
+    width: 100% !important;
+  }
+
+  .dealer-welcome-card {
+    padding: 1.75rem;
+  }
+
+  .dealer-stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .dealer-stat-card {
+    padding: 1.25rem;
+  }
+
+  .dealer-section-card {
+    padding: 1.5rem;
+  }
+
+  .dealer-products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .product-details {
+    padding: 1.25rem;
+    gap: 0.85rem;
+  }
+
+  .price-box {
+    padding: 0.85rem;
+  }
+
+  .price-box .final-price {
+    font-size: 1.45rem;
+  }
+
+  .product-actions {
+    gap: 0.5rem;
+  }
+
+  .cart-item-card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .cart-image-box {
+    width: 100%;
+    height: 160px;
+  }
+
+  .cart-item-card .remove-btn {
+    align-self: flex-start;
+  }
+
+  .cart-summary-card {
+    width: 100%;
+    padding: 1.25rem;
+    box-sizing: border-box;
+  }
+
+  .cart-actions {
+    grid-template-columns: 1fr;
   }
 
   .dealer-table th,
-  .dealer-table td {
-    padding: 14px 12px;
-    font-size: 0.9rem;
-  }
-
-  .invoice-modal-overlay {
-    padding: 10px;
+  .dealer-table td,
+  .orders-table th,
+  .orders-table td {
+    padding: 0.8rem 1rem;
   }
 
   .invoice-modal {
     max-height: 95vh;
-    border-radius: 16px;
-  }
-
-  .invoice-modal-header {
-    padding: 16px;
   }
 
   .invoice-modal-body {
-    padding: 16px;
-  }
-
-  .invoice-title {
-    font-size: 1.5rem;
+    padding: 1.25rem;
+    gap: 1.25rem;
   }
 
   .invoice-info-section,
   .invoice-address-section {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
-  .dealer-view-btn,
-  .dealer-download-btn {
-    width: 100%;
-    margin: 4px 0;
+  .invoice-address-card {
+    padding: 1.25rem;
   }
 }
-
-/* ==========================================
-   SMALL MOBILE
-========================================== */
 
 @media (max-width: 480px) {
-  .dealer-page {
-    padding: 12px;
+  .dealer-stats-grid {
+    grid-template-columns: 1fr;
   }
 
-  .dealer-empty-box {
-    padding: 40px 15px;
+  .dealer-products-grid {
+    grid-template-columns: 1fr;
   }
 
-  .dealer-table {
-    min-width: 950px;
+  .product-actions {
+    grid-template-columns: 1fr;
   }
 
-  .dealer-table th,
-  .dealer-table td {
-    padding: 12px 10px;
-    font-size: 0.85rem;
-  }
-
-  .invoice-title {
-    font-size: 1.3rem;
-  }
-
-  .invoice-modal-header button {
-    width: 36px;
-    height: 36px;
-  }
-
-  .invoice-address-card,
-  .invoice-total-box {
-    padding: 16px;
-  }
-
-  .invoice-total-box h2 {
-    font-size: 1.3rem;
-  }
-
-  .invoice-total-box h3 {
-    font-size: 1rem;
-  }
-
-  .invoice-footer p {
-    font-size: 0.9rem;
+  .product-actions .later-btn {
+    grid-column: span 1;
   }
 }
 
-/* ==========================================
-   LARGE DESKTOP
-========================================== */
+/* ==========================================================================
+   PRICE LIST PAGE STYLES
+   ========================================================================== */
 
-@media (min-width: 1400px) {
-  .dealer-page {
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-}
-
-/* ==========================================
-   RETURN PAGE
-========================================== */
-
-.return-page {
-  width: 100%;
+.dealer-pricelist-page {
+  font-family:
+    "Outfit",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
   min-height: 100vh;
-  padding: 20px;
-}
-
-/* ==========================================
-   LOADING
-========================================== */
-
-.return-loading {
-  min-height: 60vh;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: #ffffff;
-  border-radius: 20px;
-
-  color: #4b5563;
-  font-size: 1.1rem;
-  font-weight: 600;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-/* ==========================================
-   HEADER
-========================================== */
-
-.return-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.return-header h2 {
-  color: #111827;
-  font-size: 2rem;
-}
-
-.financial-year-badge {
-  background: #dcfce7;
-  color: #15803d;
-
-  padding: 10px 18px;
-  border-radius: 999px;
-
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-/* ==========================================
-   WARNING
-========================================== */
-
-.return-warning {
-  background: #fef3c7;
-  color: #b45309;
-
-  border-left: 5px solid #f59e0b;
-
-  padding: 16px 20px;
-  border-radius: 12px;
-
-  margin-bottom: 24px;
-
-  font-weight: 500;
-}
-
-/* ==========================================
-   EMPTY STATE
-========================================== */
-
-.empty-return-products {
-  background: #ffffff;
-
-  padding: 60px 20px;
-  border-radius: 20px;
-
-  text-align: center;
-
-  color: #6b7280;
-  font-size: 1.05rem;
-  font-weight: 600;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-/* ==========================================
-   SUMMARY CARDS
-========================================== */
-
-.return-summary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-.summary-card {
-  background: #ffffff;
-
-  padding: 24px;
-  border-radius: 20px;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 2rem;
 }
 
-.summary-card span {
-  color: #6b7280;
-  font-size: 0.95rem;
+.latest-pricelist-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  animation: dealerFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.summary-card strong {
-  color: #16a34a;
-  font-size: 1.5rem;
-  word-break: break-word;
+.latest-pricelist-image {
+  width: 240px;
+  height: 180px;
+  object-fit: contain;
+  border-radius: 0.75rem;
+  background-color: rgba(9, 15, 19, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.5rem;
 }
 
-/* ==========================================
-   TABLE WRAPPER
-========================================== */
-
-.return-table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-
-  background: #ffffff;
-  border-radius: 20px;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-
-  margin-bottom: 24px;
-}
-
-.return-table-wrapper::-webkit-scrollbar {
-  height: 8px;
-}
-
-.return-table-wrapper::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 999px;
-}
-
-/* ==========================================
-   TABLE
-========================================== */
-
-.return-table {
-  width: 100%;
-  min-width: 850px;
-
-  border-collapse: collapse;
-}
-
-.return-table thead {
-  background: #166534;
-  color: #ffffff;
-}
-
-.return-table th,
-.return-table td {
-  padding: 16px;
-  text-align: center;
-
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.return-table th {
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  white-space: nowrap;
-}
-
-.return-table td {
-  color: #374151;
-  font-size: 0.95rem;
-}
-
-.return-table tbody tr:hover {
-  background: #f9fafb;
-}
-
-/* ==========================================
-   INPUT
-========================================== */
-
-.return-input {
-  width: 100px;
-
-  padding: 10px 12px;
-
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-
-  text-align: center;
-
-  font-size: 0.95rem;
-
-  outline: none;
-  transition: border-color 0.3s ease;
-}
-
-.return-input:focus {
-  border-color: #16a34a;
-}
-
-.return-input:disabled {
-  background: #f3f4f6;
-  cursor: not-allowed;
-}
-
-/* ==========================================
-   STATUS BADGES
-========================================== */
-
-.status-available,
-.status-pending,
-.status-approved,
-.status-rejected {
-  display: inline-flex;
+.pdf-preview {
+  width: 240px;
+  height: 180px;
+  background-color: rgba(244, 63, 94, 0.05);
+  color: var(--error);
+  border: 1px dashed rgba(244, 63, 94, 0.2);
+  border-radius: 0.75rem;
+  display: flex;
   align-items: center;
   justify-content: center;
-
-  padding: 8px 14px;
-
-  border-radius: 999px;
-
-  font-size: 0.8rem;
+  font-size: 1.15rem;
   font-weight: 700;
-
-  white-space: nowrap;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  flex-shrink: 0;
 }
 
-.status-available,
-.status-approved {
-  background: #dcfce7;
-  color: #15803d;
+.latest-pricelist-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
 }
 
-.status-pending {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.status-rejected {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-/* ==========================================
-   REMARKS
-========================================== */
-
-.return-remarks {
-  width: 100%;
-  min-height: 120px;
-
-  padding: 16px;
-
-  border: 1px solid #d1d5db;
-  border-radius: 16px;
-
-  resize: vertical;
-
-  font-size: 1rem;
-
-  outline: none;
-
-  margin-bottom: 20px;
-
-  transition: border-color 0.3s ease;
-}
-
-.return-remarks:focus {
-  border-color: #16a34a;
-}
-
-/* ==========================================
-   SUBMIT BUTTON
-========================================== */
-
-.return-submit-btn {
-  width: 100%;
-
-  border: none;
-
-  background: #16a34a;
-  color: #ffffff;
-
-  padding: 16px;
-
-  border-radius: 14px;
-
-  font-size: 1rem;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition: all 0.3s ease;
-
-  margin-bottom: 32px;
-}
-
-.return-submit-btn:hover:not(:disabled) {
-  background: #15803d;
-}
-
-.return-submit-btn:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
-}
-
-/* ==========================================
-   REQUEST HISTORY
-========================================== */
-
-.request-history {
-  margin-top: 20px;
-}
-
-.request-history h3 {
-  color: #111827;
+.latest-pricelist-info h3 {
   font-size: 1.4rem;
-
-  margin-bottom: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
 }
 
-.empty-cell {
-  padding: 30px !important;
-
-  color: #6b7280;
-  text-align: center;
+.latest-pricelist-info p {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin: 0;
 }
 
-/* ==========================================
-   DOWNLOAD LINK
-========================================== */
+.open-file-btn {
+  font-family: inherit;
+  background: linear-gradient(135deg, var(--primary-accent), #059669);
+  color: #fff;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.75rem 1.75rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+  transition: var(--transition-bounce);
+  align-self: flex-start;
+  display: inline-flex;
+}
 
-.download-link {
-  color: #2563eb;
+.open-file-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+}
+
+.previous-pricelist-title {
+  margin-top: 1.5rem;
+}
+
+.pricelist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.pricelist-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: var(--transition-bounce);
+}
+
+.pricelist-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--border-color-hover);
+  box-shadow: var(--shadow-md), var(--glow-emerald);
+}
+
+.dealer-pricelist-image {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: contain;
+  background-color: rgba(9, 15, 19, 0.5);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.4rem;
+}
+
+.pricelist-card .pdf-preview {
+  width: 100%;
+  aspect-ratio: 4/3;
+  height: auto;
+}
+
+.pricelist-info h3 {
+  font-size: 1.05rem;
   font-weight: 600;
-
-  text-decoration: none;
+  color: #fff;
+  margin: 0 0 0.35rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.download-link:hover {
+.pricelist-info p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.pricelist-card .open-file-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   DOCUMENTS PAGE STYLES
+   ========================================================================== */
+
+.dealer-documents-page {
+  font-family:
+    "Outfit",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.documents-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  max-width: 650px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.document-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  padding-bottom: 1.5rem;
+}
+
+.document-group:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.document-group label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.document-group input[type="file"] {
+  background-color: rgba(9, 15, 19, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  border-radius: 0.75rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.document-group input[type="file"]::file-selector-button {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--primary-accent);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition-smooth);
+  margin-right: 1rem;
+}
+
+.document-group input[type="file"]::file-selector-button:hover {
+  background: var(--primary-accent);
+  color: #fff;
+}
+
+.document-link {
+  font-size: 0.85rem;
+  color: var(--secondary-accent);
+  text-decoration: none;
+  align-self: flex-start;
+  font-weight: 500;
+  transition: var(--transition-smooth);
+}
+
+.document-link:hover {
+  color: var(--success);
   text-decoration: underline;
 }
 
-/* ==========================================
-   TABLET
-========================================== */
+.upload-btn {
+  font-family: inherit;
+  background: linear-gradient(135deg, var(--primary-accent), #059669);
+  color: #fff;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.9rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+  transition: var(--transition-bounce);
+  width: 100%;
+}
 
-@media (max-width: 992px) {
-  .return-page {
-    padding: 18px;
+.upload-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+}
+
+.upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   RETURN PRODUCTS PAGE STYLES
+   ========================================================================== */
+
+.return-page {
+  font-family:
+    "Outfit",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.return-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.return-header h2 {
+  margin: 0;
+  font-size: 2.25rem;
+  background: linear-gradient(120deg, #ffffff 40%, var(--success) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.financial-year-badge {
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.empty-return-products {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  color: var(--text-muted);
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+.return-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.return-summary .summary-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.return-summary .summary-card span {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.return-summary .summary-card strong {
+  font-size: 1.65rem;
+  color: #fff;
+  font-weight: 700;
+}
+
+.return-summary .summary-card:last-of-type strong {
+  color: var(--success);
+}
+
+.return-table-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  overflow-x: auto;
+}
+
+.return-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.return-table th {
+  background: rgba(9, 15, 19, 0.6);
+  padding: 1.1rem 1.25rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.return-table td {
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  color: var(--text-main);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.return-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.return-input {
+  width: 90px !important;
+  padding: 0.5rem 0.8rem !important;
+  text-align: center;
+  font-weight: 600;
+}
+
+.return-remarks {
+  background-color: rgba(9, 15, 19, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 100px;
+  resize: vertical;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+.return-remarks:focus {
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.return-submit-btn {
+  font-family: inherit;
+  background: linear-gradient(135deg, var(--error), #c026d3);
+  color: #fff;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+  transition: var(--transition-bounce);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
+.return-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(244, 63, 94, 0.5);
+}
+
+.return-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.request-history {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.request-history h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 0.75rem;
+}
+
+.empty-cell {
+  text-align: center;
+  color: var(--text-dim) !important;
+  padding: 2.5rem !important;
+}
+
+/* Return Request specific approval badge statuses */
+.status-available {
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-approved,
+.status-received {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--primary-accent);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-rejected {
+  background: rgba(244, 63, 94, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.download-link {
+  color: var(--secondary-accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--transition-smooth);
+}
+
+.download-link:hover {
+  color: var(--success);
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   ADDITIONAL RESPONSIVE OVERRIDES
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .latest-pricelist-card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .latest-pricelist-image,
+  .pdf-preview {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4/3;
+  }
+
+  .open-file-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .documents-card {
+    padding: 1.5rem;
+  }
+
+  .return-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
   }
 
   .return-summary {
     grid-template-columns: 1fr;
   }
 
-  .return-table {
-    min-width: 800px;
-  }
-}
-
-/* ==========================================
-   MOBILE
-========================================== */
-
-@media (max-width: 768px) {
-  .return-page {
-    padding: 15px;
-  }
-
-  .return-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .return-header h2 {
-    font-size: 1.6rem;
-  }
-
-  .summary-card {
-    padding: 20px;
-  }
-
-  .summary-card strong {
-    font-size: 1.3rem;
-  }
-
-  .return-table {
-    min-width: 750px;
-  }
-
-  .return-table th,
-  .return-table td {
-    padding: 14px 12px;
-    font-size: 0.9rem;
-  }
-}
-
-/* ==========================================
-   SMALL MOBILE
-========================================== */
-
-@media (max-width: 480px) {
-  .return-page {
-    padding: 12px;
-  }
-
-  .return-header h2 {
-    font-size: 1.4rem;
-  }
-
-  .financial-year-badge {
-    font-size: 0.8rem;
-    padding: 8px 14px;
-  }
-
-  .return-warning {
-    padding: 14px 16px;
-    font-size: 0.9rem;
-  }
-
-  .empty-return-products {
-    padding: 40px 15px;
-    font-size: 0.95rem;
-  }
-
-  .summary-card {
-    padding: 18px;
-    border-radius: 16px;
-  }
-
-  .summary-card span {
-    font-size: 0.9rem;
-  }
-
-  .summary-card strong {
-    font-size: 1.1rem;
-  }
-
-  .return-table {
-    min-width: 700px;
-  }
-
-  .return-table th,
-  .return-table td {
-    padding: 12px 10px;
-    font-size: 0.85rem;
-  }
-
-  .return-input {
-    width: 80px;
-    padding: 8px;
-    font-size: 0.85rem;
-  }
-
-  .status-available,
-  .status-pending,
-  .status-approved,
-  .status-rejected {
-    padding: 6px 10px;
-    font-size: 0.7rem;
-  }
-
-  .return-remarks {
-    min-height: 100px;
-    padding: 14px;
-    font-size: 0.95rem;
-  }
-
   .return-submit-btn {
-    padding: 14px;
-    font-size: 0.95rem;
-  }
-}
-
-/* ==========================================
-   LARGE DESKTOP
-========================================== */
-
-@media (min-width: 1400px) {
-  .return-page {
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-}
-
-/* ==========================================
-   DEALER DOCUMENTS PAGE
-========================================== */
-
-.dealer-documents-page {
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-/* ==========================================
-   DOCUMENT CARD
-========================================== */
-
-.documents-card {
-  max-width: 900px;
-  margin: 0 auto;
-
-  background: #ffffff;
-
-  border-radius: 24px;
-
-  padding: 30px;
-
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* ==========================================
-   DOCUMENT GROUP
-========================================== */
-
-.document-group {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.document-group label {
-  color: #111827;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-/* ==========================================
-   FILE INPUT
-========================================== */
-
-.document-group input[type="file"] {
-  width: 100%;
-
-  padding: 14px;
-
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
-
-  background: #f9fafb;
-
-  font-size: 0.95rem;
-
-  cursor: pointer;
-
-  transition: border-color 0.3s ease;
-}
-
-.document-group input[type="file"]:hover {
-  border-color: #16a34a;
-}
-
-.document-group input[type="file"]:focus {
-  outline: none;
-  border-color: #16a34a;
-}
-
-.document-group input[type="file"]::file-selector-button {
-  border: none;
-
-  background: #166534;
-  color: #ffffff;
-
-  padding: 10px 18px;
-
-  border-radius: 8px;
-
-  margin-right: 14px;
-
-  cursor: pointer;
-
-  font-weight: 600;
-
-  transition: background 0.3s ease;
-}
-
-.document-group input[type="file"]::file-selector-button:hover {
-  background: #15803d;
-}
-
-/* ==========================================
-   DOCUMENT LINKS
-========================================== */
-
-.document-link {
-  display: inline-flex;
-  align-items: center;
-
-  width: fit-content;
-
-  color: #2563eb;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  text-decoration: none;
-
-  transition: color 0.3s ease;
-}
-
-.document-link:hover {
-  color: #1d4ed8;
-  text-decoration: underline;
-}
-
-/* ==========================================
-   UPLOAD BUTTON
-========================================== */
-
-.upload-btn {
-  width: 100%;
-
-  border: none;
-
-  background: #16a34a;
-  color: #ffffff;
-
-  padding: 16px;
-
-  border-radius: 14px;
-
-  font-size: 1rem;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition: all 0.3s ease;
-
-  margin-top: 10px;
-}
-
-.upload-btn:hover:not(:disabled) {
-  background: #15803d;
-  transform: translateY(-2px);
-}
-
-.upload-btn:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* ==========================================
-   TABLET
-========================================== */
-
-@media (max-width: 992px) {
-  .dealer-documents-page {
-    padding: 18px;
-  }
-
-  .documents-card {
-    max-width: 100%;
-    padding: 24px;
-  }
-}
-
-/* ==========================================
-   MOBILE
-========================================== */
-
-@media (max-width: 768px) {
-  .dealer-documents-page {
-    padding: 15px;
-  }
-
-  .documents-card {
-    padding: 20px;
-    border-radius: 20px;
-    gap: 20px;
-  }
-
-  .document-group label {
-    font-size: 0.95rem;
-  }
-
-  .document-group input[type="file"] {
-    padding: 12px;
-    font-size: 0.9rem;
-  }
-
-  .document-group input[type="file"]::file-selector-button {
-    padding: 8px 14px;
-    font-size: 0.85rem;
-  }
-
-  .upload-btn {
-    padding: 14px;
-    font-size: 0.95rem;
-  }
-}
-
-/* ==========================================
-   SMALL MOBILE
-========================================== */
-
-@media (max-width: 480px) {
-  .dealer-documents-page {
-    padding: 12px;
-  }
-
-  .documents-card {
-    padding: 16px;
-    border-radius: 16px;
-  }
-
-  .document-group {
-    gap: 10px;
-  }
-
-  .document-group label {
-    font-size: 0.9rem;
-  }
-
-  .document-group input[type="file"] {
-    padding: 10px;
-    font-size: 0.85rem;
-  }
-
-  .document-group input[type="file"]::file-selector-button {
-    display: block;
-
-    width: 100%;
-
-    margin-right: 0;
-    margin-bottom: 10px;
-
-    text-align: center;
-  }
-
-  .document-link {
-    font-size: 0.85rem;
-    word-break: break-word;
-  }
-
-  .upload-btn {
-    padding: 14px;
-    font-size: 0.9rem;
-  }
-}
-
-/* ==========================================
-   LARGE DESKTOP
-========================================== */
-
-@media (min-width: 1400px) {
-  .dealer-documents-page {
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-
-  .documents-card {
-    max-width: 1000px;
-  }
-}
-
-/* ==========================================
-   PAY OUTSTANDING PAGE
-========================================== */
-
-.open-payment-app-btn {
-  width: 100%;
-  background: #0ea5e9;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 30px;
-  transition: 0.3s;
-}
-
-.open-payment-app-btn:hover {
-  transform: translateY(-2px);
-  opacity: 0.9;
-}
-
-.payment-app-action {
-  display: flex;
-  align-items: end;
-}
-
-.dealer-orders-page {
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-/* ==========================================
-   OUTSTANDING SUMMARY CARD
-========================================== */
-
-.outstanding-summary-card {
-  background: linear-gradient(135deg, #dc2626, #ef4444);
-  color: #ffffff;
-
-  border-radius: 24px;
-
-  padding: 30px;
-
-  margin-bottom: 24px;
-
-  box-shadow: 0 12px 30px rgba(220, 38, 38, 0.2);
-}
-
-.outstanding-summary-card h3 {
-  font-size: 1rem;
-  font-weight: 500;
-
-  opacity: 0.9;
-
-  margin-bottom: 12px;
-}
-
-.outstanding-summary-card h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-}
-
-/* ==========================================
-   PAYMENT CARD
-========================================== */
-
-.payment-card {
-  background: #ffffff;
-
-  border-radius: 24px;
-
-  padding: 28px;
-
-  margin-bottom: 24px;
-
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-.payment-card h3 {
-  color: #111827;
-  font-size: 1.3rem;
-
-  margin-bottom: 24px;
-}
-
-/* ==========================================
-   PAYMENT FORM GRID
-========================================== */
-
-.payment-form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 20px;
-
-  margin-bottom: 24px;
-}
-
-.payment-form-grid > div {
-  display: flex;
-  flex-direction: column;
-}
-
-.payment-form-grid label {
-  color: #374151;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  margin-bottom: 8px;
-}
-
-/* ==========================================
-   INPUTS
-========================================== */
-
-.payment-input {
-  width: 100%;
-
-  padding: 14px 16px;
-
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
-
-  background: #ffffff;
-
-  color: #111827;
-  font-size: 0.95rem;
-
-  transition: all 0.3s ease;
-
-  outline: none;
-}
-
-.payment-input:focus {
-  border-color: #16a34a;
-
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
-}
-
-.payment-input[type="file"] {
-  padding: 12px;
-  cursor: pointer;
-}
-
-.payment-input[type="file"]::file-selector-button {
-  border: none;
-
-  background: #166534;
-  color: #ffffff;
-
-  padding: 10px 16px;
-
-  border-radius: 8px;
-
-  margin-right: 12px;
-
-  cursor: pointer;
-
-  font-weight: 600;
-}
-
-.payment-input[type="file"]::file-selector-button:hover {
-  background: #15803d;
-}
-
-/* ==========================================
-   SUBMIT BUTTON
-========================================== */
-
-.pay-outstanding-btn {
-  width: 100%;
-
-  border: none;
-
-  background: #16a34a;
-  color: #ffffff;
-
-  padding: 16px;
-
-  border-radius: 14px;
-
-  font-size: 1rem;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition: all 0.3s ease;
-}
-
-.pay-outstanding-btn:hover:not(:disabled) {
-  background: #15803d;
-
-  transform: translateY(-2px);
-}
-
-.pay-outstanding-btn:disabled {
-  background: #9ca3af;
-
-  cursor: not-allowed;
-
-  transform: none;
-}
-
-/* ==========================================
-   TABLE CARD
-========================================== */
-
-.orders-table-card {
-  background: #ffffff;
-
-  border-radius: 24px;
-
-  padding: 20px;
-
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-/* ==========================================
-   TABLE WRAPPER
-========================================== */
-
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.table-wrapper::-webkit-scrollbar {
-  height: 8px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-
-  border-radius: 999px;
-}
-
-/* ==========================================
-   TABLE
-========================================== */
-
-.orders-table {
-  width: 100%;
-  min-width: 700px;
-
-  border-collapse: collapse;
-}
-
-.orders-table thead {
-  background: #166534;
-  color: #ffffff;
-}
-
-.orders-table th,
-.orders-table td {
-  padding: 16px;
-
-  text-align: center;
-
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.orders-table th {
-  white-space: nowrap;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-.orders-table td {
-  color: #374151;
-  font-size: 0.95rem;
-}
-
-.orders-table tbody tr:hover {
-  background: #f9fafb;
-}
-
-/* ==========================================
-   LOADING
-========================================== */
-
-.orders-loading {
-  min-height: 60vh;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: #ffffff;
-
-  border-radius: 20px;
-
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-.orders-loading h2 {
-  color: #4b5563;
-}
-
-/* ==========================================
-   TABLET
-========================================== */
-
-@media (max-width: 992px) {
-  .dealer-orders-page {
-    padding: 18px;
-  }
-
-  .payment-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .outstanding-summary-card h1 {
-    font-size: 2rem;
-  }
-}
-
-/* ==========================================
-   MOBILE
-========================================== */
-
-@media (max-width: 768px) {
-  .dealer-orders-page {
-    padding: 15px;
-  }
-
-  .outstanding-summary-card,
-  .payment-card,
-  .orders-table-card {
-    border-radius: 20px;
-  }
-
-  .outstanding-summary-card {
-    padding: 24px;
-  }
-
-  .payment-card {
-    padding: 20px;
-  }
-
-  .orders-table {
-    min-width: 650px;
-  }
-
-  .orders-table th,
-  .orders-table td {
-    padding: 14px 12px;
-    font-size: 0.9rem;
-  }
-}
-
-/* ==========================================
-   SMALL MOBILE
-========================================== */
-
-@media (max-width: 480px) {
-  .dealer-orders-page {
-    padding: 12px;
-  }
-
-  .outstanding-summary-card {
-    padding: 20px;
-  }
-
-  .outstanding-summary-card h1 {
-    font-size: 1.8rem;
-  }
-
-  .payment-card {
-    padding: 16px;
-  }
-
-  .payment-card h3 {
-    font-size: 1.1rem;
-  }
-
-  .payment-input {
-    padding: 12px;
-    font-size: 0.9rem;
-  }
-
-  .payment-input[type="file"]::file-selector-button {
-    display: block;
-
-    width: 100%;
-
-    margin-right: 0;
-    margin-bottom: 10px;
-
-    text-align: center;
-  }
-
-  .pay-outstanding-btn {
-    padding: 14px;
-    font-size: 0.95rem;
-  }
-
-  .orders-table {
-    min-width: 600px;
-  }
-
-  .orders-table th,
-  .orders-table td {
-    padding: 12px 10px;
-    font-size: 0.85rem;
-  }
-}
-
-/* ==========================================
-   LARGE DESKTOP
-========================================== */
-
-@media (min-width: 1400px) {
-  .dealer-orders-page {
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-}
-
-/* ==========================================
-   DEALER PRICE LIST PAGE
-========================================== */
-
-.dealer-pricelist-page {
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-/* ==========================================
-   LATEST PRICE LIST CARD
-========================================== */
-
-.latest-pricelist-card {
-  display: grid;
-  grid-template-columns: minmax(280px, 450px) 1fr;
-  gap: 30px;
-
-  background: #ffffff;
-
-  border-radius: 24px;
-
-  padding: 24px;
-
-  margin-bottom: 40px;
-
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-/* ==========================================
-   IMAGE PREVIEW
-========================================== */
-
-.latest-pricelist-image,
-.dealer-pricelist-image {
-  width: 100%;
-  height: 100%;
-
-  object-fit: contain;
-
-  background: #f8fafc;
-
-  border-radius: 16px;
-}
-
-.latest-pricelist-image {
-  min-height: 350px;
-  max-height: 450px;
-}
-
-/* ==========================================
-   PDF PREVIEW
-========================================== */
-
-.pdf-preview {
-  width: 100%;
-  min-height: 300px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: #f9fafb;
-
-  border: 2px dashed #d1d5db;
-  border-radius: 16px;
-
-  color: #dc2626;
-  font-size: 1.4rem;
-  font-weight: 700;
-
-  text-align: center;
-
-  padding: 20px;
-}
-
-/* ==========================================
-   LATEST INFO
-========================================== */
-
-.latest-pricelist-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.latest-pricelist-info h3 {
-  color: #111827;
-  font-size: 1.6rem;
-
-  margin-bottom: 14px;
-
-  word-break: break-word;
-}
-
-.latest-pricelist-info p {
-  color: #6b7280;
-  font-size: 1rem;
-
-  margin-bottom: 24px;
-}
-
-/* ==========================================
-   OPEN BUTTON
-========================================== */
-
-.open-file-btn {
-  width: fit-content;
-
-  border: none;
-
-  background: #166534;
-  color: #ffffff;
-
-  padding: 14px 24px;
-
-  border-radius: 12px;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition: all 0.3s ease;
-}
-
-.open-file-btn:hover {
-  background: #15803d;
-
-  transform: translateY(-2px);
-}
-
-/* ==========================================
-   PREVIOUS TITLE
-========================================== */
-
-.previous-pricelist-title {
-  color: #111827;
-  font-size: 1.6rem;
-
-  margin-bottom: 24px;
-}
-
-/* ==========================================
-   GRID
-========================================== */
-
-.pricelist-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-
-  gap: 24px;
-}
-
-/* ==========================================
-   PRICE LIST CARD
-========================================== */
-
-.pricelist-card {
-  background: #ffffff;
-
-  border-radius: 20px;
-
-  overflow: hidden;
-
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-
-  display: flex;
-  flex-direction: column;
-
-  transition: all 0.3s ease;
-}
-
-.pricelist-card:hover {
-  transform: translateY(-4px);
-
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-}
-
-.pricelist-card .pdf-preview {
-  min-height: 220px;
-  border-radius: 0;
-}
-
-.dealer-pricelist-image {
-  height: 220px;
-
-  border-radius: 0;
-}
-
-/* ==========================================
-   CARD INFO
-========================================== */
-
-.pricelist-info {
-  padding: 18px;
-
-  flex: 1;
-}
-
-.pricelist-info h3 {
-  color: #111827;
-  font-size: 1rem;
-
-  margin-bottom: 10px;
-
-  word-break: break-word;
-}
-
-.pricelist-info p {
-  color: #6b7280;
-  font-size: 0.9rem;
-}
-
-.pricelist-card .open-file-btn {
-  width: calc(100% - 36px);
-
-  margin: 0 18px 18px;
-}
-
-/* ==========================================
-   TABLET
-========================================== */
-
-@media (max-width: 992px) {
-  .dealer-pricelist-page {
-    padding: 18px;
-  }
-
-  .latest-pricelist-card {
-    grid-template-columns: 1fr;
-
-    gap: 24px;
-  }
-
-  .latest-pricelist-image {
-    max-height: 400px;
-  }
-
-  .pricelist-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  }
-}
-
-/* ==========================================
-   MOBILE
-========================================== */
-
-@media (max-width: 768px) {
-  .dealer-pricelist-page {
-    padding: 15px;
-  }
-
-  .latest-pricelist-card {
-    padding: 20px;
-
-    border-radius: 20px;
-  }
-
-  .latest-pricelist-image {
-    min-height: 260px;
-    max-height: 320px;
-  }
-
-  .pdf-preview {
-    min-height: 220px;
-
-    font-size: 1.1rem;
-  }
-
-  .latest-pricelist-info h3 {
-    font-size: 1.3rem;
-  }
-
-  .latest-pricelist-info p {
-    font-size: 0.95rem;
-  }
-
-  .previous-pricelist-title {
-    font-size: 1.4rem;
-  }
-
-  .pricelist-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ==========================================
-   SMALL MOBILE
-========================================== */
-
-@media (max-width: 480px) {
-  .dealer-pricelist-page {
-    padding: 12px;
-  }
-
-  .latest-pricelist-card {
-    padding: 16px;
-
-    border-radius: 16px;
-  }
-
-  .latest-pricelist-image {
-    min-height: 220px;
-    max-height: 260px;
-  }
-
-  .pdf-preview {
-    min-height: 180px;
-
-    font-size: 1rem;
-
-    padding: 16px;
-  }
-
-  .latest-pricelist-info h3 {
-    font-size: 1.15rem;
-  }
-
-  .latest-pricelist-info p {
-    font-size: 0.9rem;
-  }
-
-  .previous-pricelist-title {
-    font-size: 1.2rem;
-  }
-
-  .pricelist-card {
-    border-radius: 16px;
-  }
-
-  .dealer-pricelist-image {
-    height: 180px;
-  }
-
-  .pricelist-info {
-    padding: 16px;
-  }
-
-  .pricelist-info h3 {
-    font-size: 0.95rem;
-  }
-
-  .pricelist-info p {
-    font-size: 0.85rem;
-  }
-
-  .open-file-btn {
-    width: 100%;
-
-    padding: 13px 18px;
-
-    font-size: 0.9rem;
-  }
-
-  .pricelist-card .open-file-btn {
-    width: calc(100% - 32px);
-
-    margin: 0 16px 16px;
-  }
-}
-
-/* ==========================================
-   LARGE DESKTOP
-========================================== */
-
-@media (min-width: 1400px) {
-  .dealer-pricelist-page {
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-
-  .pricelist-grid {
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  }
-}
-
-/* ==========================================
-   DEALER TRANSACTION PAGE
-========================================== */
-
-.dealer-transaction-page {
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-/* ==========================================
-   EMPTY STATE
-========================================== */
-
-.empty-cart-page {
-  min-height: 70vh;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  gap: 20px;
-
-  padding: 20px;
-
-  text-align: center;
-}
-
-.empty-cart-page h2 {
-  color: #374151;
-  font-size: 1.8rem;
-}
-
-/* ==========================================
-   TABLE WRAPPER
-========================================== */
-
-.transaction-table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-
-  background: #ffffff;
-
-  border-radius: 24px;
-
-  margin-bottom: 24px;
-
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-.transaction-table-wrapper::-webkit-scrollbar {
-  height: 8px;
-}
-
-.transaction-table-wrapper::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 999px;
-}
-
-/* ==========================================
-   TABLE
-========================================== */
-
-.transaction-table {
-  width: 100%;
-  min-width: 700px;
-
-  border-collapse: collapse;
-}
-
-.transaction-table thead {
-  background: #166534;
-  color: #ffffff;
-}
-
-.transaction-table th,
-.transaction-table td {
-  padding: 16px;
-
-  text-align: center;
-
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.transaction-table th {
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  white-space: nowrap;
-}
-
-.transaction-table td {
-  color: #374151;
-  font-size: 0.95rem;
-}
-
-.transaction-table tbody tr:hover {
-  background: #f9fafb;
-}
-
-/* ==========================================
-   PAYMENT SUMMARY
-========================================== */
-
-.payment-summary-card {
-  width: 100%;
-  max-width: 650px;
-
-  margin: 0 auto;
-
-  background: #ffffff;
-
-  border-radius: 24px;
-
-  padding: 28px;
-
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-.summary-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  margin-bottom: 18px;
-}
-
-.summary-row span {
-  color: #6b7280;
-  font-size: 1rem;
-}
-
-.summary-row strong {
-  color: #111827;
-  font-size: 1.1rem;
-}
-
-.summary-row:last-of-type {
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-/* ==========================================
-   PAYMENT SECTION
-========================================== */
-
-.payment-section {
-  margin-top: 22px;
-}
-
-.payment-section label {
-  display: block;
-
-  color: #374151;
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  margin-bottom: 10px;
-}
-
-.payment-input,
-.payment-section input,
-.payment-section textarea,
-.payment-section select {
-  width: 100%;
-
-  padding: 14px 16px;
-
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
-
-  background: #ffffff;
-
-  font-size: 0.95rem;
-  color: #111827;
-
-  outline: none;
-
-  transition: all 0.3s ease;
-}
-
-.payment-input:focus,
-.payment-section input:focus,
-.payment-section textarea:focus,
-.payment-section select:focus {
-  border-color: #16a34a;
-
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
-}
-
-.payment-section textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.payment-input[type="file"] {
-  cursor: pointer;
-}
-
-.payment-input[type="file"]::file-selector-button {
-  border: none;
-
-  background: #166534;
-  color: #ffffff;
-
-  padding: 10px 16px;
-
-  border-radius: 8px;
-
-  margin-right: 12px;
-
-  cursor: pointer;
-
-  font-weight: 600;
-}
-
-.payment-input[type="file"]::file-selector-button:hover {
-  background: #15803d;
-}
-
-/* ==========================================
-   QR BOX
-========================================== */
-
-.qr-payment-box {
-  margin-top: 24px;
-
-  background: #f9fafb;
-
-  border: 1px solid #e5e7eb;
-  border-radius: 20px;
-
-  padding: 24px;
-
-  text-align: center;
-}
-
-.qr-payment-box h3 {
-  color: #111827;
-
-  margin-bottom: 20px;
-}
-
-.qr-payment-box canvas {
-  max-width: 100%;
-  height: auto !important;
-
-  background: #ffffff;
-
-  padding: 12px;
-
-  border-radius: 16px;
-
-  margin-bottom: 16px;
-}
-
-.qr-payment-box p {
-  color: #4b5563;
-
-  margin-bottom: 8px;
-
-  word-break: break-word;
-}
-
-.qr-payment-box strong {
-  color: #111827;
-  margin-left: 6px;
-}
-
-/* ==========================================
-   OPEN UPI BUTTON
-========================================== */
-
-.open-upi-btn {
-  width: 100%;
-
-  margin-top: 14px;
-
-  border: none;
-
-  background: #2563eb;
-  color: #ffffff;
-
-  padding: 14px;
-
-  border-radius: 12px;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition: all 0.3s ease;
-}
-
-.open-upi-btn:hover {
-  background: #1d4ed8;
-}
-
-/* ==========================================
-   ACTION BUTTONS
-========================================== */
-
-.payment-buttons {
-  display: flex;
-  gap: 12px;
-
-  margin-top: 30px;
-}
-
-.pay-btn,
-.pay-later-btn {
-  flex: 1;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-
-  border: none;
-
-  padding: 15px;
-
-  border-radius: 14px;
-
-  color: #ffffff;
-
-  font-size: 1rem;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition: all 0.3s ease;
-}
-
-.pay-btn {
-  background: #16a34a;
-}
-
-.pay-btn:hover:not(:disabled) {
-  background: #15803d;
-}
-
-.pay-later-btn {
-  background: #f59e0b;
-}
-
-.pay-later-btn:hover:not(:disabled) {
-  background: #d97706;
-}
-
-.pay-btn:disabled,
-.pay-later-btn:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
-}
-
-/* ==========================================
-   TABLET
-========================================== */
-
-@media (max-width: 992px) {
-  .dealer-transaction-page {
-    padding: 18px;
-  }
-
-  .payment-summary-card {
-    max-width: 100%;
-  }
-}
-
-/* ==========================================
-   MOBILE
-========================================== */
-
-@media (max-width: 768px) {
-  .dealer-transaction-page {
-    padding: 15px;
-  }
-
-  .transaction-table {
-    min-width: 650px;
-  }
-
-  .payment-summary-card {
-    padding: 22px;
-    border-radius: 20px;
-  }
-
-  .payment-buttons {
-    flex-direction: column;
-  }
-
-  .pay-btn,
-  .pay-later-btn {
-    width: 100%;
-  }
-
-  .qr-payment-box {
-    padding: 20px;
-  }
-}
-
-/* ==========================================
-   SMALL MOBILE
-========================================== */
-
-@media (max-width: 480px) {
-  .dealer-transaction-page {
-    padding: 12px;
-  }
-
-  .transaction-table {
-    min-width: 600px;
-  }
-
-  .transaction-table th,
-  .transaction-table td {
-    padding: 12px 10px;
-    font-size: 0.85rem;
-  }
-
-  .payment-summary-card {
-    padding: 18px;
-    border-radius: 16px;
-  }
-
-  .summary-row span,
-  .summary-row strong {
-    font-size: 0.9rem;
-  }
-
-  .payment-section label {
-    font-size: 0.9rem;
-  }
-
-  .payment-input,
-  .payment-section input,
-  .payment-section textarea,
-  .payment-section select {
-    padding: 12px;
-    font-size: 0.9rem;
-  }
-
-  .payment-input[type="file"]::file-selector-button {
-    display: block;
-
-    width: 100%;
-
-    margin-right: 0;
-    margin-bottom: 10px;
-
-    text-align: center;
-  }
-
-  .pay-btn,
-  .pay-later-btn,
-  .open-upi-btn {
-    padding: 14px;
-    font-size: 0.9rem;
-  }
-
-  .empty-cart-page h2 {
-    font-size: 1.4rem;
-  }
-}
-
-/* ==========================================
-   LARGE DESKTOP
-========================================== */
-
-@media (min-width: 1400px) {
-  .dealer-transaction-page {
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-}
-
-/* ==========================================
-   DEALER TRANSACTION HISTORY PAGE
-========================================== */
-
-.transactions-page {
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-/* ==========================================
-   FILTERS
-========================================== */
-
-.transaction-filters {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 20px;
-
-  margin-bottom: 24px;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.filter-group label {
-  color: #374151;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  margin-bottom: 8px;
-}
-
-.filter-group input {
-  width: 100%;
-
-  padding: 14px 16px;
-
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
-
-  background: #ffffff;
-
-  color: #111827;
-  font-size: 0.95rem;
-
-  outline: none;
-
-  transition: all 0.3s ease;
-}
-
-.filter-group input:focus {
-  border-color: #16a34a;
-
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
-}
-
-/* ==========================================
-   SUMMARY CARDS
-========================================== */
-
-.transaction-summary {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 20px;
-
-  margin-bottom: 24px;
-}
-
-.summary-card {
-  background: #ffffff;
-
-  padding: 24px;
-
-  border-radius: 20px;
-
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-.summary-card h3 {
-  color: #6b7280;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  margin-bottom: 10px;
-}
-
-.summary-card h2 {
-  color: #111827;
-
-  font-size: 1.8rem;
-  font-weight: 700;
-
-  word-break: break-word;
-}
-
-/* ==========================================
-   TABLE CARD
-========================================== */
-
-.transactions-table-card {
-  background: #ffffff;
-
-  border-radius: 24px;
-
-  padding: 20px;
-
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-/* ==========================================
-   TABLE WRAPPER
-========================================== */
-
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.table-wrapper::-webkit-scrollbar {
-  height: 8px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-
-  border-radius: 999px;
-}
-
-/* ==========================================
-   TABLE
-========================================== */
-
-.transactions-table {
-  width: 100%;
-  min-width: 1100px;
-
-  border-collapse: collapse;
-}
-
-.transactions-table thead {
-  background: #166534;
-
-  color: #ffffff;
-}
-
-.transactions-table th,
-.transactions-table td {
-  padding: 16px;
-
-  text-align: center;
-
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.transactions-table th {
-  white-space: nowrap;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-.transactions-table td {
-  color: #374151;
-  font-size: 0.95rem;
-}
-
-.transactions-table tbody tr:hover {
-  background: #f9fafb;
-}
-
-/* ==========================================
-   LINKS
-========================================== */
-
-.transactions-table a {
-  color: #2563eb;
-
-  text-decoration: none;
-
-  font-weight: 600;
-}
-
-.transactions-table a:hover {
-  text-decoration: underline;
-}
-
-/* ==========================================
-   PAYMENT TYPE BADGES
-========================================== */
-
-.cash-badge,
-.upi-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 8px 14px;
-
-  border-radius: 999px;
-
-  font-size: 0.8rem;
-  font-weight: 700;
-
-  white-space: nowrap;
-}
-
-.cash-badge {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.upi-badge {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-/* ==========================================
-   STATUS BADGES
-========================================== */
-
-.transaction-status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 8px 14px;
-
-  border-radius: 999px;
-
-  font-size: 0.8rem;
-  font-weight: 700;
-
-  text-transform: uppercase;
-
-  white-space: nowrap;
-}
-
-.transaction-status.completed {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.transaction-status.pending {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.transaction-status.rejected {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-/* ==========================================
-   LOADING / EMPTY
-========================================== */
-
-.loading-box,
-.empty-box {
-  min-height: 300px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  text-align: center;
-}
-
-.loading-box h2,
-.empty-box h2 {
-  color: #374151;
-
-  margin-bottom: 10px;
-}
-
-.empty-box p {
-  color: #6b7280;
-}
-
-/* ==========================================
-   TABLET
-========================================== */
-
-@media (max-width: 992px) {
-  .transactions-page {
-    padding: 18px;
-  }
-
-  .transaction-filters,
-  .transaction-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .transactions-table {
-    min-width: 1000px;
-  }
-}
-
-/* ==========================================
-   MOBILE
-========================================== */
-
-@media (max-width: 768px) {
-  .transactions-page {
-    padding: 15px;
-  }
-
-  .transactions-table-card {
-    padding: 16px;
-
-    border-radius: 20px;
-  }
-
-  .summary-card {
-    padding: 20px;
-  }
-
-  .summary-card h2 {
-    font-size: 1.5rem;
-  }
-
-  .transactions-table {
-    min-width: 950px;
-  }
-
-  .transactions-table th,
-  .transactions-table td {
-    padding: 14px 12px;
-
-    font-size: 0.9rem;
-  }
-}
-
-/* ==========================================
-   SMALL MOBILE
-========================================== */
-
-@media (max-width: 480px) {
-  .transactions-page {
-    padding: 12px;
-  }
-
-  .filter-group input {
-    padding: 12px;
-
-    font-size: 0.9rem;
-  }
-
-  .summary-card {
-    padding: 18px;
-
-    border-radius: 16px;
-  }
-
-  .summary-card h3 {
-    font-size: 0.9rem;
-  }
-
-  .summary-card h2 {
-    font-size: 1.3rem;
-  }
-
-  .transactions-table {
-    min-width: 900px;
-  }
-
-  .transactions-table th,
-  .transactions-table td {
-    padding: 12px 10px;
-
-    font-size: 0.85rem;
-  }
-
-  .cash-badge,
-  .upi-badge,
-  .transaction-status {
-    padding: 6px 10px;
-
-    font-size: 0.7rem;
-  }
-
-  .loading-box,
-  .empty-box {
-    min-height: 220px;
-  }
-
-  .loading-box h2,
-  .empty-box h2 {
-    font-size: 1.2rem;
-  }
-
-  .empty-box p {
-    font-size: 0.9rem;
-  }
-}
-
-/* ==========================================
-   LARGE DESKTOP
-========================================== */
-
-@media (min-width: 1400px) {
-  .transactions-page {
-    max-width: 1600px;
-
-    margin: 0 auto;
-  }
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.product-search {
-  width: 320px;
-  max-width: 100%;
-  padding: 12px 16px;
-
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-
-  outline: none;
-  font-size: 15px;
-
-  transition: 0.3s;
-}
-
-.product-search:focus {
-  border-color: #16a34a;
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
-}
-
-@media (max-width: 768px) {
-  .product-search {
     width: 100%;
   }
 }

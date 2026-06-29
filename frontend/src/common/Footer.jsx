@@ -69,7 +69,6 @@ export default function Footer() {
           {/* =========================
               SOCIAL ICONS
           ========================= */}
-
           <div className="dashboard-footer-icons">
             {/* WHATSAPP */}
 
@@ -120,39 +119,18 @@ export default function Footer() {
           </div>
 
           {/* =========================
-              TERMS
+              COPYRIGHT & CREDITS
           ========================= */}
-
-          <div className="dashboard-footer-terms">
-            {pdf ? (
-              <>
-                <button
-                  type="button"
-                  className="terms-btn"
-                  onClick={() => setShowModal(true)}
-                >
-                  Terms & Conditions
-                </button>
-
-                <a
-                  href={pdf}
-                  download
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Download PDF
-                </a>
-              </>
-            ) : (
-              <p>No Terms Uploaded</p>
-            )}
+          <div className="dashboard-footer-credits">
+            <p className="dashboard-footer-text">© Adarsh Agri Tech</p>
+            <p className="dashboard-designer-text">
+              Designed by{" "}
+              <span className="designer-highlight">G. Mohan Karthik</span> |{" "}
+              <a href="tel:+918499082784" className="designer-phone">
+                +91 8499082784
+              </a>
+            </p>
           </div>
-
-          {/* =========================
-              COPYRIGHT
-          ========================= */}
-
-          <p className="dashboard-footer-text">© Adarsh Agri Tech</p>
         </div>
       </footer>
 
