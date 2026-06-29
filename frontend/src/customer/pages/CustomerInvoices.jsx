@@ -275,7 +275,7 @@ export default function CustomerInvoices() {
 
                   <p>
                     <strong>
-                      {selectedInvoice.companyName || "Sunrise Agri Products"}
+                      {selectedInvoice.companyName || "Adarsh Agri Tech"}
                     </strong>
                   </p>
 
@@ -374,7 +374,7 @@ export default function CustomerInvoices() {
                 <p>Thank you for purchasing from us.</p>
 
                 <p>
-                  Sunrise Agri Products <strong>© 2014</strong>
+                  @ Adarsh Agri Tech<strong></strong>
                 </p>
               </div>
             </div>

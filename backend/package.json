@@ -1,7 +1,7 @@
 {
   "name": "auth-website-backend",
   "version": "1.0.0",
-  "description": "Backend for Sunrise Agri Products authentication and dashboard",
+  "description": "Backend for Adarsh Agri Tech authentication and dashboard",
   "main": "server.js",
   "type": "module",
   "scripts": {

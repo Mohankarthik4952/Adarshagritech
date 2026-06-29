@@ -5,21 +5,29 @@ import {
   FaBox,
   FaShoppingCart,
   FaClipboardList,
-  FaMoneyBillWave,
-  FaTimes,
   FaHistory,
   FaFileInvoice,
+  FaTimes,
 } from "react-icons/fa";
 
 import "./customerLayout.css";
 
-const CustomerSidebar = ({ setSidebarOpen }) => {
+const CustomerSidebar = ({ sidebarOpen, setSidebarOpen }) => {
+  /* =========================
+     CLOSE SIDEBAR
+  ========================= */
+
   const closeSidebar = () => {
-    setSidebarOpen(false);
+    // Close only on mobile
+    if (window.innerWidth <= 768) {
+      setSidebarOpen(false);
+    }
   };
 
   return (
-    <aside className="sidebar">
+    <aside
+      className={`sidebar ${sidebarOpen ? "sidebar-open" : "sidebar-close"}`}
+    >
       {/* =========================
           SIDEBAR TOP
       ========================= */}
@@ -27,7 +35,9 @@ const CustomerSidebar = ({ setSidebarOpen }) => {
       <div className="sidebar-top">
         <h2 className="title">Customer Panel</h2>
 
-        <button className="close-btn" onClick={closeSidebar}>
+        {/* Mobile Close Button */}
+
+        <button className="close-btn" onClick={() => setSidebarOpen(false)}>
           <FaTimes />
         </button>
       </div>
@@ -82,10 +92,6 @@ const CustomerSidebar = ({ setSidebarOpen }) => {
           <FaHistory />
           <span>Transaction History</span>
         </NavLink>
-
-        {/* =========================
-            CUSTOMER INVOICES
-        ========================= */}
 
         <NavLink
           to="/customer/invoices"

@@ -9,7 +9,7 @@ import "./adminAuth.css";
 const AdminForgotPassword = () => {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("sunriseagriproducts@gmail.com");
+  const [email, setEmail] = useState("adarshagritech389@gmail.com");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {

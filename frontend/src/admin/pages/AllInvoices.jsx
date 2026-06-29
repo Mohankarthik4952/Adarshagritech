@@ -353,7 +353,7 @@ export default function AllInvoices() {
 
                   <p>
                     <strong>
-                      {selectedInvoice.companyName || "Sunrise Agri Products"}
+                      {selectedInvoice.companyName || "Adarsh Agri Tech"}
                     </strong>
                   </p>
 
@@ -477,10 +477,10 @@ export default function AllInvoices() {
               </div>
 
               <div className="invoice-footer">
-                <p>Thank you for choosing Sunrise Agri Products</p>
+                <p>Thank you for choosing Adarsh Agri Tech</p>
 
                 <p>
-                  Sunrise Agri Products <strong>© 2014</strong>
+                  Adarsh Agri Tech<strong>© 2014</strong>
                 </p>
               </div>
             </div>

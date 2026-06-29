@@ -152,9 +152,7 @@ export default function Footer() {
               COPYRIGHT
           ========================= */}
 
-          <p className="dashboard-footer-text">
-            © Sunrise Agri Products Since 2014
-          </p>
+          <p className="dashboard-footer-text">© Adarsh Agri Tech</p>
         </div>
       </footer>
 

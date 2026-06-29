@@ -16,7 +16,7 @@ const router = express.Router();
 ================================== */
 const ADMIN_EMAIL =
   process.env.ADMIN_EMAIL?.trim().toLowerCase() ||
-  "sunriseagriproducts@gmail.com";
+  "adarshagritech389@gmail.com";
 
 const ADMIN_PHONE = process.env.ADMIN_PHONE?.trim() || "";
 

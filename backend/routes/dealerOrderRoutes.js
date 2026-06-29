@@ -169,7 +169,7 @@ router.post("/", protect, dealerOnly, async (req, res) => {
       normalizedPaymentType === "PAY_LATER" ||
       normalizedPaymentType === "CREDIT"
     ) {
-      const invoiceNo = generateInvoiceNumber();
+      const invoiceNo = await generateInvoiceNumber();
 
       const invoiceItems = items.map((item) => ({
         productId: item.productId,

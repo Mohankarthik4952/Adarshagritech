@@ -18,6 +18,7 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selection, setSelection] = useState({});
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -39,6 +40,13 @@ const Products = () => {
 
     fetchProducts();
   }, []);
+  /* =========================
+   FILTER PRODUCTS
+========================= */
+
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(search.toLowerCase()),
+  );
 
   /* =========================
      HANDLE SIZE
@@ -323,9 +331,18 @@ const Products = () => {
   return (
     <div className="dealer-products-page">
       <div className="page-header">
-        <h1>Dealer Products</h1>
+        <div>
+          <h1>Dealer Products</h1>
+          <p>Order products with dealer discounts</p>
+        </div>
 
-        <p>Order products with dealer discounts</p>
+        <input
+          type="text"
+          className="product-search"
+          placeholder="Search product..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
       {products.length === 0 ? (
@@ -336,7 +353,7 @@ const Products = () => {
         </div>
       ) : (
         <div className="dealer-products-grid">
-          {products.map((product) => {
+          {filteredProducts.map((product) => {
             const selectedSize = selection[product._id]?.size || "";
 
             const selectedCases = selection[product._id]?.cases || 1;
@@ -347,22 +364,31 @@ const Products = () => {
 
             const availableCases = Number(sizeData?.stockQuantity || 0);
 
-            const mrp = sizeData?.mrp || 0;
+            const price = Number(sizeData?.price || product.dealerPrice || 0);
 
-            const bottlesPerCase = sizeData?.bottlesPerCase || 1;
+            const bottlesPerCase = Number(sizeData?.bottlesPerCase || 1);
 
             const totalBottles = bottlesPerCase * selectedCases;
 
-            const originalPrice = mrp * totalBottles;
+            /* ORIGINAL PRICE (ADMIN PRICE × BOTTLES) */
 
-            const discount = Number(product.dealerDiscountPercent) || 0;
+            const originalPrice = price * totalBottles;
 
-            const gst = Number(product.gstPercent) || 0;
+            const discount = Number(product.dealerDiscountPercent || 0);
 
-            const priceAfterDiscount =
-              originalPrice - (originalPrice * discount) / 100;
+            const gst = Number(product.gstPercent || 0);
+
+            /* DISCOUNT */
+
+            const discountAmount = (originalPrice * discount) / 100;
+
+            const priceAfterDiscount = originalPrice - discountAmount;
+
+            /* GST */
 
             const gstAmount = (priceAfterDiscount * gst) / 100;
+
+            /* FINAL */
 
             const finalPrice = priceAfterDiscount + gstAmount;
 

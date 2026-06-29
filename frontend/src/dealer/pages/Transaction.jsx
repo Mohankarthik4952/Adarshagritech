@@ -32,11 +32,11 @@ const Transaction = () => {
   const selectedOrderId = localStorage.getItem("selectedOrderId");
   const isExistingOrder = !!selectedOrderId;
 
-  const upiId = "Q037821057@ybl";
+  const upiId = "9848871389-2@ybl";
 
   const upiLink =
     `upi://pay?pa=${upiId}` +
-    `&pn=Sunrise Agri Products` +
+    `&pn=Adarsh Agri Tech` +
     `&am=${Number(total).toFixed(2)}` +
     `&cu=INR`;
 

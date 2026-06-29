@@ -40,7 +40,7 @@ const sendEmail = async (to, subject, text) => {
        SEND EMAIL
     ============================== */
     const info = await transporter.sendMail({
-      from: `"Sunrise Agri Products" <${process.env.EMAIL.trim()}>`,
+      from: `"Adarsh Agri Tech" <${process.env.EMAIL.trim()}>`,
       to,
       subject,
       text,

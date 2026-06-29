@@ -33,12 +33,16 @@ router.get("/", async (req, res) => {
 
       const mrp = Number(sizeData?.mrp || 0);
 
+      // Use admin entered price first.
+      // If price is not entered, use MRP.
+      const price = Number(sizeData?.price || product.customerPrice || mrp);
+
       const discount = Math.min(
         Math.max(Number(product.customerDiscountPercent || 0), 0),
         100,
       );
 
-      const finalPrice = Number((mrp - (mrp * discount) / 100).toFixed(2));
+      const finalPrice = Number((price - (price * discount) / 100).toFixed(2));
 
       /* =========================
          IMAGE FIX
@@ -74,6 +78,8 @@ router.get("/", async (req, res) => {
         acreCoverage: Number(sizeData?.acreCoverage || 1),
 
         mrp,
+
+        price,
 
         discountPercent: discount,
 
@@ -163,6 +169,11 @@ router.post("/", protect, adminOnly, async (req, res) => {
       product.customerSelectedSize = validSize
         ? validSize.size
         : product.sizes?.[0]?.size || "";
+      product.customerPrice = Number(item.price || 0);
+      if (validSize) {
+        validSize.price = Number(item.price || 0);
+        product.markModified("sizes");
+      }
 
       await product.save();
     }

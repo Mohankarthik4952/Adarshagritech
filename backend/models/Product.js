@@ -37,6 +37,11 @@ const sizeSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    price: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   {
     _id: false,
@@ -60,6 +65,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+    },
+    dealerSelectedSize: {
+      type: String,
+      default: "",
     },
 
     customerSelectedSize: {
@@ -115,6 +124,11 @@ const productSchema = new mongoose.Schema(
     /* =================================
        DEALER PRICING
     ================================= */
+    dealerPrice: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
 
     dealerDiscountPercent: {
       type: Number,
@@ -147,6 +161,11 @@ const productSchema = new mongoose.Schema(
     /* =================================
        CUSTOMER PRICING
     ================================= */
+    customerPrice: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
 
     customerDiscountPercent: {
       type: Number,
@@ -195,21 +214,46 @@ productSchema.pre("save", function () {
   );
 
   if (this.sizes?.length > 0) {
-    const mrp = Number(this.sizes[0]?.mrp || 0);
+    const dealerSize =
+      this.sizes.find((size) => size.size === this.dealerSelectedSize) ||
+      this.sizes[0];
 
-    /* GST */
+    const customerSize =
+      this.sizes.find((size) => size.size === this.customerSelectedSize) ||
+      this.sizes[0];
 
-    this.gstAmount = (mrp * Number(this.gstPercent || 0)) / 100;
+    const dealerMrp = Number(dealerSize?.mrp || 0);
+
+    const customerMrp = Number(customerSize?.mrp || 0);
+
+    const dealerPrice = Number(
+      this.dealerPrice || dealerSize?.price || dealerMrp,
+    );
+
+    const customerPrice = Number(
+      this.customerPrice || customerSize?.price || customerMrp,
+    );
 
     /* DEALER FINAL PRICE */
 
-    this.dealerFinalPrice =
-      mrp - Number(this.dealerDiscountValue || 0) + this.gstAmount;
+    const dealerDiscount =
+      (dealerPrice * Number(this.dealerDiscountPercent || 0)) / 100;
+
+    this.dealerDiscountValue = dealerDiscount;
+
+    this.gstAmount =
+      ((dealerPrice - dealerDiscount) * Number(this.gstPercent || 0)) / 100;
+
+    this.dealerFinalPrice = dealerPrice - dealerDiscount + this.gstAmount;
 
     /* CUSTOMER FINAL PRICE */
 
-    this.customerFinalPrice =
-      mrp - (mrp * Number(this.customerDiscountPercent || 0)) / 100;
+    const customerDiscount =
+      (customerPrice * Number(this.customerDiscountPercent || 0)) / 100;
+
+    this.customerDiscountValue = customerDiscount;
+
+    this.customerFinalPrice = customerPrice - customerDiscount;
   }
 });
 

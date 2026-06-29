@@ -38,7 +38,7 @@ router.get("/:id/download", protect, async (req, res) => {
        COMPANY HEADER
     ========================= */
 
-    doc.fontSize(22).text("SUNRISE AGRI PRODUCTS", {
+    doc.fontSize(22).text("Adarsh Agri Tech", {
       align: "center",
     });
 
@@ -72,7 +72,7 @@ router.get("/:id/download", protect, async (req, res) => {
     doc.fontSize(13).text("FROM");
 
     doc.fontSize(11);
-    doc.text(invoice.companyName || "Sunrise Agri Products");
+    doc.text(invoice.companyName || "Adarsh Agri Tech");
     doc.text(`GST : ${invoice.companyGSTNumber || "-"}`);
 
     doc.moveDown();
@@ -177,11 +177,11 @@ router.get("/:id/download", protect, async (req, res) => {
 
     doc.fontSize(11);
 
-    doc.text("Thank you for choosing Sunrise Agri Products.", {
+    doc.text("Thank you for choosing Adarsh Agri Tech.", {
       align: "center",
     });
 
-    doc.text("Sunrise Agri Products © 2014", {
+    doc.text("Adarsh Agri Tech", {
       align: "center",
     });
 

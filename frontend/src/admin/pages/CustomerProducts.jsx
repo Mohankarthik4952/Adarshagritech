@@ -15,6 +15,7 @@ const CustomerProducts = () => {
   const [products, setProducts] = useState([]);
   const [customerConfig, setCustomerConfig] = useState({});
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
   /* =========================
      TOKEN
@@ -79,6 +80,15 @@ const CustomerProducts = () => {
 
           description: product.customerDescription || "",
 
+          price:
+            product.customerPrice ??
+            product.sizes?.find(
+              (s) =>
+                s.size ===
+                (product.customerSelectedSize || product.sizes?.[0]?.size),
+            )?.price ??
+            0,
+
           discount: product.customerDiscountPercent || "",
 
           selectedSize:
@@ -116,7 +126,9 @@ const CustomerProducts = () => {
         [field]:
           field === "discount"
             ? Math.min(100, Math.max(0, Number(value) || 0))
-            : value,
+            : field === "price"
+              ? Math.max(0, Number(value) || 0)
+              : value,
       },
     }));
   };
@@ -147,15 +159,19 @@ const CustomerProducts = () => {
   /* =========================
      FINAL PRICE
   ========================= */
-
-  const getFinalPrice = (product, discount) => {
-    const mrp = getProductMRP(product);
-
+  const getFinalPrice = (price, discount) => {
+    const priceValue = Number(price || 0);
     const discountValue = Number(discount || 0);
 
-    const finalPrice = mrp - (mrp * discountValue) / 100;
+    const discountedPrice =
+      discountValue > 0
+        ? priceValue - (priceValue * discountValue) / 100
+        : priceValue;
 
-    return finalPrice.toFixed(2);
+    return discountedPrice.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   };
 
   /* =========================
@@ -195,12 +211,14 @@ const CustomerProducts = () => {
         return;
       }
 
-      const payload = products.map((product) => ({
+      const payload = filteredProducts.map((product) => ({
         productId: product._id,
 
         selected: customerConfig[product._id]?.visible || false,
 
         description: customerConfig[product._id]?.description || "",
+
+        price: Number(customerConfig[product._id]?.price || 0),
 
         discount: Number(customerConfig[product._id]?.discount || 0),
 
@@ -272,12 +290,20 @@ const CustomerProducts = () => {
 
     return `${API_URL}${image}`;
   };
+  const filteredProducts = products.filter((product) => {
+    const keyword = search.toLowerCase();
+
+    return (
+      product.productId?.toLowerCase().includes(keyword) ||
+      product.name?.toLowerCase().includes(keyword)
+    );
+  });
 
   /* =========================
      LOADING
   ========================= */
 
-  if (loading && products.length === 0) {
+  if (loading && filteredProducts.length === 0) {
     return (
       <div className="dealer-products-page">
         <div className="loading-box">
@@ -310,6 +336,14 @@ const CustomerProducts = () => {
       <div className="page-header">
         <h2>Customer Products Management</h2>
 
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search Product ID or Name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
         <button
           className="save-btn"
           onClick={saveCustomerProducts}
@@ -329,6 +363,7 @@ const CustomerProducts = () => {
               <th>Name</th>
               <th>Size</th>
               <th>MRP</th>
+              <th>Price</th>
               <th>Description</th>
               <th>Discount %</th>
               <th>Final Price</th>
@@ -336,14 +371,14 @@ const CustomerProducts = () => {
           </thead>
 
           <tbody>
-            {products.length === 0 ? (
+            {filteredProducts.length === 0 ? (
               <tr>
                 <td colSpan="9" style={{ textAlign: "center" }}>
                   No products found
                 </td>
               </tr>
             ) : (
-              products.map((product) => (
+              filteredProducts.map((product) => (
                 <tr key={product._id}>
                   <td>
                     <input
@@ -396,6 +431,19 @@ const CustomerProducts = () => {
 
                   <td>
                     <input
+                      type="number"
+                      min="0"
+                      placeholder="Price"
+                      value={customerConfig[product._id]?.price || ""}
+                      onChange={(e) =>
+                        handleChange(product._id, "price", e.target.value)
+                      }
+                      className="table-input"
+                    />
+                  </td>
+
+                  <td>
+                    <input
                       type="text"
                       placeholder="Product description"
                       value={customerConfig[product._id]?.description || ""}
@@ -423,7 +471,7 @@ const CustomerProducts = () => {
                   <td>
                     ₹
                     {getFinalPrice(
-                      product,
+                      customerConfig[product._id]?.price,
                       customerConfig[product._id]?.discount,
                     )}
                   </td>

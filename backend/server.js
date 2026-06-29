@@ -191,7 +191,7 @@ app.get("/", (req, res) => {
   res.json({
     status: "Backend running",
 
-    service: "Sunrise Agri Products",
+    service: "Adarsh Agri Tech",
 
     time: new Date().toISOString(),
   });

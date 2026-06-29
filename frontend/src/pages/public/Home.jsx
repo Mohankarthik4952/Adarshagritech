@@ -13,7 +13,7 @@ import {
 
 import "../../pages/public/public.css";
 
-import logo from "../../assets/sunrise.png";
+import logo from "../../assets/adarsh.jpeg";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -51,7 +51,7 @@ const HomePage = () => {
         <div className="home-logo">
           <img src={logo} alt="Sunrise Agri Products" />
 
-          <h2>Sunrise Agri Products</h2>
+          <h2>Adarsh Agri Tech</h2>
         </div>
 
         <div className="auth-buttons">
@@ -81,7 +81,7 @@ const HomePage = () => {
 
       <section className="hero-section">
         <div className="hero-content">
-          <h1>Welcome To Sunrise Agri Products</h1>
+          <h1>Welcome To Adarsh Agri Tech</h1>
 
           <p>
             Trusted agricultural products and farming solutions for better crop
@@ -169,7 +169,7 @@ const HomePage = () => {
           </a>
         </div>
 
-        <p className="copyright">© Sunrise Agri Products Since 2014</p>
+        <p className="copyright">Adarsh Agri Tech</p>
       </footer>
     </div>
   );

@@ -221,7 +221,7 @@ const invoiceSchema = new mongoose.Schema(
 
     companyName: {
       type: String,
-      default: "Sunrise Agri Products",
+      default: "Adarsh Agri Tech",
       trim: true,
     },
 

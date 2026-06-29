@@ -15,6 +15,7 @@ const DealerProducts = () => {
   const [dealerConfig, setDealerConfig] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
   /* =================================
      TOKEN
@@ -74,7 +75,16 @@ const DealerProducts = () => {
       const initial = {};
 
       safeProducts.forEach((product) => {
+        const selectedSize = product.sizes?.[0];
+
         initial[product._id] = {
+          selectedSize: selectedSize?.size || "",
+
+          price:
+            selectedSize?.price !== undefined && selectedSize?.price !== null
+              ? String(selectedSize.price)
+              : "",
+
           visible: product.visibleToDealers || false,
 
           description: product.dealerDescription || "",
@@ -91,9 +101,9 @@ const DealerProducts = () => {
               : "",
 
           stockQuantity:
-            product.sizes?.[0]?.stockQuantity !== undefined &&
-            product.sizes?.[0]?.stockQuantity !== null
-              ? String(product.sizes[0].stockQuantity)
+            selectedSize?.stockQuantity !== undefined &&
+            selectedSize?.stockQuantity !== null
+              ? String(selectedSize.stockQuantity)
               : "0",
         };
       });
@@ -125,7 +135,7 @@ const DealerProducts = () => {
       updatedValue = Math.min(100, Math.max(0, Number(value) || 0));
     }
 
-    if (field === "stockQuantity") {
+    if (field === "stockQuantity" || field === "price") {
       updatedValue = Math.max(0, Number(value) || 0);
     }
 
@@ -160,18 +170,25 @@ const DealerProducts = () => {
         return;
       }
 
-      const payload = products.map((product) => ({
+      const payload = filteredProducts.map((product) => ({
         productId: product._id,
 
         selected: dealerConfig[product._id]?.visible || false,
 
         description: dealerConfig[product._id]?.description || "",
 
+        price: Number(dealerConfig[product._id]?.price || 0),
+
         discount: Number(dealerConfig[product._id]?.discount || 0),
 
         gstPercent: Number(dealerConfig[product._id]?.gst || 0),
 
         stockQuantity: Number(dealerConfig[product._id]?.stockQuantity || 0),
+
+        selectedSize:
+          dealerConfig[product._id]?.selectedSize ||
+          product.sizes?.[0]?.size ||
+          "",
       }));
 
       const response = await fetch(`${API_URL}/api/admin/dealer-products`, {
@@ -244,29 +261,37 @@ const DealerProducts = () => {
      FINAL PRICE
   ================================= */
 
-  const getFinalPrice = (product, discount, gst) => {
-    if (!product.sizes?.length) {
-      return "0.00";
-    }
-
-    const mrp = Number(product.sizes[0]?.mrp || 0);
+  const getFinalPrice = (price, discount, gst) => {
+    const priceValue = Number(price || 0);
 
     const discountValue = Number(discount || 0);
 
     const gstValue = Number(gst || 0);
 
-    const priceAfterDiscount = mrp - (mrp * discountValue) / 100;
+    const discountedPrice =
+      discountValue > 0
+        ? priceValue - (priceValue * discountValue) / 100
+        : priceValue;
 
-    const gstAmount = (priceAfterDiscount * gstValue) / 100;
+    const gstAmount = (discountedPrice * gstValue) / 100;
 
-    return (priceAfterDiscount + gstAmount).toFixed(2);
+    return (discountedPrice + gstAmount).toFixed(2);
   };
+
+  const filteredProducts = products.filter((product) => {
+    const keyword = search.toLowerCase();
+
+    return (
+      product.productId?.toLowerCase().includes(keyword) ||
+      product.name?.toLowerCase().includes(keyword)
+    );
+  });
 
   /* =================================
      LOADING
   ================================= */
 
-  if (loading && products.length === 0) {
+  if (loading && filteredProducts.length === 0) {
     return (
       <div className="dealer-products-page">
         <div className="loading-box">
@@ -299,6 +324,14 @@ const DealerProducts = () => {
       <div className="page-header">
         <h2>Dealer Products Management</h2>
 
+        <input
+          type="text"
+          placeholder="Search Product ID or Name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="search-input"
+        />
+
         <button
           className="save-btn"
           onClick={saveDealerProducts}
@@ -317,6 +350,9 @@ const DealerProducts = () => {
               <th>Product ID</th>
               <th>Name</th>
               <th>Cases Left</th>
+              <th>Size</th>
+              <th>MRP</th>
+              <th>Price</th>
               <th>Description</th>
               <th>Discount %</th>
               <th>GST %</th>
@@ -325,14 +361,14 @@ const DealerProducts = () => {
           </thead>
 
           <tbody>
-            {products.length === 0 ? (
+            {filteredProducts.length === 0 ? (
               <tr>
                 <td colSpan="9" style={{ textAlign: "center" }}>
                   No products found
                 </td>
               </tr>
             ) : (
-              products.map((product) => (
+              filteredProducts.map((product) => (
                 <tr key={product._id}>
                   <td>
                     <input
@@ -371,6 +407,55 @@ const DealerProducts = () => {
                           "stockQuantity",
                           e.target.value,
                         )
+                      }
+                    />
+                  </td>
+                  <td>
+                    <select
+                      className="table-input"
+                      value={dealerConfig[product._id]?.selectedSize || ""}
+                      onChange={(e) => {
+                        const selected = product.sizes.find(
+                          (s) => s.size === e.target.value,
+                        );
+
+                        setDealerConfig((prev) => ({
+                          ...prev,
+                          [product._id]: {
+                            ...prev[product._id],
+                            selectedSize: selected.size,
+                            price: selected.price || "",
+                            stockQuantity: selected.stockQuantity || 0,
+                          },
+                        }));
+                      }}
+                    >
+                      {product.sizes.map((size) => (
+                        <option key={size.size} value={size.size}>
+                          {size.size}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+
+                  <td>
+                    ₹
+                    {Number(
+                      product.sizes.find(
+                        (s) =>
+                          s.size === dealerConfig[product._id]?.selectedSize,
+                      )?.mrp || 0,
+                    ).toFixed(2)}
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      min="0"
+                      className="table-input"
+                      placeholder="Price"
+                      value={dealerConfig[product._id]?.price || ""}
+                      onChange={(e) =>
+                        handleChange(product._id, "price", e.target.value)
                       }
                     />
                   </td>
@@ -418,7 +503,7 @@ const DealerProducts = () => {
                   <td>
                     ₹
                     {getFinalPrice(
-                      product,
+                      dealerConfig[product._id]?.price,
                       dealerConfig[product._id]?.discount,
                       dealerConfig[product._id]?.gst,
                     )}

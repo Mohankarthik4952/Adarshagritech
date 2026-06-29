@@ -259,6 +259,10 @@ router.post("/dealer-products", async (req, res) => {
         continue;
       }
 
+      /* ===============================
+         DEALER SETTINGS
+      =============================== */
+
       product.visibleToDealers = Boolean(item.selected);
 
       product.dealerDescription = item.description || "";
@@ -267,13 +271,23 @@ router.post("/dealer-products", async (req, res) => {
 
       product.gstPercent = Number(item.gstPercent || 0);
 
-      const stockQuantity = Number(item.stockQuantity || 0);
+      product.dealerPrice = Number(item.price || 0);
 
-      console.log("UPDATING STOCK:", product.name, stockQuantity);
+      product.dealerSelectedSize = item.selectedSize || "";
 
-      if (Array.isArray(product.sizes)) {
+      /* ===============================
+         UPDATE SELECTED SIZE PRICE
+      =============================== */
+
+      if (Array.isArray(product.sizes) && product.sizes.length > 0) {
         product.sizes.forEach((size) => {
-          size.stockQuantity = stockQuantity;
+          // Save price only for the selected size
+          if (size.size === item.selectedSize) {
+            size.price = Number(item.price || 0);
+          }
+
+          // Update stock for every size
+          size.stockQuantity = Number(item.stockQuantity || 0);
         });
 
         product.markModified("sizes");
@@ -283,13 +297,22 @@ router.post("/dealer-products", async (req, res) => {
 
       const updatedProduct = await Product.findById(item.productId).lean();
 
-      console.log(
-        "UPDATED SIZES:",
-        updatedProduct.sizes.map((size) => ({
+      console.log("UPDATED PRODUCT:", {
+        name: updatedProduct.name,
+        dealerPrice: updatedProduct.dealerPrice,
+        dealerDiscountPercent: updatedProduct.dealerDiscountPercent,
+        dealerFinalPrice: updatedProduct.dealerFinalPrice,
+        gstPercent: updatedProduct.gstPercent,
+        dealerSelectedSize: updatedProduct.dealerSelectedSize,
+        selectedSizePrice: updatedProduct.sizes.find(
+          (s) => s.size === updatedProduct.dealerSelectedSize,
+        )?.price,
+        sizes: updatedProduct.sizes.map((size) => ({
           size: size.size,
+          price: size.price,
           stockQuantity: size.stockQuantity,
         })),
-      );
+      });
     }
 
     return res.status(200).json({
@@ -314,7 +337,7 @@ router.post("/customer-products", async (req, res) => {
   try {
     const { products } = req.body;
 
-    if (!products || !Array.isArray(products)) {
+    if (!Array.isArray(products)) {
       return res.status(400).json({
         success: false,
         message: "Products data required",
@@ -332,9 +355,66 @@ router.post("/customer-products", async (req, res) => {
         });
       }
 
-      await Product.findByIdAndUpdate(item.productId, {
-        visibleToCustomers: item.selected,
-        customerDescription: item.description,
+      const product = await Product.findById(item.productId);
+
+      if (!product) {
+        console.log("PRODUCT NOT FOUND:", item.productId);
+        continue;
+      }
+
+      /* ===============================
+         CUSTOMER SETTINGS
+      =============================== */
+
+      product.visibleToCustomers = Boolean(item.selected);
+
+      product.customerDescription = item.description || "";
+
+      product.customerDiscountPercent = Number(item.discount || 0);
+
+      product.customerSelectedSize = item.selectedSize || "";
+
+      product.customerPrice = Number(item.price || 0);
+
+      /* ===============================
+         UPDATE SELECTED SIZE PRICE
+      =============================== */
+
+      if (Array.isArray(product.sizes)) {
+        product.sizes.forEach((size) => {
+          if (size.size === item.selectedSize) {
+            size.price = Number(item.price || 0);
+          }
+        });
+
+        product.markModified("sizes");
+      }
+
+      console.log(
+        "UPDATING CUSTOMER:",
+        product.name,
+        "Price:",
+        product.customerPrice,
+        "Discount:",
+        product.customerDiscountPercent,
+        "Selected Size:",
+        product.customerSelectedSize,
+      );
+
+      await product.save();
+
+      const updatedProduct = await Product.findById(item.productId).lean();
+
+      console.log("UPDATED CUSTOMER PRODUCT:", {
+        name: updatedProduct.name,
+        customerPrice: updatedProduct.customerPrice,
+        customerDiscountPercent: updatedProduct.customerDiscountPercent,
+        customerFinalPrice: updatedProduct.customerFinalPrice,
+        customerSelectedSize: updatedProduct.customerSelectedSize,
+        sizes: updatedProduct.sizes.map((size) => ({
+          size: size.size,
+          price: size.price,
+        })),
       });
     }
 

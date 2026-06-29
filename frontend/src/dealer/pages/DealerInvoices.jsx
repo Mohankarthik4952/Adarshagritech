@@ -284,7 +284,7 @@ export default function DealerInvoices() {
                   <h3>From</h3>
 
                   <p>
-                    <strong>Sunrise Agri Products</strong>
+                    <strong>Adarsh Agri Tech</strong>
                   </p>
 
                   <p>
@@ -416,12 +416,9 @@ export default function DealerInvoices() {
               </div>
 
               <div className="invoice-footer">
-                <p>Thank you for doing business with Sunrise Agri Products</p>
+                <p>Thank you for doing business with Adarsh Agri Tech</p>
 
-                <p>
-                  Sunrise Agri Products Since
-                  <strong> @2014</strong>
-                </p>
+                <p>Adarsh Agri Tech Since</p>
               </div>
             </div>
           </div>

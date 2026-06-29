@@ -136,7 +136,8 @@ const Home = () => {
     return "Good Evening";
   };
 
-  const adminName = admin?.name || admin?.adminName || admin?.fullName || "GVR";
+  const adminName =
+    admin?.name || admin?.adminName || admin?.fullName || "Adarsh";
 
   const formatCurrency = (amount) => {
     return Number(amount || 0).toLocaleString("en-IN", {
@@ -190,7 +191,7 @@ const Home = () => {
           {getGreeting()}, {adminName}
         </h1>
 
-        <p>Welcome to the Sunrise Agri Products Admin Dashboard.</p>
+        <p>Welcome to the Adarsh Agri Tech Admin Dashboard.</p>
       </div>
 
       {/* MAIN STATS */}

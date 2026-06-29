@@ -18,6 +18,7 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [acreValues, setAcreValues] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
 
   /* =========================
      FETCH PRODUCTS
@@ -101,20 +102,39 @@ const Products = () => {
 
     navigate("/customer/transaction");
   };
+  const filteredProducts = products.filter((product) => {
+    const search = searchTerm.trim().toLowerCase();
+
+    return (
+      product.productId?.toLowerCase().includes(search) ||
+      product.name?.toLowerCase().includes(search) ||
+      product.customerDescription?.toLowerCase().includes(search) ||
+      product.description?.toLowerCase().includes(search)
+    );
+  });
 
   return (
     <div className="customer-products-page">
       <div className="page-header">
-        <h1>Available Products</h1>
+        <div>
+          <h1>Available Products</h1>
+          <p>Explore all agricultural products</p>
+        </div>
 
-        <p>Explore all agricultural products</p>
+        <input
+          type="text"
+          className="product-search"
+          placeholder="Search by Product Name or Description..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       {loading ? (
         <div className="loading-box">
           <h2>Loading products...</h2>
         </div>
-      ) : products.length === 0 ? (
+      ) : filteredProducts.length === 0 ? (
         <div className="empty-products">
           <FaBoxOpen />
 
@@ -122,10 +142,15 @@ const Products = () => {
         </div>
       ) : (
         <div className="customer-products-grid">
-          {products.map((product) => {
+          {filteredProducts.map((product) => {
             const sizeData = product.sizes?.[0] || {};
 
             const selectedSize = sizeData.size || "";
+
+            // Use admin entered price first, otherwise use MRP
+            const originalPrice = Number(
+              sizeData.price || product.customerPrice || sizeData.mrp || 0,
+            );
 
             const mrp = Number(sizeData.mrp || 0);
 
@@ -133,7 +158,8 @@ const Products = () => {
               product.customerDiscountPercent || product.discountPercent || 0,
             );
 
-            const finalPrice = mrp - (mrp * discount) / 100;
+            // Discount should be calculated on Price, not MRP
+            const finalPrice = originalPrice - (originalPrice * discount) / 100;
 
             const acreCoverage = Number(sizeData.acreCoverage || 1);
 
@@ -189,7 +215,7 @@ const Products = () => {
                   <div className="price-section">
                     <div className="mrp-price">
                       Original:
-                      <span>₹{formatCurrency(mrp)}</span>
+                      <span>₹{formatCurrency(originalPrice)}</span>
                     </div>
 
                     <div className="discount-price">
@@ -258,6 +284,7 @@ const Products = () => {
                           quantity,
                           unitPrice: finalPrice,
                           mrp,
+                          originalPrice,
                           discountPercent: discount,
                           price: totalPrice,
                           image,
@@ -291,6 +318,7 @@ const Products = () => {
                           quantity,
                           unitPrice: finalPrice,
                           mrp,
+                          originalPrice,
                           discountPercent: discount,
                           price: totalPrice,
                           image,

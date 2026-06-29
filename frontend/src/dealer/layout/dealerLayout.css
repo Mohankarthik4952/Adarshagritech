@@ -45,6 +45,35 @@
   cursor: pointer;
   min-width: 0;
 }
+/* =========================================
+   DESKTOP SIDEBAR TOGGLE
+========================================= */
+
+.dealer-desktop-toggle {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 12px;
+
+  background: transparent;
+
+  color: #081c3a;
+
+  font-size: 22px;
+
+  cursor: pointer;
+
+  transition: 0.25s;
+}
+
+.dealer-desktop-toggle:hover {
+  background: #eef2f7;
+}
 
 .dealer-logo {
   width: 52px;
@@ -197,7 +226,10 @@
   overflow-y: auto;
   flex-shrink: 0;
 
-  transition: transform 0.3s ease;
+  transition:
+    width 0.3s ease,
+    min-width 0.3s ease,
+    padding 0.3s ease;
 
   z-index: 1300;
 }
@@ -280,6 +312,12 @@
   padding: 28px;
 
   overflow-x: hidden;
+
+  transition: all 0.3s ease;
+}
+
+.dealer-page-content-full {
+  width: 100%;
 }
 
 /* =========================================
@@ -443,7 +481,7 @@
 ========================================= */
 
 .dealer-mobile-toggle {
-  display: none;
+  display: none !important;
 
   position: fixed;
   top: 92px;
@@ -525,9 +563,21 @@
 
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
   }
+  .dealer-sidebar.dealer-sidebar-close {
+    width: 0;
+    min-width: 0;
+
+    padding-left: 0;
+    padding-right: 0;
+
+    overflow: hidden;
+  }
 
   .dealer-sidebar.dealer-sidebar-open {
     transform: translateX(0);
+  }
+  .dealer-sidebar.dealer-sidebar-close {
+    transform: translateX(-100%);
   }
 
   .dealer-sidebar-overlay {
@@ -607,5 +657,24 @@
   .dealer-link {
     padding: 14px 16px;
     font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .dealer-sidebar {
+    position: relative;
+    transform: none !important;
+  }
+
+  .dealer-sidebar.dealer-sidebar-close {
+    width: 0;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    overflow: hidden;
+  }
+
+  .dealer-page-content-full {
+    width: 100%;
   }
 }

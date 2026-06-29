@@ -9,35 +9,41 @@ import Footer from "../../common/Footer";
 import "./customerLayout.css";
 
 const CustomerLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
     <div className="layout">
       {/* ================= HEADER ================= */}
 
-      <CustomerHeader setSidebarOpen={setSidebarOpen} />
+      <CustomerHeader
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+      />
 
       {/* ================= BODY ================= */}
 
       <div className="layout-body">
         {/* ================= SIDEBAR ================= */}
 
-        <div className={`sidebar-container ${sidebarOpen ? "open" : ""}`}>
-          <CustomerSidebar setSidebarOpen={setSidebarOpen} />
-        </div>
+        <CustomerSidebar
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+        />
 
         {/* ================= MOBILE OVERLAY ================= */}
 
-        {sidebarOpen && (
+        {sidebarOpen && window.innerWidth <= 768 && (
           <div
             className="sidebar-overlay"
             onClick={() => setSidebarOpen(false)}
-          ></div>
+          />
         )}
 
         {/* ================= MAIN CONTENT ================= */}
 
-        <main className="layout-main">
+        <main
+          className={`layout-main ${sidebarOpen ? "" : "layout-main-full"}`}
+        >
           <div className="layout-content">
             <Outlet />
           </div>

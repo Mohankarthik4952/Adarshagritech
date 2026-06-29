@@ -258,9 +258,9 @@ const PayOutstanding = () => {
       return;
     }
 
-    const upiId = "Q037821057@ybl";
+    const upiId = "9848871389-2@ybl";
 
-    const merchantName = "Sunrise Agri Products";
+    const merchantName = "Adarsh Agri Tech";
 
     const upiLink =
       `upi://pay?pa=${upiId}` +

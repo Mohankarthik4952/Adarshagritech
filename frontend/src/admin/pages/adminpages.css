@@ -4202,3 +4202,28 @@
 .transactions-table-wrapper::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
 }
+.search-input {
+  width: 320px;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #0f766e;
+}
+
+@media (max-width: 768px) {
+  .search-input {
+    width: 100%;
+  }
+
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+}

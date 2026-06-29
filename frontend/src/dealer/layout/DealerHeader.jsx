@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaCamera, FaSignOutAlt, FaChevronDown } from "react-icons/fa";
+import {
+  FaCamera,
+  FaSignOutAlt,
+  FaChevronDown,
+  FaBars,
+  FaTimes,
+} from "react-icons/fa";
 
 import API_URL from "../../config/api";
 
@@ -9,7 +15,7 @@ import defaultProfile from "../../assets/profile.jpg";
 
 import "./dealerLayout.css";
 
-const DealerHeader = () => {
+const DealerHeader = ({ sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
@@ -148,14 +154,29 @@ const DealerHeader = () => {
 
   return (
     <header className="dealer-header">
-      <div
-        className="dealer-header-left"
-        onClick={() => navigate("/dealer/home")}
-      >
-        <img src={logo} alt="Sunrise Agri Products" className="dealer-logo" />
+      <div className="dealer-header-left">
+        {/* SIDEBAR TOGGLE */}
 
-        <div className="dealer-title-wrapper">
-          <h2 className="dealer-title">Sunrise Agri Products</h2>
+        <button
+          className="dealer-desktop-toggle"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          {sidebarOpen ? <FaTimes /> : <FaBars />}
+        </button>
+
+        {/* LOGO */}
+
+        <div onClick={() => navigate("/dealer/home")}>
+          <img src={logo} alt="Sunrise Agri Products" className="dealer-logo" />
+        </div>
+
+        {/* TITLE */}
+
+        <div
+          className="dealer-title-wrapper"
+          onClick={() => navigate("/dealer/home")}
+        >
+          <h2 className="dealer-title">Adarsh Agri Tech</h2>
 
           <p className="dealer-greeting">Good Afternoon {dealerName}</p>
         </div>

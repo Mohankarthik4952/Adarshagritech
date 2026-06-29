@@ -9,7 +9,7 @@ import AdminSidebar from "./AdminSidebar";
 import "./adminLayout.css";
 
 const AdminLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
 
   /* =========================
      CLOSE SIDEBAR ON RESIZE
@@ -46,7 +46,7 @@ const AdminLayout = () => {
   return (
     <div className="admin-layout">
       {/* HEADER */}
-      <AdminHeader setSidebarOpen={setSidebarOpen} />
+      <AdminHeader sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       {/* BODY */}
       <div className="admin-body">
@@ -58,7 +58,7 @@ const AdminLayout = () => {
 
         {/* PAGE CONTENT */}
         <main
-          className="admin-content"
+          className={`admin-content ${sidebarOpen ? "sidebar-open" : ""}`}
           onClick={() => {
             if (window.innerWidth <= 768 && sidebarOpen) {
               setSidebarOpen(false);

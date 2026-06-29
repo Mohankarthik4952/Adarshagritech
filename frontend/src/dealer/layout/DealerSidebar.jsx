@@ -1,5 +1,3 @@
-// src/dealer/layout/DealerSidebar.jsx
-
 import { NavLink } from "react-router-dom";
 import "./dealerLayout.css";
 import {
@@ -17,17 +15,15 @@ import {
   FaUndo,
 } from "react-icons/fa";
 
-import { useState } from "react";
-
-const DealerSidebar = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
+const DealerSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   /* =========================
       CLOSE SIDEBAR
   ========================= */
 
   const closeSidebar = () => {
-    setSidebarOpen(false);
+    if (window.innerWidth <= 768) {
+      setSidebarOpen(false);
+    }
   };
 
   return (
@@ -48,7 +44,9 @@ const DealerSidebar = () => {
       ========================= */}
 
       <aside
-        className={`dealer-sidebar ${sidebarOpen ? "dealer-sidebar-open" : ""}`}
+        className={`dealer-sidebar ${
+          sidebarOpen ? "dealer-sidebar-open" : "dealer-sidebar-close"
+        }`}
       >
         {/* =========================
             TITLE

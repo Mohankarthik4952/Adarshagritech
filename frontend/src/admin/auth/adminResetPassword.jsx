@@ -8,7 +8,7 @@ const AdminResetPassword = () => {
   const navigate = useNavigate();
 
   // Fixed admin email
-  const ADMIN_EMAIL = "sunriseagriproducts@gmail.com";
+  const ADMIN_EMAIL = "adarshagritech389@gmail.com";
 
   // Form State
   const [password, setPassword] = useState("");

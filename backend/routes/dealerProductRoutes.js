@@ -21,44 +21,42 @@ router.get("/", async (req, res) => {
 
       name: product.name,
 
-      // FIX: use images instead of image
       images: product.images || [],
 
       description: product.dealerDescription || "",
 
-      dealerDiscountPercent: Number(product.dealerDiscountPercent) || 0,
+      dealerDiscountPercent: Number(product.dealerDiscountPercent || 0),
 
-      gstPercent: Number(product.gstPercent) || 0,
-
-      dealerFinalPrice: product.sizes.map((size) => {
-        const mrp = Number(size.mrp || 0);
-
-        const discount = Number(product.dealerDiscountPercent || 0);
-
-        const gst = Number(product.gstPercent || 0);
-
-        const priceAfterDiscount = mrp - (mrp * discount) / 100;
-
-        const gstAmount = (priceAfterDiscount * gst) / 100;
-
-        return {
-          size: size.size,
-          finalPrice: Number((priceAfterDiscount + gstAmount).toFixed(2)),
-        };
-      }),
+      gstPercent: Number(product.gstPercent || 0),
 
       sizes:
-        product.sizes?.map((size) => ({
-          size: size.size,
+        product.sizes?.map((size) => {
+          const price = Number(size.price || product.dealerPrice || 0);
 
-          mrp: Number(size.mrp) || 0,
+          const discount = Number(product.dealerDiscountPercent || 0);
 
-          bottlesPerCase: Number(size.bottlesPerCase) || 1,
+          const gst = Number(product.gstPercent || 0);
 
-          stockQuantity: Number(size.stockQuantity) || 0,
+          const priceAfterDiscount = price - (price * discount) / 100;
 
-          acreCoverage: Number(size.acreCoverage) || 1,
-        })) || [],
+          const gstAmount = (priceAfterDiscount * gst) / 100;
+
+          return {
+            size: size.size,
+
+            mrp: Number(size.mrp || 0),
+
+            price,
+
+            bottlesPerCase: Number(size.bottlesPerCase || 1),
+
+            stockQuantity: Number(size.stockQuantity || 0),
+
+            acreCoverage: Number(size.acreCoverage || 1),
+
+            finalPrice: Number((priceAfterDiscount + gstAmount).toFixed(2)),
+          };
+        }) || [],
     }));
 
     return res.status(200).json(formattedProducts);
@@ -90,10 +88,7 @@ router.post("/", async (req, res) => {
     for (const item of products) {
       const product = await Product.findById(item.productId);
 
-      if (!product) {
-        console.log("PRODUCT NOT FOUND:", item.productId);
-        continue;
-      }
+      if (!product) continue;
 
       product.visibleToDealers = Boolean(item.selected);
 
@@ -103,47 +98,40 @@ router.post("/", async (req, res) => {
 
       product.gstPercent = Number(item.gstPercent || 0);
 
-      const stockQuantity = Number(item.stockQuantity || 0);
+      product.dealerPrice = Number(item.price || 0);
 
-      /* =========================
-         UPDATE STOCK FOR ALL SIZES
-      ========================= */
+      const stockQuantity = Number(item.stockQuantity || 0);
 
       if (Array.isArray(product.sizes)) {
         product.sizes.forEach((size) => {
           size.stockQuantity = stockQuantity;
+
+          size.price = Number(item.price || 0);
         });
 
         product.markModified("sizes");
       }
 
-      /* =========================
-         CALCULATE FINAL PRICE
-      ========================= */
+      const price = Number(item.price || 0);
 
-      if (product.sizes?.length > 0) {
-        const mrp = Number(product.sizes[0]?.mrp || 0);
+      const discount = (price * Number(item.discount || 0)) / 100;
 
-        const discount = Number(product.dealerDiscountPercent || 0);
+      const afterDiscount = price - discount;
 
-        const gst = Number(product.gstPercent || 0);
+      const gstAmount = (afterDiscount * Number(item.gstPercent || 0)) / 100;
 
-        const priceAfterDiscount = mrp - (mrp * discount) / 100;
-
-        const gstAmount = (priceAfterDiscount * gst) / 100;
-
-        product.dealerFinalPrice = Number(
-          (priceAfterDiscount + gstAmount).toFixed(2),
-        );
-      }
+      product.dealerFinalPrice = Number((afterDiscount + gstAmount).toFixed(2));
 
       await product.save();
 
       console.log("================================");
       console.log("UPDATED:", product.name);
+      console.log("Price:", product.dealerPrice);
+      console.log("Final:", product.dealerFinalPrice);
       console.log(
         product.sizes.map((size) => ({
           size: size.size,
+          price: size.price,
           stockQuantity: size.stockQuantity,
         })),
       );

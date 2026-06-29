@@ -397,7 +397,7 @@ router.post("/checkout", protect, async (req, res) => {
 
         dealerPhoneNumber: dealer.phone || "",
 
-        companyName: "Sunrise Agri Products",
+        companyName: "Adarsh Agri Tech",
 
         items: orderItems.map((item) => ({
           productId: item.productId,
@@ -693,9 +693,18 @@ router.post("/pay-outstanding", protect, async (req, res) => {
 
       paymentDate: new Date(),
     });
-    const pendingBillsAfterPayment = Math.max(
-      totalOutstanding - paymentAmount,
-      0,
+
+    const pendingBillsAfterPayment = Number(
+      Math.max(totalOutstanding - paymentAmount, 0).toFixed(2),
+    );
+
+    console.table(
+      invoices.map((invoice) => ({
+        invoiceNo: invoice.invoiceNo,
+        grandTotal: invoice.grandTotal,
+        paidAmount: invoice.paidAmount,
+        balanceAmount: invoice.balanceAmount,
+      })),
     );
 
     void sendOutstandingPaymentNotification({

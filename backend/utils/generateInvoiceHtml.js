@@ -242,7 +242,7 @@ const generateInvoiceHtml = (invoice, totalOutstandingAmount = 0) => {
 
         <div class="company-header">
           <h1 class="company-name">
-            ${invoice.companyName || "Sunrise Agri Products"}
+            ${invoice.companyName || "Adarsh Agri Tech"}
           </h1>
 
           <div class="invoice-subtitle">
@@ -303,7 +303,7 @@ const generateInvoiceHtml = (invoice, totalOutstandingAmount = 0) => {
             <h3>From</h3>
 
             <p>
-              <strong>${invoice.companyName || "Sunrise Agri Products"}</strong>
+              <strong>${invoice.companyName || "Adarsh Agri Tech"}</strong>
             </p>
 
             <p>
@@ -443,11 +443,11 @@ const generateInvoiceHtml = (invoice, totalOutstandingAmount = 0) => {
         <div class="footer">
 
           <p>
-            Thank you for doing business with Sunrise Agri Products
+            Thank you for doing business with Adarsh Agri Tech
           </p>
 
           <p>
-            Sunrise Agri Products <strong>© 2014</strong>
+            Adarsh Agri Tech
           </p>
 
         </div>

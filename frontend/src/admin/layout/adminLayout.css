@@ -250,15 +250,17 @@ body,
 ========================================= */
 
 .admin-content {
-  flex: 1;
+  flex: 1 1 auto;
 
   min-width: 0;
-  width: 100%;
+  width: auto;
 
   padding: 28px;
 
   overflow-y: auto;
   overflow-x: hidden;
+
+  transition: all 0.3s ease;
 }
 
 /* =========================================
@@ -437,6 +439,19 @@ table img {
   gap: 12px;
 }
 
+.admin-desktop-toggle {
+  width: 42px;
+  height: 42px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+
 /* =========================================
    OVERLAY
 ========================================= */
@@ -546,6 +561,40 @@ table img {
   .admin-table,
   .orders-table {
     min-width: 700px;
+  }
+}
+@media (min-width: 769px) {
+  .admin-mobile-toggle {
+    display: none;
+  }
+
+  .admin-sidebar {
+    position: relative;
+    transform: none;
+    width: 260px;
+    min-width: 260px;
+    flex: 0 0 260px;
+    transition: all 0.3s ease;
+  }
+
+  .admin-sidebar:not(.admin-sidebar-open) {
+    width: 0;
+    min-width: 0;
+    flex: 0 0 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .admin-sidebar.admin-sidebar-open {
+    width: 260px;
+    min-width: 260px;
+    flex: 0 0 260px;
+  }
+
+  .admin-content {
+    flex: 1;
+    width: auto;
+    transition: all 0.3s ease;
   }
 }
 

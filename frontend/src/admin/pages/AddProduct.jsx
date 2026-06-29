@@ -15,6 +15,7 @@ const AddProduct = () => {
   const [loading, setLoading] = useState(false);
 
   const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState("");
 
   const [editingId, setEditingId] = useState(null);
 
@@ -29,16 +30,17 @@ const AddProduct = () => {
   const [sizeInputs, setSizeInputs] = useState({});
 
   const availableSizes = [
-    "1L",
-    "500ml",
+    "50gm or ml",
+    "100ml",
+    "125gms",
+    "250gms",
     "250ml",
     "275ml",
-    "495ml",
-    "120gms",
-    "350gms",
     "300gms",
-    "250gms",
-    "125gms",
+    "350gms",
+    "495ml",
+    "500ml",
+    "1L",
   ];
 
   /* =========================
@@ -366,6 +368,14 @@ const AddProduct = () => {
   /* =========================
      UI
   ========================= */
+  const filteredProducts = products.filter((product) => {
+    const keyword = search.toLowerCase();
+
+    return (
+      product.productId?.toLowerCase().includes(keyword) ||
+      product.name?.toLowerCase().includes(keyword)
+    );
+  });
 
   return (
     <div className="page-container">
@@ -502,7 +512,32 @@ const AddProduct = () => {
 
       {/* PRODUCTS LIST */}
 
-      <h3>Products List</h3>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          margin: "20px 0",
+          gap: "15px",
+          flexWrap: "wrap",
+        }}
+      >
+        <h3>Products List</h3>
+
+        <input
+          type="text"
+          placeholder="Search Product ID or Name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            width: "320px",
+            padding: "10px 14px",
+            border: "1px solid #ccc",
+            borderRadius: "8px",
+            outline: "none",
+          }}
+        />
+      </div>
 
       <div className="table-wrapper">
         <table className="products-table">
@@ -523,7 +558,7 @@ const AddProduct = () => {
           </thead>
 
           <tbody>
-            {products.length === 0 ? (
+            {filteredProducts.length === 0 ? (
               <tr>
                 <td
                   colSpan="6"
@@ -535,7 +570,7 @@ const AddProduct = () => {
                 </td>
               </tr>
             ) : (
-              products.map((p) => (
+              filteredProducts.map((p) => (
                 <tr key={p._id}>
                   <td>{p.productId}</td>
 

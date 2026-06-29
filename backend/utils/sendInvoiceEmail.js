@@ -10,9 +10,9 @@ export const sendInvoiceEmail = async (email, fileUrl) => {
   });
 
   await transporter.sendMail({
-    from: "Sunrise Agri Products",
+    from: "Adarsh Agri Tech",
     to: email,
-    subject: "Invoice from Sunrise Agri Products",
+    subject: "Invoice from Adarsh Agri Tech",
     text: "Please find your invoice attached.",
     attachments: [
       {

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/sunrise.png";
+import logo from "../assets/adarsh.jpeg";
 
 const PublicHeader = () => {
   const navigate = useNavigate();

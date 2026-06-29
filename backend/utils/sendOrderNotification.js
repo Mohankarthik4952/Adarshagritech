@@ -188,7 +188,7 @@ export const sendOrderNotification = async ({
     `;
 
     const { data, error } = await resend.emails.send({
-      from: "Sunrise Agri <onboarding@resend.dev>",
+      from: "Adarsh Agri Tech <onboarding@resend.dev>",
       to: process.env.ADMIN_NOTIFICATION_EMAIL,
       subject: `New ${role} Order - ${isDealer ? dealerName : customerName}`,
       html,
@@ -293,7 +293,7 @@ export const sendOutstandingPaymentNotification = async ({
     `;
 
     const { data, error } = await resend.emails.send({
-      from: "Sunrise Agri <onboarding@resend.dev>",
+      from: "Adarsh Agri Tech <onboarding@resend.dev>",
       to: process.env.ADMIN_NOTIFICATION_EMAIL,
       subject: "Dealer Outstanding Payment Received",
       html,
@@ -472,7 +472,7 @@ export const sendDealerReturnRequestNotification = async ({
     `;
 
     const { data, error } = await resend.emails.send({
-      from: "Sunrise Agri <onboarding@resend.dev>",
+      from: "Adarsh Agri Tech <onboarding@resend.dev>",
       to: process.env.ADMIN_NOTIFICATION_EMAIL,
       subject: `Dealer Return Request - ${dealer.shopName || dealer.dealerName}`,
       html,

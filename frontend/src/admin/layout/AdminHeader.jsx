@@ -52,9 +52,18 @@ const AdminHeader = ({ sidebarOpen, setSidebarOpen }) => {
         className="admin-header-left"
         onClick={() => navigate("/admin/home")}
       >
+        <button
+          className="admin-desktop-toggle"
+          onClick={(e) => {
+            e.stopPropagation();
+            setSidebarOpen(!sidebarOpen);
+          }}
+        >
+          {sidebarOpen ? <FaTimes /> : <FaBars />}
+        </button>
         <img src={logo} alt="Sunrise Agri Products" />
 
-        <h2>Sunrise Agri Products</h2>
+        <h2>Adarsh Agri Tech</h2>
       </div>
 
       {/* RIGHT SIDE */}

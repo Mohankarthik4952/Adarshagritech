@@ -392,7 +392,7 @@ export const adminLogin = async (req, res) => {
     ========================= */
     const adminPayload = {
       _id: admin._id,
-      name: admin.name || "GVR",
+      name: admin.name || "Adarsh",
       email: admin.email,
       role: "admin",
     };
@@ -476,7 +476,7 @@ export const adminForgotPassword = async (req, res) => {
     try {
       await sendEmail(
         email,
-        "Sunrise Agri Products - Admin Password Reset OTP",
+        "Adarsh Agri Tech - Admin Password Reset OTP",
         `Your OTP for admin password reset is: ${otp}\n\nThis OTP is valid for 10 minutes.`,
       );
     } catch (emailError) {

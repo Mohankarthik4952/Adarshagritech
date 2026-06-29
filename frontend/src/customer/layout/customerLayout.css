@@ -62,6 +62,35 @@ body {
 
   min-width: 0;
 }
+/* =========================================
+   DESKTOP SIDEBAR TOGGLE
+========================================= */
+
+.customer-desktop-toggle {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 12px;
+
+  background: transparent;
+
+  color: #081c3a;
+
+  font-size: 22px;
+
+  cursor: pointer;
+
+  transition: 0.25s;
+}
+
+.customer-desktop-toggle:hover {
+  background: #eef2f7;
+}
 
 .header-right {
   position: relative;
@@ -146,9 +175,9 @@ body {
 /* =========================================
    SIDEBAR
 ========================================= */
-
 .sidebar {
-  flex: 1;
+  width: 280px;
+  min-width: 280px;
 
   background: linear-gradient(180deg, #021024 0%, #172b4d 100%);
 
@@ -158,6 +187,21 @@ body {
   flex-direction: column;
 
   padding: 28px 14px;
+
+  transition:
+    width 0.3s ease,
+    min-width 0.3s ease,
+    padding 0.3s ease;
+}
+
+.sidebar-close {
+  width: 0;
+  min-width: 0;
+
+  overflow: hidden;
+
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .logo {
@@ -308,6 +352,12 @@ body {
   flex-direction: column;
 
   min-width: 0;
+
+  transition: 0.3s;
+}
+
+.layout-main-full {
+  width: 100%;
 }
 
 /* =========================================
@@ -355,7 +405,7 @@ body {
 ========================================= */
 
 .menu-btn {
-  display: none;
+  display: none !important;
 
   background: transparent;
 
@@ -391,8 +441,12 @@ body {
     z-index: 1300;
   }
 
-  .sidebar-container.open {
+  .sidebar-open {
     transform: translateX(0);
+  }
+
+  .sidebar-close {
+    transform: translateX(-100%);
   }
 
   .menu-btn {
@@ -466,5 +520,32 @@ body {
   .profile-pic {
     width: 42px;
     height: 42px;
+  }
+}
+
+@media (min-width: 993px) {
+  .sidebar {
+    position: relative;
+    transform: none !important;
+  }
+
+  .sidebar-close {
+    transform: none !important;
+
+    width: 0;
+    min-width: 0;
+
+    padding-left: 0;
+    padding-right: 0;
+
+    overflow: hidden;
+  }
+
+  .layout-main-full {
+    width: 100%;
+  }
+
+  .close-btn {
+    display: none;
   }
 }

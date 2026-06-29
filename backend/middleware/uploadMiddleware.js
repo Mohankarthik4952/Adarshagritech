@@ -66,7 +66,7 @@ const productStorage = new CloudinaryStorage({
   cloudinary,
 
   params: async () => ({
-    folder: "sunrise/products",
+    folder: "adarsh/products",
 
     resource_type: "image",
 
@@ -80,7 +80,7 @@ const profileStorage = new CloudinaryStorage({
   cloudinary,
 
   params: async () => ({
-    folder: "sunrise/profiles",
+    folder: "adarsh/profiles",
 
     resource_type: "image",
 
@@ -94,7 +94,7 @@ const documentStorage = new CloudinaryStorage({
   cloudinary,
 
   params: async () => ({
-    folder: "sunrise/documents",
+    folder: "adarsh/documents",
 
     resource_type: "image",
 
@@ -108,7 +108,7 @@ const paymentStorage = new CloudinaryStorage({
   cloudinary,
 
   params: async () => ({
-    folder: "sunrise/payments",
+    folder: "adarsh/payments",
 
     resource_type: "image",
 

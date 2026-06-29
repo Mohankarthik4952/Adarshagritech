@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaBars } from "react-icons/fa";
+import { FaBars, FaTimes } from "react-icons/fa";
 
 import logo from "../../assets/sunrise.png";
 import defaultProfile from "../../assets/profile.jpg";
 
 import "./customerLayout.css";
 
-const CustomerHeader = ({ setSidebarOpen }) => {
+const CustomerHeader = ({ sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
   const dropdownRef = useRef();
 
@@ -18,12 +18,14 @@ const CustomerHeader = ({ setSidebarOpen }) => {
   /* =========================
      LOAD CUSTOMER
   ========================= */
+
   useEffect(() => {
     try {
       const stored = localStorage.getItem("customerAuth");
 
       if (stored && stored !== "undefined") {
         const parsed = JSON.parse(stored);
+
         setCustomer(parsed);
 
         if (parsed?.profileImage) {
@@ -38,6 +40,7 @@ const CustomerHeader = ({ setSidebarOpen }) => {
   /* =========================
      CLOSE DROPDOWN
   ========================= */
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -53,6 +56,7 @@ const CustomerHeader = ({ setSidebarOpen }) => {
   /* =========================
      GREETING
   ========================= */
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     const name = customer?.name || "";
@@ -65,16 +69,19 @@ const CustomerHeader = ({ setSidebarOpen }) => {
   /* =========================
      LOGOUT
   ========================= */
+
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("customerAuth");
     localStorage.removeItem("customerToken");
+
     navigate("/customer/login");
   };
 
   /* =========================
      PROFILE UPLOAD
   ========================= */
+
   const handleProfileUpload = async (e) => {
     const file = e.target.files[0];
 
@@ -92,6 +99,7 @@ const CustomerHeader = ({ setSidebarOpen }) => {
 
     try {
       const formData = new FormData();
+
       formData.append("profile", file);
 
       const res = await fetch("/api/profile/upload", {
@@ -130,13 +138,19 @@ const CustomerHeader = ({ setSidebarOpen }) => {
   return (
     <header className="header">
       {/* LEFT */}
+
       <div className="header-left">
-        {/* MOBILE MENU BUTTON */}
-        <button className="menu-btn" onClick={() => setSidebarOpen(true)}>
-          <FaBars />
+        {/* SIDEBAR TOGGLE */}
+
+        <button
+          className="customer-desktop-toggle"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          {sidebarOpen ? <FaTimes /> : <FaBars />}
         </button>
 
         {/* LOGO + GREETING */}
+
         <div
           className="header-brand"
           onClick={() => navigate("/customer/home")}
@@ -148,13 +162,16 @@ const CustomerHeader = ({ setSidebarOpen }) => {
       </div>
 
       {/* RIGHT */}
+
       <div className="header-right" ref={dropdownRef}>
         <img
           src={profileImage}
           alt="profile"
           className="profile-pic"
           onClick={() => setOpen(!open)}
-          onError={(e) => (e.target.src = defaultProfile)}
+          onError={(e) => {
+            e.target.src = defaultProfile;
+          }}
         />
 
         {open && (
