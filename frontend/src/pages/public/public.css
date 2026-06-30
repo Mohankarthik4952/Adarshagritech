@@ -43,6 +43,33 @@
   --glass-blur: blur(16px);
 }
 
+/* Reset default browser styles and define dark backgrounds */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #090f13;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Custom premium dark scrollbar (removes Windows default white scrollbar track) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #090f13;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.4);
+}
+
 /* Global Reset for Public Pages */
 .home-page,
 .role-page {
@@ -381,11 +408,11 @@
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 2rem 2.5rem;
+  padding: 0.5rem 1.5rem; /* Minimized vertical padding */
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.25rem;
+  gap: 0.35rem; /* Minimized vertical gaps */
   margin-top: auto;
   z-index: 10;
 }
@@ -393,15 +420,15 @@
 .social-links {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .social-links a {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 32px; /* Smaller social icon buttons */
+  height: 32px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -409,7 +436,7 @@
 }
 
 .social-links a .icon {
-  font-size: 1.25rem;
+  font-size: 1rem;
 }
 
 .social-links a .icon.whatsapp {
@@ -423,7 +450,7 @@
 }
 
 .social-links a:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   background: var(--bg-card-hover);
   border-color: var(--border-color-hover);
   box-shadow: var(--shadow-md);
@@ -440,7 +467,7 @@
 }
 
 .home-footer .copyright {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: var(--text-dim);
   margin: 0;
   text-transform: uppercase;
@@ -730,4 +757,70 @@
   .role-card {
     padding: 2rem 1.5rem;
   }
+}
+
+/* Field Manager Info Styling */
+.field-manager-info {
+  background: rgba(16, 185, 129, 0.04);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: 1rem;
+  padding: 1.25rem 2rem;
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 320px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.field-manager-info h3 {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.field-manager-info p {
+  font-size: 1.15rem;
+  color: var(--text-main) !important;
+  margin: 0 !important;
+}
+
+.field-manager-info a {
+  color: var(--success);
+  text-decoration: none;
+  font-weight: 700;
+  transition: var(--transition-smooth);
+}
+
+.field-manager-info a:hover {
+  color: var(--secondary-accent);
+  text-decoration: underline;
+}
+
+/* Designer Credits Styling */
+.designer-credits {
+  font-size: 0.75rem;
+  color: #526071; /* dimmer slate-500 */
+  margin: 0;
+  font-weight: 300;
+}
+
+.designer-name {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.designer-credits a {
+  color: #06b6d4;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.designer-credits a:hover {
+  color: #34d399;
+  text-decoration: underline;
 }

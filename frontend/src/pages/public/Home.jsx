@@ -88,6 +88,22 @@ const HomePage = () => {
             growth and farmer success.
           </p>
 
+          {/* FIELD MANAGER INFO */}
+          <div className="field-manager-info">
+            <h3>Field Manager</h3>
+
+            <p>
+              <strong>Venkata Reddy</strong>
+            </p>
+
+            <p>
+              Contact:{" "}
+              <a href="tel:9603160609">
+                <strong>9603160609</strong>
+              </a>
+            </p>
+          </div>
+
           <button
             className="hero-btn"
             onClick={() =>
