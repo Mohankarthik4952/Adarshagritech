@@ -289,29 +289,18 @@ export default function DealerInvoices() {
 
                   <p>
                     <strong>GST :</strong>{" "}
-                    {selectedInvoice.companyGSTNumber || "37ARLPG5201F1Z3"}
+                    {selectedInvoice.companyGSTNumber || "36APWPB3579E2ZJ"}
                   </p>
 
                   <p>
                     <strong>Phone :</strong>{" "}
-                    {selectedInvoice.companyPhoneNumber || "8341198888"}
+                    {selectedInvoice.companyPhoneNumber || "9848871389"}
                   </p>
 
                   <p>
                     <strong>Address :</strong>{" "}
                     {selectedInvoice.companyAddress ||
-                      "Door No. 15-146, Gayathri Towers, Ground Floor, Shop No. 5, Side of Sub-Register office road, Nandigama, Krishna Dist, A.P. 522185"}
-                  </p>
-
-                  <h4>Bank Details</h4>
-
-                  <p>
-                    <strong>Account Number : </strong>
-                    {"52950400000060"}
-                  </p>
-                  <p>
-                    <strong>IFSC : </strong>
-                    {"BARB0NANDIG	"}
+                      "H.No. 05-011/932/NR RAMIREDDY NAGAR JEEDIMETLA, HYDERABAD, TELANGANA - 500055"}
                   </p>
                 </div>
 

@@ -307,7 +307,7 @@ const generateInvoiceHtml = (invoice, totalOutstandingAmount = 0) => {
             </p>
 
             <p>
-              GST : ${invoice.companyGSTNumber || "37ARLPG5201F1Z3"}
+              GST : ${invoice.companyGSTNumber || "F1Z3"}
             </p>
 
             <p>
