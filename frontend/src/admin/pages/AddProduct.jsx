@@ -30,17 +30,17 @@ const AddProduct = () => {
   const [sizeInputs, setSizeInputs] = useState({});
 
   const availableSizes = [
-    "50gm or ml",
+    "100gm",
+    "250gm",
+    "400gm",
+    "500gm",
+    "700gm",
+    "1kg",
+    "5kg",
     "100ml",
-    "125gms",
-    "250gms",
     "250ml",
-    "275ml",
-    "300gms",
-    "350gms",
-    "495ml",
     "500ml",
-    "1L",
+    "1ltr",
   ];
 
   /* =========================
