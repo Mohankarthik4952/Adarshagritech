@@ -170,6 +170,10 @@ const HomePage = () => {
         </div>
 
         <p className="copyright">Adarsh Agri Tech</p>
+        
+        <p className="designer-credits">
+          Designed by <span className="designer-name">G. Mohan Karthik</span> | <a href="tel:+918499082784">+91 8499082784</a>
+        </p>
       </footer>
     </div>
   );
